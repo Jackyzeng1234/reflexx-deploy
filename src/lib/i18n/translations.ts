@@ -367,6 +367,31 @@ export const translations = {
     authChecking: 'Checking...',
     authEmailAvailable: 'Email is available',
     authUsernameAvailable: 'Username is available',
+
+    // Forgot Password
+    authForgotPassword: 'Forgot Password?',
+    authForgotPasswordTitle: 'Reset Your Password',
+    authForgotPasswordSubtitle: 'Enter your email address and we\'ll send you a link to reset your password.',
+    authEmail: 'Email',
+    authEmailPlaceholder: 'Enter your email',
+    authSendResetLink: 'Send Reset Link',
+    authBackToLogin: 'Back to Login',
+    authResetLinkSent: 'Reset Link Sent',
+    authResetLinkSentDesc: 'We\'ve sent a password reset link to your email. Please check your inbox.',
+    authResetLinkSentError: 'Failed to send reset link. Please try again.',
+
+    // Reset Password
+    authResetPasswordTitle: 'Set New Password',
+    authResetPasswordSubtitle: 'Enter your new password below.',
+    authNewPassword: 'New Password',
+    authNewPasswordPlaceholder: 'Enter your new password',
+    authConfirmNewPassword: 'Confirm New Password',
+    authConfirmNewPasswordPlaceholder: 'Confirm your new password',
+    authUpdatePassword: 'Update Password',
+    authPasswordUpdated: 'Password Updated Successfully',
+    authPasswordUpdatedDesc: 'Your password has been updated. You can now login with your new password.',
+    authPasswordUpdateError: 'Failed to update password. Please try again.',
+    authInvalidResetLink: 'Invalid or expired reset link. Please request a new one.',
   },
   zh: {
     // Navigation
@@ -736,6 +761,31 @@ export const translations = {
     authChecking: '检查中...',
     authEmailAvailable: '邮箱可用',
     authUsernameAvailable: '用户名可用',
+
+    // Forgot Password
+    authForgotPassword: '忘记密码？',
+    authForgotPasswordTitle: '重置密码',
+    authForgotPasswordSubtitle: '输入您的邮箱地址，我们将向您发送重置密码的链接。',
+    authEmail: '邮箱',
+    authEmailPlaceholder: '请输入邮箱',
+    authSendResetLink: '发送重置链接',
+    authBackToLogin: '返回登录',
+    authResetLinkSent: '重置链接已发送',
+    authResetLinkSentDesc: '我们已向您的邮箱发送了密码重置链接。请查收。',
+    authResetLinkSentError: '发送重置链接失败。请重试。',
+
+    // Reset Password
+    authResetPasswordTitle: '设置新密码',
+    authResetPasswordSubtitle: '请输入您的新密码。',
+    authNewPassword: '新密码',
+    authNewPasswordPlaceholder: '请输入新密码',
+    authConfirmNewPassword: '确认新密码',
+    authConfirmNewPasswordPlaceholder: '请再次输入新密码',
+    authUpdatePassword: '更新密码',
+    authPasswordUpdated: '密码更新成功',
+    authPasswordUpdatedDesc: '您的密码已更新。现在可以使用新密码登录。',
+    authPasswordUpdateError: '更新密码失败。请重试。',
+    authInvalidResetLink: '重置链接无效或已过期。请重新请求。',
   },
   es: {
     // Navigation
@@ -1105,6 +1155,31 @@ export const translations = {
     authChecking: 'Verificando...',
     authEmailAvailable: 'Correo electrónico disponible',
     authUsernameAvailable: 'Nombre de usuario disponible',
+
+    // Forgot Password
+    authForgotPassword: '¿Olvidaste tu contraseña?',
+    authForgotPasswordTitle: 'Restablecer Tu Contraseña',
+    authForgotPasswordSubtitle: 'Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.',
+    authEmail: 'Correo Electrónico',
+    authEmailPlaceholder: 'Ingresa tu correo electrónico',
+    authSendResetLink: 'Enviar Enlace de Restablecimiento',
+    authBackToLogin: 'Volver al Inicio de Sesión',
+    authResetLinkSent: 'Enlace Enviado',
+    authResetLinkSentDesc: 'Hemos enviado un enlace de restablecimiento de contraseña a tu correo electrónico. Por favor revisa tu bandeja de entrada.',
+    authResetLinkSentError: 'Error al enviar el enlace de restablecimiento. Por favor intenta de nuevo.',
+
+    // Reset Password
+    authResetPasswordTitle: 'Establecer Nueva Contraseña',
+    authResetPasswordSubtitle: 'Ingresa tu nueva contraseña a continuación.',
+    authNewPassword: 'Nueva Contraseña',
+    authNewPasswordPlaceholder: 'Ingresa tu nueva contraseña',
+    authConfirmNewPassword: 'Confirmar Nueva Contraseña',
+    authConfirmNewPasswordPlaceholder: 'Confirma tu nueva contraseña',
+    authUpdatePassword: 'Actualizar Contraseña',
+    authPasswordUpdated: 'Contraseña Actualizada Exitosamente',
+    authPasswordUpdatedDesc: 'Tu contraseña ha sido actualizada. Ahora puedes iniciar sesión con tu nueva contraseña.',
+    authPasswordUpdateError: 'Error al actualizar la contraseña. Por favor intenta de nuevo.',
+    authInvalidResetLink: 'Enlace de restablecimiento inválido o expirado. Por favor solicita uno nuevo.',
   },
 };
 

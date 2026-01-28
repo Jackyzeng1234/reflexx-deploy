@@ -277,6 +277,18 @@ export default function AuthPage() {
                 />
               </div>
 
+              {/* Forgot Password Link - Only show in login mode */}
+              {isLogin && (
+                <div className="text-right">
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                  >
+                    {t.authForgotPassword}
+                  </Link>
+                </div>
+              )}
+
               {!isLogin && (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
