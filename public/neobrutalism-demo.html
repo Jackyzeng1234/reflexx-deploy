@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Test - Neo-Brutalism</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            /* Neo-Brutalism配色 */
+            --bg: #fff9f0;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --border: #000000;
+            --shadow: #000000;
+
+            /* 高饱和度颜色 */
+            --blue: #4a90e2;
+            --purple: #9b59b6;
+            --pink: #ff6b9d;
+            --orange: #ffa502;
+            --green: #2ecc71;
+            --red: #e74c3c;
+            --teal: #1abc9c;
+            --yellow: #f1c40f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            /* 点状图案背景 */
+            background-image: radial-gradient(circle, #000 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 标题样式 */
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            line-height: 0.9;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.25rem;
+            color: var(--text);
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+
+        /* 测试网格 */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        /* Neo-Brutalism卡片 */
+        .brutal-card {
+            background: var(--card-bg);
+            border: 4px solid var(--border);
+            border-radius: 0;
+            padding: 32px 24px;
+            position: relative;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 8px 8px 0px var(--shadow);
+        }
+
+        .brutal-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px var(--shadow);
+        }
+
+        .brutal-card:active {
+            transform: translate(0, 0);
+            box-shadow: 4px 4px 0px var(--shadow);
+        }
+
+        /* 不同颜色的卡片 */
+        .brutal-card.blue { border-color: var(--blue); }
+        .brutal-card.blue:hover { box-shadow: 12px 12px 0px var(--blue); }
+
+        .brutal-card.purple { border-color: var(--purple); }
+        .brutal-card.purple:hover { box-shadow: 12px 12px 0px var(--purple); }
+
+        .brutal-card.pink { border-color: var(--pink); }
+        .brutal-card.pink:hover { box-shadow: 12px 12px 0px var(--pink); }
+
+        .brutal-card.orange { border-color: var(--orange); }
+        .brutal-card.orange:hover { box-shadow: 12px 12px 0px var(--orange); }
+
+        .brutal-card.green { border-color: var(--green); }
+        .brutal-card.green:hover { box-shadow: 12px 12px 0px var(--green); }
+
+        .brutal-card.red { border-color: var(--red); }
+        .brutal-card.red:hover { box-shadow: 12px 12px 0px var(--red); }
+
+        .brutal-card.teal { border-color: var(--teal); }
+        .brutal-card.teal:hover { box-shadow: 12px 12px 0px var(--teal); }
+
+        .brutal-card.yellow { border-color: var(--yellow); }
+        .brutal-card.yellow:hover { box-shadow: 12px 12px 0px var(--yellow); }
+
+        /* 图标容器 */
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: 4px solid var(--border);
+            font-size: 40px;
+            transition: transform 0.2s ease;
+        }
+
+        .brutal-card:hover .icon-box {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* 难度标签 */
+        .difficulty-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--text);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: auto;
+            align-self: center;
+            border: 3px solid var(--border);
+        }
+
+        .difficulty-badge.easy { background: var(--green); }
+        .difficulty-badge.medium { background: var(--orange); }
+        .difficulty-badge.hard { background: var(--red); }
+
+        /* CTA按钮 */
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 48px;
+            background: var(--blue);
+            color: white;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 4px solid var(--border);
+            box-shadow: 8px 8px 0px var(--shadow);
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px var(--shadow);
+        }
+
+        .cta-button:active {
+            transform: translate(0, 0);
+            box-shadow: 4px 4px 0px var(--shadow);
+        }
+
+        /* 功能区域 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 80px;
+        }
+
+        .feature-box {
+            background: var(--card-bg);
+            border: 4px solid var(--border);
+            padding: 32px;
+            box-shadow: 6px 6px 0px var(--shadow);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 分隔线 */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 60px 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+        }
+
+        .divider-text {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 4px solid var(--border);
+            font-weight: 500;
+        }
+
+        /* 装饰元素 */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 40px 0;
+            border-top: 4px solid var(--border);
+            border-bottom: 4px solid var(--border);
+            padding: 12px 0;
+            background: var(--blue);
+            color: white;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题区域 -->
+        <h1>Test Your Brain</h1>
+        <p class="subtitle">Measure your cognitive abilities with precision</p>
+
+        <!-- 测试网格 -->
+        <div class="test-grid">
+            <!-- Simple Reaction -->
+            <a href="#" class="brutal-card blue">
+                <div class="icon-box">⚡</div>
+                <h2 class="card-title">Simple Reaction</h2>
+                <p class="card-description">Click when the screen changes color. Test your basic reflex speed.</p>
+                <span class="difficulty-badge easy">Easy</span>
+            </a>
+
+            <!-- Auditory Reaction -->
+            <a href="#" class="brutal-card purple">
+                <div class="icon-box">🔊</div>
+                <h2 class="card-title">Auditory</h2>
+                <p class="card-description">React to sound cues as fast as possible. Measure your audio reflexes.</p>
+                <span class="difficulty-badge easy">Easy</span>
+            </a>
+
+            <!-- Click Speed -->
+            <a href="#" class="brutal-card pink">
+                <div class="icon-box">🖱️</div>
+                <h2 class="card-title">Click Speed</h2>
+                <p class="card-description">Click as many times as you can in 5 seconds. Test your finger speed.</p>
+                <span class="difficulty-badge easy">Easy</span>
+            </a>
+
+            <!-- Typing -->
+            <a href="#" class="brutal-card orange">
+                <div class="icon-box">⌨️</div>
+                <h2 class="card-title">Typing Test</h2>
+                <p class="card-description">Type the displayed text accurately and quickly. Measure your WPM.</p>
+                <span class="difficulty-badge medium">Medium</span>
+            </a>
+
+            <!-- Choice Reaction -->
+            <a href="#" class="brutal-card green">
+                <div class="icon-box">🎮</div>
+                <h2 class="card-title">Choice Reaction</h2>
+                <p class="card-description">Click the matching color as fast as possible. Test your decision speed.</p>
+                <span class="difficulty-badge medium">Medium</span>
+            </a>
+
+            <!-- Sequence Memory -->
+            <a href="#" class="brutal-card red">
+                <div class="icon-box">🧠</div>
+                <h2 class="card-title">Sequence Memory</h2>
+                <p class="card-description">Remember the pattern of tiles. Test your working memory capacity.</p>
+                <span class="difficulty-badge medium">Medium</span>
+            </a>
+
+            <!-- Chimp Test -->
+            <a href="#" class="brutal-card teal">
+                <div class="icon-box">🐵</div>
+                <h2 class="card-title">Chimp Test</h2>
+                <p class="card-description">Click numbers in ascending order before they disappear. Spatial memory test.</p>
+                <span class="difficulty-badge hard">Hard</span>
+            </a>
+
+            <!-- Stroop Test -->
+            <a href="#" class="brutal-card yellow">
+                <div class="icon-box">🎨</div>
+                <h2 class="card-title">Stroop Test</h2>
+                <p class="card-description">Name the color of the text, not what it says. Cognitive processing speed.</p>
+                <span class="difficulty-badge hard">Hard</span>
+            </a>
+
+            <!-- Number Memory -->
+            <a href="#" class="brutal-card blue">
+                <div class="icon-box">🔢</div>
+                <h2 class="card-title">Number Memory</h2>
+                <p class="card-description">Memorize and recall numbers. The digits increase each round. How far can you go?</p>
+                <span class="difficulty-badge hard">Hard</span>
+            </a>
+        </div>
+
+        <!-- 滚动文字 -->
+        <div class="marquee">
+            <div class="marquee-content">
+                REACTION TIME • MEMORY TEST • COGNITIVE TRAINING • BRAIN GAMES • REACTION TIME • MEMORY TEST • COGNITIVE TRAINING • BRAIN GAMES •
+                REACTION TIME • MEMORY TEST • COGNITIVE TRAINING • BRAIN GAMES • REACTION TIME • MEMORY TEST • COGNITIVE TRAINING • BRAIN GAMES •
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <a href="#" class="cta-button">Start Testing →</a>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">Why Choose Us</div>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- 功能特性 -->
+        <div class="features">
+            <div class="feature-box">
+                <h3 class="feature-title">
+                    <span class="feature-icon">🎯</span>
+                    Millisecond Accuracy
+                </h3>
+                <p class="feature-description">
+                    High-precision timing API ensures every test measures your performance with professional-grade accuracy.
+                    Trust your results.
+                </p>
+            </div>
+
+            <div class="feature-box">
+                <h3 class="feature-title">
+                    <span class="feature-icon">📊</span>
+                    Progress Tracking
+                </h3>
+                <p class="feature-description">
+                    Save your test history and visualize your improvement over time. See your cognitive growth
+                    with detailed analytics and charts.
+                </p>
+            </div>
+
+            <div class="feature-box">
+                <h3 class="feature-title">
+                    <span class="feature-icon">🏆</span>
+                    Global Leaderboards
+                </h3>
+                <p class="feature-description">
+                    Compare your scores with users worldwide. Climb the rankings and see how you stack up
+                    against the best.
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with precision • Designed for humans • © 2025 Reaction Time Test</p>
+        </footer>
+    </div>
+</body>
+</html>

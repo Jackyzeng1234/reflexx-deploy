@@ -5,6 +5,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { I18nProvider } from '@/lib/i18n';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
+import StructuredData from '@/components/StructuredData';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -44,8 +45,34 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // 网站级别的结构化数据
+  const websiteStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Reaction Time Test",
+    "alternateName": "ReactionTest",
+    "url": "https://yourdomain.com",
+    "description": "Free online reaction time tests and cognitive assessments. Measure your reflexes, clicking speed, memory, and more with professional-grade tools.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://yourdomain.com/tests?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ReactionTest",
+      "url": "https://yourdomain.com"
+    }
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <StructuredData data={websiteStructuredData} />
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           <I18nProvider>

@@ -7,75 +7,94 @@ import { submitScore } from '@/lib/scores';
 type TestState = 'idle' | 'typing' | 'finished';
 
 const sampleTexts = [
-  // 技术开发类 (2-3行)
-  "JavaScript is the programming language of the web. It allows developers to create interactive and dynamic websites that respond to user actions. Modern web applications rely heavily on JavaScript for seamless user experiences.",
-  "Python has become one of the most popular programming languages in recent years. Its simplicity and readability make it perfect for beginners. From data science to machine learning, Python is used everywhere.",
-  "React is a powerful JavaScript library for building user interfaces. Developed by Facebook, it allows developers to create reusable components. This approach makes large applications easier to maintain and scale.",
-  "Databases are essential for storing and organizing information efficiently. They allow applications to quickly retrieve and update data. Understanding database design is crucial for building robust applications.",
-  "Cloud computing has revolutionized how businesses operate today. Companies can now access computing resources on-demand without heavy upfront investment. This flexibility enables faster innovation and reduced costs.",
+  // === 文学作品风格 (更多变化) ===
+  "The morning sun filtered through the curtains, casting long shadows across the room. She sat by the window, watching the world wake up slowly. The coffee in her mug had gone cold, but she didn't mind. Some moments were meant to be savored, not rushed through.",
+  "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness. The opening lines seemed to echo in her mind as she walked through the bustling streets. Everyone was in such a hurry, rushing from one place to another, never stopping to simply be.",
+  "The old house stood silent at the end of the lane, its windows like vacant eyes staring out at the world. Children dared each other to approach the front gate, but none ever did. Local legends spoke of treasures hidden within, but no one had been brave enough to find out.",
+  "He had always dreamed of sailing across the ocean, leaving everything behind for the open sea. The reality was different from his fantasies—storms that lasted for days, the endless horizon, the crushing isolation. Yet somehow, it was exactly what he needed.",
+  "The city never really slept. Even at three in the morning, there was movement somewhere—taxis, stray cats, night shift workers making their way home under yellow streetlights. She found comfort in this constant activity, this reminder that life continued regardless of her troubles.",
 
-  // 编程实践类 (2-3行)
-  "Version control systems like Git help developers track changes in code over time. They enable collaboration among team members working on the same project. Learning Git is essential for modern software development workflows.",
-  "Debugging is an integral part of the programming process. It involves identifying and fixing errors that prevent code from working correctly. Good debugging skills can save hours of frustration during development.",
-  "Clean code is easy to read, understand, and maintain. Writing clean code requires practice and attention to detail. It makes collaboration with other developers much more effective and enjoyable.",
-  "Testing ensures that software works as intended and catches bugs early. Unit tests check individual components, while integration tests verify they work together. Automated testing is a hallmark of professional development.",
-  "Documentation is often overlooked but is crucial for long-term project success. Good documentation helps new developers understand code quickly. It also serves as a reference for future maintenance and updates.",
+  // === 新闻报道风格 ===
+  "Local authorities announced new traffic regulations downtown starting next month. The changes aim to reduce congestion during peak hours and improve pedestrian safety. Business owners have expressed mixed reactions, with some concerned about potential customer impact.",
+  "Weather forecasters predict heavy rainfall throughout the region over the weekend. Residents in low-lying areas are advised to take necessary precautions. Emergency services have been placed on standby as meteorologists monitor the developing situation.",
+  "The tech giant revealed its latest flagship smartphone yesterday, featuring advanced AI capabilities and improved battery life. Pre-orders open next week, with industry analysts expecting record-breaking sales despite the premium price point.",
+  "Scientists at the university have made a breakthrough in renewable energy storage. Their new battery technology could revolutionize how we store solar and wind power. The team hopes to make the technology commercially viable within five years.",
+  "The local team secured a dramatic victory in last night's championship game. Fans went wild as the final buzzer sounded, celebrating the win that many thought impossible. The coach praised the players' determination and teamwork in post-game interviews.",
 
-  // 人工智能类 (2-3行)
-  "Artificial intelligence is transforming the way we live and work. Machine learning algorithms can now recognize patterns in vast amounts of data. From virtual assistants to self-driving cars, AI is everywhere.",
-  "Deep learning has enabled breakthroughs in image and speech recognition. Neural networks mimic the human brain to learn from examples. These advances are powering everything from medical diagnosis to language translation.",
-  "Natural language processing allows computers to understand human language. Chatbots and virtual assistants use NLP to communicate with users. The technology continues to improve with more sophisticated models.",
-  "Computer vision enables machines to interpret and understand visual information. Applications range from facial recognition to autonomous vehicles. Recent advances have achieved human-level performance on many tasks.",
-  "Robotics combines AI, engineering, and physical computing principles. Modern robots can perform complex tasks in unpredictable environments. They are revolutionizing manufacturing, healthcare, and exploration.",
+  // === 日常对话/邮件风格 (更自然) ===
+  "Hey! Just wanted to check in and see how you're doing. It's been way too long since we caught up properly. I was thinking we could grab coffee sometime this week if you're free? Let me know what works for you!",
+  "Thanks for sending over those documents yesterday. I've reviewed them and have a few questions we should discuss. Can you jump on a quick call later today? Around 3pm would be perfect, but let me know if that doesn't work for your schedule.",
+  "So I was at this restaurant last night, and you won't believe what happened. The waiter accidentally spills soup all over this guy's suit, and instead of getting mad, the guy starts laughing! Apparently it was an old suit he hated anyway.",
+  "Sorry I missed your call earlier—I was stuck in back-to-back meetings all afternoon. Everything okay? I should be free after 7 tonight if you want to chat. Otherwise, just shoot me a text and we can figure something out.",
+  "Can't make it to the meeting tomorrow, something came up with the family. Is there any chance we could reschedule for Thursday? Really sorry about the short notice—I know how important this discussion is.",
 
-  // 健康生活类 (2-3行)
-  "Daily exercise is essential for maintaining both physical and mental health. Regular physical activity can reduce the risk of chronic diseases significantly. Even thirty minutes of moderate exercise daily can make a big difference.",
-  "Sleep plays a crucial role in overall health and productivity. Quality sleep allows the body to repair itself and the brain to consolidate memories. Poor sleep habits are linked to numerous health problems and decreased performance.",
-  "Mindfulness meditation has gained popularity as a stress reduction technique. Regular practice can improve focus and emotional regulation significantly. Many people report feeling calmer and more centered after just a few weeks.",
-  "Nutrition affects every aspect of our physical and mental performance. A balanced diet provides essential nutrients for optimal body function. Making informed food choices is one of the best investments in long-term health.",
-  "Hydration is often overlooked but is vital for proper bodily functions. Water helps regulate temperature, transport nutrients, and remove waste. Drinking enough water throughout the day improves energy and cognitive function.",
+  // === 技术博客风格 (保留但更自然) ===
+  "JavaScript frameworks keep evolving, and it's hard to keep up sometimes. Just when you think you've mastered React, along comes something new. But that's also what makes web development exciting—there's always something fresh to learn and explore.",
+  "I've been using Python for about three years now, and honestly, it still surprises me. The other day I discovered a library that solved a problem I'd been struggling with for weeks. That's the thing about programming—there's always a better way if you look hard enough.",
+  "Debugging is basically just being a detective, except the crime scene is your code and the culprit is usually something stupid you did hours ago. The trick is learning to laugh about it instead of crying. Eventually, you'll even start to enjoy the process.",
+  "The thing about cloud computing that nobody really talks about is how it changes how you think about infrastructure. Suddenly you're not limited by physical hardware—you can spin up servers like they're nothing. It's powerful, but also kind of terrifying when you see the bill.",
+  "Version control with Git seems overwhelming at first, but once it clicks, you wonder how you ever lived without it. Being able to experiment freely and just roll back if something breaks? That's freedom. The learning curve is worth it.",
 
-  // 学习成长类 (2-3行)
-  "Continuous learning is essential in today's rapidly changing world. New technologies and discoveries are constantly emerging. Those who embrace lifelong learning stay relevant and adaptable throughout their careers.",
-  "Reading regularly is one of the best habits for personal growth. Books expose us to new ideas and perspectives we might never encounter otherwise. Making time for reading can expand knowledge and stimulate creativity.",
-  "Goal setting provides direction and motivation in life. Clear, specific goals help focus efforts and measure progress effectively. Breaking big goals into smaller steps makes them more achievable and less overwhelming.",
-  "Time management skills are crucial for productivity and work-life balance. Effective time management reduces stress and increases efficiency. Learning to prioritize tasks helps achieve more in less time.",
-  "Failure is often a better teacher than success. Each setback provides valuable lessons that can guide future improvements. Embracing failure as part of the learning process leads to greater resilience and growth.",
+  // === 故事叙述风格 ===
+  "The email sat in her inbox for three days before she finally opened it. Part of her already knew what it would say—some things you just feel in your gut. Still, seeing the words on screen hit her harder than expected. Life has a way of surprising us when we least expect it.",
+  "They met by pure chance at a bookstore, both reaching for the same novel. Neither would admit they'd chosen it because the cover looked interesting, not because they'd actually heard of the author. Sometimes the best stories start with the smallest coincidences.",
+  "The recipe had been passed down through three generations, and she still managed to mess it up. Her grandmother would have shaken her head in that particular way she had—half disappointed, half amused. Cooking, like life, requires patience and the willingness to learn from mistakes.",
+  "He'd promised himself he wouldn't check his phone during the vacation, but old habits die hard. By day three, he'd rationalized it to 'just checking the weather' and 'making sure work isn't burning down.' The truth was, he was addicted, and admitting it was the first step.",
+  "The startup launched with high hopes and a modest budget. Six months later, they were running out of money and customers. But sometimes, hitting rock bottom is exactly what you need to figure out what actually matters. They pivoted, and that made all the difference.",
 
-  // 自然科学类 (2-3行)
-  "Climate change is one of the most pressing challenges of our time. Rising global temperatures are causing extreme weather events worldwide. Understanding and addressing this issue requires international cooperation and immediate action.",
-  "Photosynthesis is the process by which plants convert sunlight into energy. This fundamental process produces oxygen and forms the base of most food chains. Life on Earth depends entirely on this remarkable biochemical reaction.",
-  "The solar system consists of the sun and all celestial bodies bound by its gravity. Eight planets orbit the sun at different distances and speeds. Each planet has unique characteristics that scientists continue to study and explore.",
-  "DNA carries the genetic instructions for all living organisms. This remarkable molecule determines traits and passes information between generations. Understanding DNA has revolutionized medicine and our knowledge of life itself.",
-  "Ecosystems maintain balance through complex interdependencies among species. Each organism plays a specific role in maintaining ecosystem health. Disruptions to these delicate systems can have widespread and unpredictable consequences.",
+  // === 随机网页内容风格 ===
+  "Welcome to our store! We've been serving customers since 1995 with pride and dedication. Browse our extensive catalog online or visit us in person—our friendly staff is always ready to help. Don't forget to check out this week's special offers!",
+  "Terms and conditions apply to all promotions shown on this website. Please read the full details before making a purchase. Prices shown are in USD and may vary by region. Free shipping available on orders over fifty dollars.",
+  "Sign up for our newsletter and get twenty percent off your first order! Plus, be the first to know about new arrivals, exclusive deals, and special events. No spam, we promise—just great content delivered straight to your inbox once a week.",
+  "This page is currently under maintenance. We apologize for any inconvenience and appreciate your patience. Our team is working hard to improve your experience. Check back soon or follow us on social media for updates on when we'll be back online.",
+  "Click here to download our free mobile app, available on iOS and Android. Get instant access to all features, exclusive content, and personalized recommendations. Over one million downloads and counting—join the community today!",
 
-  // 历史文化类 (2-3行)
-  "The Renaissance was a period of cultural and intellectual rebirth in Europe. Art, science, and literature flourished during this transformative era. This period laid the groundwork for many modern developments in various fields.",
-  "Ancient civilizations developed remarkable innovations that still influence us today. From writing systems to architectural marvels, their achievements endure. Studying these cultures helps us appreciate human ingenuity across different ages.",
-  "Music has been an essential part of human culture for thousands of years. Different cultures developed unique musical traditions and instruments. Music transcends language barriers and connects people through emotional expression.",
-  "Architecture reflects the values, technology, and aesthetics of different civilizations. From ancient pyramids to modern skyscrapers, buildings tell stories about their creators. Architectural heritage provides insight into how people lived throughout history.",
-  "Literature preserves human stories, wisdom, and imagination across generations. Great works of literature speak to universal human experiences. Reading literature from different periods expands our understanding of the human condition.",
+  // === 科普文章风格 ===
+  "Your brain forms new connections every time you learn something, which is pretty amazing when you think about it. This neuroplasticity continues throughout your life, meaning you're never too old to learn new skills. So that idea about being 'too old' to pick up a new hobby? Yeah, that's just not true.",
+  "The ocean covers more than seventy percent of Earth's surface, yet we've explored less than five percent of it. Think about that for a second. An entire world exists down there that we know almost nothing about. New species are discovered literally every time someone ventures deeper.",
+  "Sleep isn't just rest—it's when your brain actually cleans itself. During deep sleep, your brain flushes out toxins that build up during the day. This is why pulling all-nighters makes you feel foggy. You're essentially walking around with a dirty brain.",
+  "Bees are responsible for pollinating about one third of the food we eat. No bees means no coffee, no almonds, no apples. The list goes on. Yet bee populations are declining worldwide, and scientists are racing to figure out why. The answer might surprise you—it's not just one thing.",
+  "The human body contains about 37 trillion cells. Each one is like a tiny city, with its own power plant, waste management system, and communication network. And somehow, they all work together to keep you alive without you even thinking about it. Kind of puts things in perspective.",
 
-  // 商业创新类 (2-3行)
-  "Entrepreneurship drives innovation and economic growth around the world. Successful entrepreneurs identify unmet needs and create valuable solutions. The entrepreneurial mindset involves embracing risk and learning from failures.",
-  "Marketing has evolved dramatically with the rise of digital media. Businesses now reach customers through multiple channels and platforms. Effective marketing requires understanding consumer behavior and adapting to new technologies.",
-  "Supply chains have become increasingly global and interconnected. Raw materials might travel across multiple countries before becoming final products. This complexity creates both opportunities and vulnerabilities for modern businesses.",
-  "Customer experience has become a key differentiator in competitive markets. Companies that prioritize customer satisfaction build loyalty and advocacy. Positive experiences lead to repeat business and valuable word-of-mouth marketing.",
-  "Remote work has transformed how many companies operate and collaborate. Technology enables seamless communication regardless of physical location. This shift has implications for productivity, work-life balance, and organizational culture.",
+  // === 随笔/思考风格 ===
+  "Have you ever noticed how some memories are crystal clear while others fade away? I can still remember my second grade teacher's face, but I couldn't tell you what I had for lunch last Tuesday. The brain is weird like that—what seems important isn't always what we remember.",
+  "Sometimes I think about how different life would be if we could see the future. Would we make different choices? Or would knowing what's coming take away the joy of discovery? Maybe not knowing is actually a gift. It certainly keeps things interesting.",
+  "The older I get, the more I realize nobody really has it all figured out. Adults are just making it up as they go, same as kids. The difference is, adults are better at pretending they know what they're doing. It's actually kind of hilarious when you think about it.",
+  "Why do we always want what we can't have? It's like some cosmic joke. The moment something becomes unavailable, suddenly it's the only thing we care about. Marketing people understand this perfectly well—create scarcity, and demand follows.",
+  "Time moves differently when you're doing something you love versus something you dread. An hour feels like five minutes in the first case and five hours in the second. Einstein was right—relativity applies to more than just physics.",
 
-  // 心理思维类 (2-3行)
-  "Critical thinking enables us to analyze information objectively and make informed decisions. It involves questioning assumptions and evaluating evidence carefully. In an age of information overload, critical thinking is more important than ever.",
-  "Emotional intelligence is crucial for effective interpersonal relationships. People with high EQ can recognize and manage their own emotions effectively. They also excel at understanding and influencing the emotions of others.",
-  "Growth mindset is the belief that abilities can be developed through dedication and hard work. This perspective encourages learning and persistence in the face of challenges. People with a growth mindset achieve more than those with fixed mindsets.",
-  "Creativity is not just for artists and musicians – it is a valuable skill in every field. Creative thinking leads to innovative solutions and competitive advantages. Everyone can enhance their creativity through practice and deliberate effort.",
-  "Decision-making is a constant part of daily life and professional success. Understanding cognitive biases helps us make better choices. Good decision-making requires both analytical thinking and emotional intelligence.",
+  // === 商业/工作邮件 ===
+  "I wanted to follow up on our conversation from last week regarding the project timeline. After reviewing the requirements, I believe we need to adjust our delivery dates slightly. Let's schedule a call to discuss this further and ensure we're aligned on expectations.",
+  "Thank you for your interest in our services. One of our consultants will reach out within 24-48 hours to discuss your specific needs and provide a customized proposal. In the meantime, feel free to explore our website for case studies and client testimonials.",
+  "Please find attached the quarterly report you requested. Key highlights include a fifteen percent increase in customer satisfaction and significant cost savings from our new operational efficiencies. Let me know if you need any clarification on the data presented.",
+  "This email is to confirm your appointment scheduled for next Tuesday at 2pm. Please arrive ten minutes early to complete any necessary paperwork. If you need to reschedule, kindly provide at least 24 hours' notice to avoid any cancellation fees.",
+  "We're excited to announce that our team has grown! Please join us in welcoming three new members who will be joining the engineering and design departments. Their combined expertise will help us deliver even better products and experiences for our customers.",
 
-  // 科技未来类 (2-4行，稍长)
-  "The internet has revolutionized how we communicate, work, and access information. It connects billions of people worldwide and enables instant sharing of knowledge. This global network has transformed industries and created entirely new ways of doing business. However, it also presents challenges like privacy concerns and digital divides.",
-  "Blockchain technology promises to transform how we store and verify information. It creates secure, transparent records without central authorities. Applications range from cryptocurrency to supply chain tracking. While still evolving, blockchain could revolutionize many industries in the coming decades. Understanding its potential is important for future business leaders.",
-  "Quantum computing harnesses quantum mechanical phenomena to process information in new ways. These computers could solve problems impossible for classical computers. Applications include drug discovery, optimization, and cryptography. While practical quantum computers are still developing, progress has been rapid. The field represents the next frontier in computational power.",
-  "Virtual and augmented reality are changing how we experience digital content. VR creates fully immersive environments, while AR enhances the real world with digital overlays. These technologies are transforming entertainment, education, and training. As hardware improves, VR and AR will become increasingly integrated into daily life. Their potential applications are limited only by imagination.",
-  "5G networks are enabling faster and more reliable wireless communication. This technology supports the growing Internet of Things and smart devices. Faster speeds and lower latency enable new applications in telemedicine and autonomous vehicles. As 5G infrastructure expands, it will unlock possibilities we can barely imagine today. The connectivity revolution continues to accelerate.",
+  // === 健康/生活方式 ===
+  "The thing about exercise is that nobody ever regrets doing it. Sure, getting off the couch is hard—like, really hard sometimes. But once you're moving, endorphins kick in and suddenly you're actually enjoying yourself. The trick is just getting started.",
+  "Meditation isn't about clearing your mind completely. That's basically impossible. It's more about noticing when your mind wanders and gently bringing it back. Over time, you get better at observing your thoughts without getting caught up in them. Sounds simple, takes practice.",
+  "Eating well doesn't mean never touching junk food again. Let's be realistic—that's not sustainable. It's more about making good choices most of the time and not beating yourself up when you indulge. Pizza night happens. Move on and eat something healthy tomorrow.",
+  "The relationship between food and mood is real. You know how you feel sluggish after eating an entire pizza? Or how a good breakfast makes you feel ready to tackle the day? There's actual science behind that. Your brain needs the right fuel to function at its best.",
+  "Walking is underrated as exercise. People think you need to run marathons or lift heavy weights to be fit. But a brisk thirty-minute walk every day? That's huge for your health. Plus, you can listen to podcasts or just clear your head. It's self-care that doesn't feel like work.",
+
+  // === 科技/AI (更口语化) ===
+  "AI is everywhere these days, but let's be real—it's not magic. It's math, basically. Lots and lots of data processing. Still wild what it can do though, from writing code to creating art. We're definitely living in interesting times, and things are only going to get weirder from here.",
+  "Remember when we used to think flying cars were the future? Turns out, the future is more like carrying supercomputers in our pockets and arguing with strangers online. Progress is weird that way—never quite what we expect, but transformative in ways we couldn't imagine.",
+  "Working from home sounded great until you actually had to do it. Turns out, your couch isn't a great office, and video calls are somehow more exhausting than real meetings. But the flexibility? That part's actually pretty awesome. It's a trade-off, like most things in life.",
+  "The thing about new technology is that it always feels overwhelming at first. Phones, internet, social media—people freaked out about all of them. But eventually, we adapt and wonder how we lived without it. AI will probably be the same. We're just in the freaking out phase.",
+  "Privacy in the age of data collection is... complicated. On one hand, personalized experiences are convenient. On the other, it's kind of creepy how well algorithms know us. The truth is, we're all trading privacy for convenience every day without really thinking about it.",
+
+  // === 长文本挑战 (4-5行) ===
+  "The conference hall buzzed with energy as hundreds of developers networked and shared ideas. She stood near the back, feeling out of place among so many accomplished professionals. Imposter syndrome hit hard sometimes, even though she knew she belonged there too. Taking a deep breath, she approached a group discussing machine learning—time to fake it until you make it, or whatever they say.",
+  "Summer arrived late that year, catching everyone off guard when temperatures suddenly spiked. Air conditioners that had sat dormant for months roared to life simultaneously, and power grids strained under the demand. Ice cream shops did brisk business, while parks filled with people desperate to soak up some sun. There's something about the first really hot day that makes everyone come alive.",
+  "He'd been saving for this trip for years, skipping vacations and cutting back on everything. Standing at the edge of the Grand Canyon at sunrise, watching the light paint the rocks in impossible colors, every sacrifice felt worth it. Some experiences just can't be captured in photos—you have to be there, feeling small in the best possible way.",
+  "The startup ecosystem moves fast—companies rise and fall in what feels like months. Working in that environment means constant adaptation and learning. Some days you're on top of the world, riding the wave of success. Other days, you're questioning every life choice that led here. But the possibility, however remote, of building something that matters? That keeps you going.",
+  "She opened the bakery on a whim, with zero experience and more optimism than sense. Friends said it was crazy, that most small businesses fail within a year. Three years later, she's still amazed it worked. The secret? Good bread, honestly. Plus listening to customers and adapting constantly. Running a business is part passion, part persistence, and a little bit luck.",
+
+  // === 产品描述风格 ===
+  "Introducing our latest innovation in home fitness—the smart resistance band that tracks your workouts. Connect via Bluetooth to view your reps, sets, and resistance levels in real-time. The companion app offers personalized training programs and progress tracking. Perfect for busy professionals who want to stay fit without expensive gym memberships.",
+  "This premium mechanical keyboard features aircraft-grade aluminum construction and hot-swappable switches. Customize your typing experience with per-key RGB lighting and programmable macros. The detachable USB-C cable and wireless connectivity options provide maximum flexibility. Built to last through millions of keystrokes, backed by our five-year warranty.",
+  "Our noise-canceling headphones deliver studio-quality audio in a comfortable, lightweight design. With up to 30 hours of battery life and rapid charging, you're never without your music. The smart ambient mode automatically adjusts noise cancellation based on your environment. Experience sound the way artists intended.",
 ];
 
 export default function TypingTest() {

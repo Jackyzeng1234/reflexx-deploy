@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Test - Swiss Design</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text: #111111;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --accent: #2563eb;
+            --border: #e5e7eb;
+            --border-strong: #d1d5db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 导航 */
+        nav {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* 标题区域 */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        /* 标签 */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+        }
+
+        /* 网格布局 */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            margin-bottom: 120px;
+        }
+
+        .test-card {
+            background: var(--bg);
+            padding: 48px 32px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 320px;
+        }
+
+        .test-card:hover {
+            background: var(--bg-secondary);
+        }
+
+        .test-card-number {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            letter-spacing: 0.1em;
+        }
+
+        .test-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 24px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .test-card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .test-card-description {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            flex: 1;
+        }
+
+        .test-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .difficulty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .difficulty-dot.easy { background: #10b981; }
+        .difficulty-dot.medium { background: #f59e0b; }
+        .difficulty-dot.hard { background: #ef4444; }
+
+        /* 功能区域 */
+        .features {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+        }
+
+        .feature-item {
+            padding: 0;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+
+        .feature-description {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* 统计数据 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            margin: 80px 0;
+        }
+
+        .stat-item {
+            background: var(--bg);
+            padding: 40px 32px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* CTA区域 */
+        .cta-section {
+            padding: 120px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .cta-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 16px 32px;
+            background: var(--text);
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        /* 页脚 */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .test-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航 -->
+    <nav>
+        <div class="container">
+            <div class="logo">Reaction Test</div>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero">
+        <div class="container">
+            <span class="badge">Cognitive Assessment Platform</span>
+            <h1>Test your limits.<br>Track your progress.</h1>
+            <p class="hero-subtitle">
+                Professional-grade cognitive tests designed to measure reaction time,
+                memory, and processing speed with millisecond precision.
+            </p>
+        </div>
+    </section>
+
+    <!-- 测试网格 -->
+    <div class="container">
+        <div class="test-grid">
+            <!-- 简单反应 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">01</div>
+                <div class="test-icon">⚡</div>
+                <h2 class="test-card-title">Simple Reaction</h2>
+                <p class="test-card-description">
+                    Measure your baseline reaction time. Click when the visual stimulus appears.
+                    Pure reflex measurement.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot easy"></div>
+                    <span>Easy • ~2 min</span>
+                </div>
+            </a>
+
+            <!-- 听觉反应 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">02</div>
+                <div class="test-icon">🔊</div>
+                <h2 class="test-card-title">Auditory Reaction</h2>
+                <p class="test-card-description">
+                    Test your audio processing speed. React to sound cues as quickly as possible.
+                    Auditory reflex assessment.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot easy"></div>
+                    <span>Easy • ~2 min</span>
+                </div>
+            </a>
+
+            <!-- 点击速度 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">03</div>
+                <div class="test-icon">🖱️</div>
+                <h2 class="test-card-title">Click Speed</h2>
+                <p class="test-card-description">
+                    Measure your finger speed and clicking endurance. Maximum clicks in 5 seconds.
+                    Physical dexterity test.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot easy"></div>
+                    <span>Easy • ~1 min</span>
+                </div>
+            </a>
+
+            <!-- 打字测试 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">04</div>
+                <div class="test-icon">⌨️</div>
+                <h2 class="test-card-title">Typing Test</h2>
+                <p class="test-card-description">
+                    Evaluate your typing speed and accuracy. Professional WPM measurement
+                    with detailed error analysis.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot medium"></div>
+                    <span>Medium • ~5 min</span>
+                </div>
+            </a>
+
+            <!-- 选择反应 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">05</div>
+                <div class="test-icon">🎮</div>
+                <h2 class="test-card-title">Choice Reaction</h2>
+                <p class="test-card-description">
+                    Test decision-making speed. Identify and click matching colors under time pressure.
+                    Cognitive processing assessment.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot medium"></div>
+                    <span>Medium • ~3 min</span>
+                </div>
+            </a>
+
+            <!-- 序列记忆 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">06</div>
+                <div class="test-icon">🧠</div>
+                <h2 class="test-card-title">Sequence Memory</h2>
+                <p class="test-card-description">
+                    Challenge your working memory. Recall and repeat increasingly long tile sequences.
+                    Spatial memory evaluation.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot medium"></div>
+                    <span>Medium • ~5 min</span>
+                </div>
+            </a>
+
+            <!-- Chimp测试 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">07</div>
+                <div class="test-icon">🐵</div>
+                <h2 class="test-card-title">Chimp Test</h2>
+                <p class="test-card-description">
+                    Assess your spatial working memory. Click numbers in order before they disappear.
+                    Visuospatial cognitive challenge.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot hard"></div>
+                    <span>Hard • ~5 min</span>
+                </div>
+            </a>
+
+            <!-- Stroop测试 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">08</div>
+                <div class="test-icon">🎨</div>
+                <h2 class="test-card-title">Stroop Test</h2>
+                <p class="test-card-description">
+                    Measure cognitive interference. Name the ink color while ignoring conflicting text.
+                    Executive function assessment.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot hard"></div>
+                    <span>Hard • ~3 min</span>
+                </div>
+            </a>
+
+            <!-- 数字记忆 -->
+            <a href="#" class="test-card">
+                <div class="test-card-number">09</div>
+                <div class="test-icon">🔢</div>
+                <h2 class="test-card-title">Number Memory</h2>
+                <p class="test-card-description">
+                    Test your numerical memory capacity. Memorize and recall digit sequences
+                    that increase in length each round.
+                </p>
+                <div class="test-card-meta">
+                    <div class="difficulty-dot hard"></div>
+                    <span>Hard • ~5 min</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 统计数据 -->
+    <div class="container">
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">2.5M+</div>
+                <div class="stat-label">Tests Completed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">180+</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">0.1ms</div>
+                <div class="stat-label">Timing Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">4.8★</div>
+                <div class="stat-label">User Rating</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能特性 -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Millisecond Precision</h3>
+                    <p class="feature-description">
+                        High-performance timing API ensures professional-grade accuracy.
+                        Every measurement is precise and reliable.
+                    </p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Progress Analytics</h3>
+                    <p class="feature-description">
+                        Track your cognitive development over time. Detailed charts
+                        and insights help you understand your performance.
+                    </p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Global Benchmarks</h3>
+                    <p class="feature-description">
+                        Compare your results with worldwide users. See where you stand
+                        and compete to climb the leaderboards.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to test your cognitive abilities?</h2>
+            <p class="cta-subtitle">Join millions of users measuring and improving their performance.</p>
+            <a href="#" class="cta-button">Start Testing</a>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <p>© 2025 Reaction Test. Designed with precision in Switzerland.</p>
+        </div>
+    </footer>
+</body>
+</html>

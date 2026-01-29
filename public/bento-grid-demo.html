@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Test - Bento Grid</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #f5f5f7;
+            --card-bg: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent: #0071e3;
+            --border: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 标题 */
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 6vw, 4.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Bento Grid布局 */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 280px);
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .bento-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .bento-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+
+        /* 不同大小的卡片 */
+        .span-2 { grid-column: span 2; }
+        .span-4 { grid-column: span 4; }
+        .row-span-2 { grid-row: span 2; }
+
+        /* 卡片内容 */
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-meta {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .difficulty-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .difficulty-badge.easy {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .difficulty-badge.medium {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .difficulty-badge.hard {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* 特色卡片 */
+        .featured-card {
+            background: linear-gradient(135deg, #0071e3 0%, #004499 100%);
+            color: white;
+        }
+
+        .featured-card .card-description,
+        .featured-card .card-meta {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .stat-number {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+            }
+            .span-4 { grid-column: span 2; }
+        }
+
+        @media (max-width: 640px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+            .span-2, .span-4 { grid-column: span 1; }
+            .bento-card {
+                min-height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Cognitive Tests</h1>
+            <p class="hero-subtitle">Professional-grade assessments to measure and improve your mental performance</p>
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="bento-grid">
+            <!-- Featured: Simple Reaction -->
+            <a href="#" class="bento-card span-2 row-span-2 featured-card">
+                <div class="card-icon">⚡</div>
+                <h2 class="card-title">Simple Reaction</h2>
+                <p class="card-description">
+                    Measure your baseline reaction time with millisecond precision. The foundational test for all cognitive assessments.
+                </p>
+                <div class="card-meta">
+                    <span class="difficulty-badge easy">Easy</span>
+                    <span>• 2 min</span>
+                </div>
+            </a>
+
+            <!-- Auditory Reaction -->
+            <a href="#" class="bento-card">
+                <div class="card-icon">🔊</div>
+                <h2 class="card-title">Auditory</h2>
+                <p class="card-description">React to sound cues</p>
+                <div class="card-meta">
+                    <span class="difficulty-badge easy">Easy</span>
+                </div>
+            </a>
+
+            <!-- Click Speed -->
+            <a href="#" class="bento-card">
+                <div class="card-icon">🖱️</div>
+                <h2 class="card-title">Click Speed</h2>
+                <p class="card-description">Test finger dexterity</p>
+                <div class="card-meta">
+                    <span class="difficulty-badge easy">Easy</span>
+                </div>
+            </a>
+
+            <!-- Stats -->
+            <div class="bento-card span-2">
+                <div class="stat-number">2.5M+</div>
+                <div class="stat-label">Tests completed worldwide</div>
+            </div>
+
+            <!-- Typing Test -->
+            <a href="#" class="bento-card span-2">
+                <div class="card-icon">⌨️</div>
+                <h2 class="card-title">Typing Test</h2>
+                <p class="card-description">
+                    Professional WPM measurement with detailed accuracy analysis and error tracking
+                </p>
+                <div class="card-meta">
+                    <span class="difficulty-badge medium">Medium</span>
+                    <span>• 5 min</span>
+                </div>
+            </a>
+
+            <!-- Choice Reaction -->
+            <a href="#" class="bento-card">
+                <div class="card-icon">🎮</div>
+                <h2 class="card-title">Choice Reaction</h2>
+                <p class="card-description">Decision speed test</p>
+                <div class="card-meta">
+                    <span class="difficulty-badge medium">Medium</span>
+                </div>
+            </a>
+
+            <!-- Sequence Memory -->
+            <a href="#" class="bento-card">
+                <div class="card-icon">🧠</div>
+                <h2 class="card-title">Sequence Memory</h2>
+                <p class="card-description">Working memory test</p>
+                <div class="card-meta">
+                    <span class="difficulty-badge medium">Medium</span>
+                </div>
+            </a>
+
+            <!-- More Stats -->
+            <div class="bento-card">
+                <div class="stat-number">0.1ms</div>
+                <div class="stat-label">Timing accuracy</div>
+            </div>
+
+            <!-- Chimp Test -->
+            <a href="#" class="bento-card">
+                <div class="card-icon">🐵</div>
+                <h2 class="card-title">Chimp Test</h2>
+                <p class="card-description">Spatial memory challenge</p>
+                <div class="card-meta">
+                    <span class="difficulty-badge hard">Hard</span>
+                </div>
+            </a>
+
+            <!-- Stroop Test -->
+            <a href="#" class="bento-card">
+                <div class="card-icon">🎨</div>
+                <h2 class="card-title">Stroop Test</h2>
+                <p class="card-description">Cognitive interference</p>
+                <div class="card-meta">
+                    <span class="difficulty-badge hard">Hard</span>
+                </div>
+            </a>
+
+            <!-- Number Memory -->
+            <a href="#" class="bento-card span-2">
+                <div class="card-icon">🔢</div>
+                <h2 class="card-title">Number Memory</h2>
+                <p class="card-description">
+                    Memorize increasingly long digit sequences. How many can you remember?
+                </p>
+                <div class="card-meta">
+                    <span class="difficulty-badge hard">Hard</span>
+                    <span>• 5 min</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纸质复古风 - Reaction Time Test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #f5f0e8;
+            --paper: #fffef9;
+            --primary: #8b4513;
+            --primary-light: #d4a574;
+            --accent: #daa520;
+            --text: #2c1810;
+            --text-secondary: #6b5d52;
+            --border: #d4c5b0;
+            --shadow: rgba(139, 69, 19, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', Georgia, serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            /* 纸张纹理 */
+            background-image:
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 标题样式 */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text);
+            text-shadow: 2px 2px 0px rgba(212, 197, 176, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+
+        /* 测试卡片网格 */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* 纸质卡片 */
+        .paper-card {
+            background: var(--paper);
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            padding: 24px;
+            position: relative;
+            box-shadow:
+                4px 4px 0px var(--border),
+                0 1px 3px var(--shadow);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+        }
+
+        .paper-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow:
+                6px 6px 0px var(--border),
+                0 4px 12px var(--shadow);
+            border-color: var(--primary-light);
+        }
+
+        .paper-card:active {
+            transform: translate(0, 0);
+            box-shadow:
+                2px 2px 0px var(--border),
+                0 1px 3px var(--shadow);
+        }
+
+        /* 手绘风格图标容器 */
+        .icon-container {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        /* 手绘风格图标 */
+        .icon-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed var(--primary-light);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .icon {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* 难度标签 - 像邮票 */
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+        }
+
+        /* 难度标签边孔效果 */
+        .difficulty-badge::before,
+        .difficulty-badge::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .difficulty-badge::before {
+            left: -5px;
+        }
+
+        .difficulty-badge::after {
+            right: -5px;
+        }
+
+        .difficulty-badge.easy {
+            color: #558b2f;
+            border-color: #c5e1a5;
+        }
+
+        .difficulty-badge.medium {
+            color: #f57c00;
+            border-color: #ffcc80;
+        }
+
+        .difficulty-badge.hard {
+            color: #c62828;
+            border-color: #ef9a9a;
+        }
+
+        /* 按钮样式 */
+        .cta-button {
+            display: inline-block;
+            padding: 16px 32px;
+            background: var(--primary);
+            color: var(--paper);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0px var(--primary-light);
+        }
+
+        .cta-button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px var(--primary-light);
+        }
+
+        .cta-button:active {
+            transform: translate(0, 0);
+            box-shadow: 2px 2px 0px var(--primary-light);
+        }
+
+        /* 装饰性元素 */
+        .corner-decoration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            opacity: 0.5;
+        }
+
+        .corner-decoration.top-left {
+            top: 8px;
+            left: 8px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 8px;
+            right: 8px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* 功能特性部分 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .feature-item {
+            background: var(--paper);
+            border: 1px solid var(--border);
+            padding: 24px;
+            position: relative;
+        }
+
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 分隔线 - 手绘风格 */
+        .divider {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+        }
+
+        .divider::after {
+            content: '✦';
+            position: relative;
+            background: var(--bg);
+            padding: 0 16px;
+            color: var(--primary-light);
+            font-size: 1.5rem;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题区域 -->
+        <h1>认知能力测试</h1>
+        <p class="subtitle">测量你的反应速度、记忆力和认知能力</p>
+
+        <!-- 测试卡片网格 -->
+        <div class="test-grid">
+            <!-- 简单反应测试 -->
+            <a href="#" class="paper-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">⚡</span>
+                </div>
+                <h2 class="card-title">简单反应</h2>
+                <p class="card-description">当红色方块变成绿色时，尽快点击。测试你的基础反应时间。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge easy">简单</span>
+                </div>
+            </a>
+
+            <!-- 听觉反应 -->
+            <a href="#" class="paper-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🔊</span>
+                </div>
+                <h2 class="card-title">听觉反应</h2>
+                <p class="card-description">听到声音后尽快点击。测试你的听觉反应速度。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge easy">简单</span>
+                </div>
+            </a>
+
+            <!-- 打字速度 -->
+            <a href="#" class="paper-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">⌨️</span>
+                </div>
+                <h2 class="card-title">打字速度</h2>
+                <p class="card-description">在屏幕上显示的文本中准确快速地输入。测试你的打字WPM。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge medium">中等</span>
+                </div>
+            </a>
+
+            <!-- 序列记忆 -->
+            <a href="#" class="paper-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🧠</span>
+                </div>
+                <h2 class="card-title">序列记忆</h2>
+                <p class="card-description">记住亮起的方格顺序，然后按相同顺序点击。测试你的工作记忆。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge medium">中等</span>
+                </div>
+            </a>
+
+            <!-- Chimp测试 -->
+            <a href="#" class="paper-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🐵</span>
+                </div>
+                <h2 class="card-title">Chimp测试</h2>
+                <p class="card-description">按升序点击数字，数字会逐渐被方格覆盖。测试你的空间记忆。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge hard">困难</span>
+                </div>
+            </a>
+
+            <!-- 数字记忆 -->
+            <a href="#" class="paper-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🔢</span>
+                </div>
+                <h2 class="card-title">数字记忆</h2>
+                <p class="card-description">记住屏幕上显示的数字，然后输入它们。数字会逐渐增加。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge hard">困难</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="divider"></div>
+
+        <!-- 功能特性 -->
+        <div class="features">
+            <div class="feature-item">
+                <h3 class="feature-title">毫秒级精度</h3>
+                <p class="feature-description">使用高性能定时器API，确保测量结果的精确性和可靠性。每一次测试都准确记录你的反应时间。</p>
+            </div>
+            <div class="feature-item">
+                <h3 class="feature-title">进步追踪</h3>
+                <p class="feature-description">保存你的测试历史，查看长期进步趋势。了解自己的强项和待提升领域。</p>
+            </div>
+            <div class="feature-item">
+                <h3 class="feature-title">全球排名</h3>
+                <p class="feature-description">与世界各地的用户比较成绩。看看你的表现如何，努力进入排行榜前列。</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="#" class="cta-button">开始测试 →</a>
+        </div>
+
+        <footer>
+            <p>© 2025 Reaction Time Test · 纸质复古风格演示</p>
+        </footer>
+    </div>
+</body>
+</html>

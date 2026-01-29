@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗黑科技风 - Reaction Time Test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #0f0f18;
+            --primary: #00ff9f;
+            --primary-dim: rgba(0, 255, 159, 0.1);
+            --accent: #ff00ff;
+            --accent-dim: rgba(255, 0, 255, 0.1);
+            --cyan: #00d4ff;
+            --text: #e5e5e5;
+            --text-secondary: #8b8b9b;
+            --border: #1f1f2e;
+            --glow-primary: 0 0 20px rgba(0, 255, 159, 0.5);
+            --glow-accent: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            /* 网格背景 */
+            background-image:
+                linear-gradient(rgba(0, 255, 159, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 159, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: relative;
+        }
+
+        /* 扫描线效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* 标题样式 - 科技感 */
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow:
+                0 0 10px var(--primary-dim),
+                0 0 20px var(--primary-dim),
+                0 0 40px var(--primary-dim);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow:
+                    0 0 10px var(--primary-dim),
+                    0 0 20px var(--primary-dim),
+                    0 0 40px var(--primary-dim);
+            }
+            to {
+                text-shadow:
+                    0 0 20px var(--primary-dim),
+                    0 0 40px var(--primary-dim),
+                    0 0 80px rgba(0, 255, 159, 0.3);
+            }
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 3rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* 测试卡片网格 */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* 科技感卡片 */
+        .tech-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0;
+            padding: 24px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+            overflow: hidden;
+        }
+
+        /* 卡片边框发光效果 */
+        .tech-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid transparent;
+            background: linear-gradient(135deg, var(--primary), var(--accent)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tech-card:hover::before {
+            opacity: 1;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 0 20px var(--primary-dim),
+                0 0 40px var(--primary-dim),
+                inset 0 0 60px rgba(0, 255, 159, 0.05);
+            border-color: var(--primary);
+        }
+
+        /* 科技角落装饰 */
+        .corner-decoration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .corner-decoration.top-left {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.top-right {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+
+        .tech-card:hover .corner-decoration {
+            opacity: 1;
+        }
+
+        /* 图标容器 */
+        .icon-container {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 图标发光效果 */
+        .icon-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--primary-dim) 0%, transparent 70%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        .icon {
+            font-size: 28px;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .card-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* 难度标签 - 科技感 */
+        .difficulty-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .difficulty-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .tech-card:hover .difficulty-badge::before {
+            left: 100%;
+        }
+
+        .difficulty-badge.easy {
+            color: #00ff9f;
+            border-color: rgba(0, 255, 159, 0.3);
+            text-shadow: 0 0 10px rgba(0, 255, 159, 0.5);
+        }
+
+        .difficulty-badge.medium {
+            color: #ffaa00;
+            border-color: rgba(255, 170, 0, 0.3);
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+        }
+
+        .difficulty-badge.hard {
+            color: #ff0055;
+            border-color: rgba(255, 0, 85, 0.3);
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+
+        /* 按钮样式 */
+        .cta-button {
+            display: inline-block;
+            padding: 18px 48px;
+            background: transparent;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 2px solid var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow:
+                0 0 20px var(--primary),
+                0 0 40px var(--primary),
+                0 0 60px var(--primary);
+            text-shadow: none;
+        }
+
+        /* 功能特性部分 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .feature-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 24px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+        }
+
+        .feature-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-dim);
+        }
+
+        .feature-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* 分隔线 - 科技感 */
+        .divider {
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent,
+                var(--border) 20%,
+                var(--primary) 50%,
+                var(--border) 80%,
+                transparent
+            );
+        }
+
+        .divider::after {
+            content: 'SYSTEM_READY';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg);
+            padding: 0 24px;
+            color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        footer::before {
+            content: '>';
+            margin-right: 8px;
+            color: var(--primary);
+            animation: blink 1s step-end infinite;
+        }
+
+        /* 装饰性代码元素 */
+        .code-decoration {
+            position: fixed;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--primary);
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .code-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            text-align: right;
+        }
+
+        .code-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+                letter-spacing: 2px;
+            }
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+            .code-decoration {
+                display: none;
+            }
+        }
+
+        /* 数据流动画 */
+        .data-stream {
+            position: fixed;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(180deg, transparent, var(--primary), transparent);
+            animation: stream 3s linear infinite;
+            opacity: 0.1;
+        }
+
+        @keyframes stream {
+            0% { transform: translateY(-100px); }
+            100% { transform: translateY(100vh); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰性代码元素 -->
+    <div class="code-decoration top-right">
+        INIT_SEQUENCE...<br>
+        LOAD_MODULES...<br>
+        SYSTEM_STATUS: ACTIVE<br>
+        VER: 2.5.0
+    </div>
+    <div class="code-decoration bottom-left">
+        MEMORY: 64TB<br>
+        CPU: QUANTUM<br>
+        LATENCY: 0.001ms<br>
+        UPTIME: 99.99%
+    </div>
+
+    <!-- 数据流动画 -->
+    <div class="data-stream" style="left: 10%;"></div>
+    <div class="data-stream" style="left: 30%; animation-delay: 1s;"></div>
+    <div class="data-stream" style="left: 70%; animation-delay: 2s;"></div>
+    <div class="data-stream" style="left: 90%; animation-delay: 0.5s;"></div>
+
+    <div class="container">
+        <!-- 标题区域 -->
+        <h1>认知能力测试</h1>
+        <p class="subtitle">// NEURAL_LINK_ESTABLISHED</p>
+
+        <!-- 测试卡片网格 -->
+        <div class="test-grid">
+            <!-- 简单反应测试 -->
+            <a href="#" class="tech-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration top-right"></div>
+                <div class="corner-decoration bottom-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">⚡</span>
+                </div>
+                <h2 class="card-title">简单反应</h2>
+                <p class="card-description">视觉刺激反应测试。测量基础神经传导速度。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge easy">LEVEL_01</span>
+                </div>
+            </a>
+
+            <!-- 听觉反应 -->
+            <a href="#" class="tech-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration top-right"></div>
+                <div class="corner-decoration bottom-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🔊</span>
+                </div>
+                <h2 class="card-title">听觉反应</h2>
+                <p class="card-description">音频信号处理速度测试。听觉皮层反应时间测量。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge easy">LEVEL_01</span>
+                </div>
+            </a>
+
+            <!-- 打字速度 -->
+            <a href="#" class="tech-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration top-right"></div>
+                <div class="corner-decoration bottom-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">⌨️</span>
+                </div>
+                <h2 class="card-title">打字速度</h2>
+                <p class="card-description">键盘输入效率测试。WPM与准确率综合评估。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge medium">LEVEL_02</span>
+                </div>
+            </a>
+
+            <!-- 序列记忆 -->
+            <a href="#" class="tech-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration top-right"></div>
+                <div class="corner-decoration bottom-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🧠</span>
+                </div>
+                <h2 class="card-title">序列记忆</h2>
+                <p class="card-description">工作记忆容量测试。海马体短期记忆功能评估。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge medium">LEVEL_02</span>
+                </div>
+            </a>
+
+            <!-- Chimp测试 -->
+            <a href="#" class="tech-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration top-right"></div>
+                <div class="corner-decoration bottom-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🐵</span>
+                </div>
+                <h2 class="card-title">Chimp测试</h2>
+                <p class="card-description">空间工作记忆测试。视空间记忆与数值关联能力。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge hard">LEVEL_03</span>
+                </div>
+            </a>
+
+            <!-- 数字记忆 -->
+            <a href="#" class="tech-card">
+                <div class="corner-decoration top-left"></div>
+                <div class="corner-decoration top-right"></div>
+                <div class="corner-decoration bottom-left"></div>
+                <div class="corner-decoration bottom-right"></div>
+                <div class="icon-container">
+                    <span class="icon">🔢</span>
+                </div>
+                <h2 class="card-title">数字记忆</h2>
+                <p class="card-description">数字序列记忆测试。长期记忆与注意力集中度评估。</p>
+                <div style="text-align: center;">
+                    <span class="difficulty-badge hard">LEVEL_03</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="divider"></div>
+
+        <!-- 功能特性 -->
+        <div class="features">
+            <div class="feature-item">
+                <h3 class="feature-title">毫秒级精度</h3>
+                <p class="feature-description">High-Precision Timing API · 纳米级计时器 · 零延迟响应 · 神经网络级精度测量</p>
+            </div>
+            <div class="feature-item">
+                <h3 class="feature-title">进步追踪</h3>
+                <p class="feature-description">Machine Learning Analytics · 认知能力建模 · 个性化训练建议 · 长期进步可视化</p>
+            </div>
+            <div class="feature-item">
+                <h3 class="feature-title">全球排名</h3>
+                <p class="feature-description">Real-time Leaderboard · 区域排名对比 · 职业选手数据 · 百分位排名系统</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px;">
+            <button class="cta-button">启动测试程序</button>
+        </div>
+
+        <footer>
+            <p>© 2025 REACTION TEST // CYBERPUNK EDITION // ALL SYSTEMS OPERATIONAL</p>
+        </footer>
+    </div>
+</body>
+</html>
