@@ -179,7 +179,7 @@ export default function ClickSpeedTest() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
@@ -355,44 +355,35 @@ export default function ClickSpeedTest() {
           </div>
         )}
 
-        {/* Instructions */}
-        {testState === 'idle' && (
-          <div className="rounded-2xl border-2 border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">{t.howToPlay}</h2>
-            <ol className="space-y-3 text-gray-600 dark:text-gray-300">
-              <li className="flex items-start">
-                <span className="mr-3 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                  1
-                </span>
-                <span>{t.cstInstruction1}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="mr-3 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                  2
-                </span>
-                <span>{t.cstInstruction2}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="mr-3 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                  3
-                </span>
-                <span>{t.cstInstruction3}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="mr-3 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                  4
-                </span>
-                <span>{t.cstInstruction4}</span>
-              </li>
+        {/* Instructions, Benefits & Improvements - Three Columns */}
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          {/* How to Play */}
+          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
+            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white text-center">📖 {t.howToPlay}</h3>
+            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <li>• {t.cstInstruction1}</li>
+              <li>• {t.cstInstruction2}</li>
+              <li>• {t.cstInstruction3}</li>
             </ol>
-
-            <div className="mt-6 rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
-              <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+            <div className="mt-3 rounded-lg bg-yellow-50 p-2 dark:bg-yellow-900/20">
+              <p className="text-xs font-semibold text-yellow-800 dark:text-yellow-300">
                 💡 {t.cstProTip}
               </p>
             </div>
           </div>
-        )}
+
+          {/* What This Measures */}
+          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
+            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300 text-center">🧠 {t.testBenefitsTitle}</h3>
+            <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200" dangerouslySetInnerHTML={{ __html: t.csBenefits }} />
+          </div>
+
+          {/* How To Improve */}
+          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
+            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300 text-center">📈 {t.testHowToImproveTitle}</h3>
+            <div className="text-sm leading-relaxed text-green-800 dark:text-green-200" dangerouslySetInnerHTML={{ __html: t.csImprovements }} />
+          </div>
+        </div>
       </div>
     </div>
   );

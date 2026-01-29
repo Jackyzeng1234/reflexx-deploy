@@ -19,7 +19,7 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/60">
+    <nav className="sticky top-0 z-50 w-full border-b bg-white/30 backdrop-blur-md supports-[backdrop-filter]:bg-white/20 dark:bg-black/20 dark:supports-[backdrop-filter]:bg-black/10">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Left Section: Logo + Navigation */}

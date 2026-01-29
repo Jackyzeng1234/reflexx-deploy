@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (isMounted) {
               setProfile({
                 id: session.user.id,
-                username: '用户',
+                username: 'User',
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
               });
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // 使用默认值
             setProfile({
               id: session.user.id,
-              username: '用户',
+              username: 'User',
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             });
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (error || !data) {
                   setProfile({
                     id: session.user.id,
-                    username: '用户',
+                    username: 'User',
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                   });

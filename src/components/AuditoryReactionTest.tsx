@@ -217,7 +217,7 @@ export default function AuditoryReactionTest() {
 
   return (
     <div className="flex min-h-[500px] items-center justify-center">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-5xl">
         {/* Main Test Area */}
         <div
           onClick={handleClick}
@@ -326,6 +326,31 @@ export default function AuditoryReactionTest() {
               </div>
           </div>
         )}
+
+        {/* Instructions, Benefits & Improvements - Three Columns */}
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          {/* How to Play */}
+          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
+            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white text-center">📖 {t.howToPlay}</h3>
+            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <li>• {t.auditoryReactionWait}</li>
+              <li>• {t.auditoryReactionClickNow}</li>
+              <li>• {t.srtCompleteRounds}</li>
+            </ol>
+          </div>
+
+          {/* What This Measures */}
+          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
+            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300 text-center">🧠 {t.testBenefitsTitle}</h3>
+            <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200" dangerouslySetInnerHTML={{ __html: t.artBenefits }} />
+          </div>
+
+          {/* How To Improve */}
+          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
+            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300 text-center">📈 {t.testHowToImproveTitle}</h3>
+            <div className="text-sm leading-relaxed text-green-800 dark:text-green-200" dangerouslySetInnerHTML={{ __html: t.artImprovements }} />
+          </div>
+        </div>
       </div>
     </div>
   );

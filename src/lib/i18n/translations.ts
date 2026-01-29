@@ -43,6 +43,50 @@ export const translations = {
     srtAverage: 'Average',
     srtBest: 'Best',
     srtRank: 'Your Rank',
+
+    // Test Benefits Section
+    testBenefitsTitle: 'What This Measures',
+    testHowToImproveTitle: 'How To Improve',
+
+    // Simple Reaction Benefits
+    srtBenefits: 'Measures <strong>simple reaction time</strong> - how fast your brain processes visual stimuli and sends signals to muscles. Reflects neural pathway efficiency and sensorimotor integration.',
+    srtImprovements: '• Regular practice: +10-20% speed<br>• Aerobic exercise enhances cognition<br>• 7-9 hours sleep for optimal function<br>• Focus in quiet environments<br>• Stay hydrated',
+
+    // Auditory Reaction Benefits
+    artBenefits: 'Measures <strong>auditory reaction time</strong> - how quickly you process and respond to sound. Evaluates auditory cortex efficiency and audio-motor connections.',
+    artImprovements: '• Audio training sharpens processing<br>• Musical instruments boost coordination<br>• Sound location exercises<br>• Daily alertness practice',
+
+    // Choice Reaction Benefits
+    crtBenefits: 'Measures <strong>choice reaction time</strong> and <strong>decision-making speed</strong>. Involves cognitive processing, stimulus discrimination, and response selection.',
+    crtImprovements: '• Quick decision training<br>• Pattern recognition reduces processing<br>• Minimize choices to cut fatigue<br>• Action games improve speed<br>• Mental preparation helps',
+
+    // Click Speed Benefits
+    csBenefits: 'Measures <strong>manual dexterity</strong> and <strong>fine motor control</strong>. Assesses brain-nerve-muscle coordination and motor cortex efficiency.',
+    csImprovements: '• Finger tapping exercises<br>• Optimize mouse DPI settings<br>• Ergonomic hand position<br>• Wrist stretching<br>• Short practice sessions',
+
+    // Typing Benefits
+    typingBenefits: 'Measures <strong>typing speed and accuracy</strong>, assessing motor skills, language processing, and coordination. Reflects motor memory efficiency.',
+    typingImprovements: '• Learn touch typing properly<br>• Daily practice builds memory<br>• Focus on accuracy first<br>• Use structured lessons<br>• Maintain good posture',
+
+    // Sequence Memory Benefits
+    smBenefits: 'Measures <strong>visual-spatial working memory</strong> - holding and manipulating visual information. Engages hippocampus and prefrontal cortex.',
+    smImprovements: '• Use chunking and visualization<br>• Gradually increase length<br>• Create mnemonic associations<br>• Practice without distractions<br>• Crosswords & Sudoku help',
+
+    // Chimp Test Benefits
+    chimpBenefits: 'Measures <strong>visuospatial working memory</strong> and <strong>numerical-visual association</strong>. Challenges simultaneous multi-item tracking.',
+    chimpImprovements: '• Master lower levels first<br>• Use spatial patterns<br>• Verbal rehearsal helps<br>• Eliminate distractions<br>• Break into small groups',
+
+    // Aim Trainer Benefits
+    aimBenefits: 'Measures <strong>hand-eye coordination</strong>, <strong>visual tracking</strong>, and <strong>motor precision</strong>. Crucial for gaming and real-world skills.',
+    aimImprovements: '• Find optimal mouse DPI<br>• Arm for large moves, wrist for precision<br>• Regular target practice<br>• Smooth mouse motion<br>• Use peripheral vision',
+
+    // Stroop Test Benefits
+    stroopBenefits: 'Measures <strong>cognitive flexibility</strong>, <strong>inhibitory control</strong>, and <strong>selective attention</strong>. Evaluates ability to suppress automatic responses.',
+    stroImprovements: '• Mindfulness improves control<br>• Practice reading without color focus<br>• Speed reading helps<br>• Working memory training<br>• Regular meditation',
+
+    // Number Memory Benefits
+    nmBenefits: 'Measures <strong>phonological loop capacity</strong> - digits held in working memory. Assesses short-term memory span and verbal rehearsal efficiency.',
+    nmImprovements: '• Chunk in pairs/triplets<br>• Use rhythmic patterns<br>• Create mental images<br>• Memory palace technique<br>• Gradually increase digits',
     srtTryAgain: 'Try Again',
     srtBackToHome: 'Back to Home',
     srtClickOrSpace: 'Click or press Space to start',
@@ -128,6 +172,8 @@ export const translations = {
     getReady: 'Get ready...',
     pressArrow: 'Press {direction} Arrow!',
     results: 'Results',
+    clickToStart: 'Click to Start',
+    orPressAnyKeyToStart: 'or press any key to start',
 
     // Footer
     footerRights: 'All rights reserved',
@@ -267,6 +313,10 @@ export const translations = {
     typingTargetsPerSec: 'Targets/Sec',
     typingMisses: 'Misses',
     typingTotalClicks: 'Total Clicks',
+    typingElapsedTime: 'Elapsed Time',
+    typingClickToStart: 'Click to Start',
+    typingOrStartTyping: 'or just start typing',
+    typingClickToStartTyping: 'Click start and begin typing...',
 
     // Chimp Test
     chimpTestTitle: 'Chimp Test',
@@ -300,6 +350,8 @@ export const translations = {
     stroopTestAvgReaction: 'Average Reaction',
     stroopTestExample: 'Example',
     stroopTestExampleAnswer: 'Correct answer',
+    stroopTestClickToStart: 'Click to Start',
+    stroopTestOrPressAnyKey: 'or press any key to start',
 
     // Number Memory Test
     numberMemoryTitle: 'Number Memory Test',
@@ -392,6 +444,30 @@ export const translations = {
     authPasswordUpdatedDesc: 'Your password has been updated. You can now login with your new password.',
     authPasswordUpdateError: 'Failed to update password. Please try again.',
     authInvalidResetLink: 'Invalid or expired reset link. Please request a new one.',
+
+    // Profile Page
+    profileTitle: 'Profile',
+    profileSubtitle: 'View your test scores and statistics',
+    profileUsernameRequired: 'Username cannot be empty',
+    profileUpdateSuccess: 'Username updated successfully!',
+    profileUpdateFailed: 'Update failed: ',
+    profileSave: 'Save',
+    profileSaving: 'Saving...',
+    profileCancel: 'Cancel',
+    profileEditUsername: 'Edit Username',
+    profileSignOut: 'Sign Out',
+    profileBestScores: 'Best Scores',
+    profileLoadingScores: 'Loading scores...',
+    profileNoScores: 'No Scores Yet',
+    profileNoScoresDesc: 'Complete tests and your best scores will appear here',
+    profileBest: 'Best',
+    profileBreakRecord: 'Want to break your record?',
+    profileBreakRecordDesc: 'Challenge yourself and climb the global leaderboard!',
+    profileContinueTesting: 'Continue Testing',
+    profileViewLeaderboard: 'View Leaderboard',
+
+    // Stats Page
+    statsLoadingData: 'Fetching your test data',
   },
   zh: {
     // Navigation
@@ -437,6 +513,51 @@ export const translations = {
     srtAverage: '平均',
     srtBest: '最佳',
     srtRank: '你的排名',
+
+    // Test Benefits Section
+    testBenefitsTitle: '测量能力',
+    testHowToImproveTitle: '提升方法',
+
+    // Simple Reaction Benefits
+    srtBenefits: '测量<strong>简单反应时间</strong>——大脑处理视觉刺激并向肌肉发送信号的速度。反映神经通路效率。',
+    srtImprovements: '• 规律练习提升10-20%速度<br>• 有氧运动增强认知<br>• 7-9小时睡眠优化神经功能<br>• 安静环境专注练习<br>• 保持水分充足',
+
+    // Auditory Reaction Benefits
+    artBenefits: '测量<strong>听觉反应时间</strong>——处理和响应声音的速度。评估听觉皮层和听-动连接效率。',
+    artImprovements: '• 听觉训练提升处理能力<br>• 演奏乐器增强协调<br>• 声音位置识别练习<br>• 日常警觉性训练',
+
+    // Choice Reaction Benefits
+    crtBenefits: '测量<strong>选择反应时间</strong>和<strong>决策速度</strong>。涉及认知处理、刺激辨别和反应选择。',
+    crtImprovements: '• 快速决策训练<br>• 模式识别减少处理时间<br>• 减少选择降低疲劳<br>• 动作游戏显著提升速度<br>• 提前预判准备',
+
+    // Click Speed Benefits
+    csBenefits: '测量<strong>手部灵活性</strong>和<strong>精细运动控制</strong>。评估大脑-神经-肌肉协调及运动皮层效率。',
+    csImprovements: '• 手指敲击练习<br>• 优化鼠标DPI设置<br>• 人体工学手部姿势<br>• 手腕伸展训练<br>• 短时段练习',
+
+    // Typing Benefits
+    typingBenefits: '测量<strong>打字速度和准确性</strong>，评估运动技能、语言处理和协调能力。反映运动记忆效率。',
+    typingImprovements: '• 学习触觉打字<br>• 每日练习建立记忆<br>• 先专注准确性<br>• 使用结构化课程<br>• 保持正确姿势',
+
+    // Sequence Memory Benefits
+    smBenefits: '测量<strong>视觉空间工作记忆</strong>——在头脑中保持和操作视觉信息。涉及海马体和前额叶。',
+    smImprovements: '• 使用分块和可视化<br>• 逐渐增加序列长度<br>• 创建记忆联想<br>• 无干扰环境练习<br>• 填字和数独训练',
+
+    // Chimp Test Benefits
+    chimpBenefits: '测量<strong>视觉空间工作记忆</strong>和<strong>数字-视觉联想</strong>。挑战同时跟踪多个项目。',
+    chimpImprovements: '• 先掌握低等级<br>• 使用空间模式<br>• 默念数字加强记忆<br>• 消除干扰专注<br>• 分成小组记忆',
+
+    // Aim Trainer Benefits
+    aimBenefits: '测量<strong>手眼协调</strong>、<strong>视觉追踪</strong>和<strong>运动精度</strong>。游戏和现实技能的关键。',
+    aimImprovements: '• 找到最佳鼠标DPI<br>• 大移动用手臂，精细用腕<br>• 定期目标练习<br>• 平滑鼠标运动<br>• 利用周边视觉',
+
+    // Stroop Test Benefits
+    stroopBenefits: '测量<strong>认知灵活性</strong>、<strong>抑制控制</strong>和<strong>选择性注意</strong>。评估抑制自动反应的能力。',
+    stroImprovements: '• 正念训练改善控制<br>• 练习不关注颜色阅读<br>• 速读训练有帮助<br>• 工作记忆训练<br>• 定期冥想练习',
+
+    // Number Memory Benefits
+    nmBenefits: '测量<strong>语音环路容量</strong>——工作记忆中能保持的数字数量。评估短期记忆广度。',
+    nmImprovements: '• 成对或三个一组记忆<br>• 使用有节奏模式<br>• 创建心理图像<br>• 记忆宫殿技巧<br>• 逐渐增加数字',
+
     srtTryAgain: '再试一次',
     srtBackToHome: '返回首页',
     srtClickOrSpace: '点击或按空格键开始',
@@ -522,6 +643,8 @@ export const translations = {
     getReady: '准备...',
     pressArrow: '按 {direction} 方向键！',
     results: '结果',
+    clickToStart: '点击开始',
+    orPressAnyKeyToStart: '或按任意键开始',
 
     // Footer
     footerRights: '版权所有',
@@ -661,6 +784,10 @@ export const translations = {
     typingTargetsPerSec: '目标/秒',
     typingMisses: '失误',
     typingTotalClicks: '总点击数',
+    typingElapsedTime: '已用时间',
+    typingClickToStart: '点击开始',
+    typingOrStartTyping: '或直接开始输入',
+    typingClickToStartTyping: '点击开始后输入...',
 
     // Chimp Test
     chimpTestTitle: '黑猩猩测试',
@@ -694,6 +821,8 @@ export const translations = {
     stroopTestAvgReaction: '平均反应',
     stroopTestExample: '示例',
     stroopTestExampleAnswer: '正确答案',
+    stroopTestClickToStart: '点击开始',
+    stroopTestOrPressAnyKey: '或按任意键开始',
 
     // Number Memory Test
     numberMemoryTitle: '数字记忆测试',
@@ -786,6 +915,30 @@ export const translations = {
     authPasswordUpdatedDesc: '您的密码已更新。现在可以使用新密码登录。',
     authPasswordUpdateError: '更新密码失败。请重试。',
     authInvalidResetLink: '重置链接无效或已过期。请重新请求。',
+
+    // Profile Page
+    profileTitle: '个人中心',
+    profileSubtitle: '查看您的测试成绩和统计信息',
+    profileUsernameRequired: '用户名不能为空',
+    profileUpdateSuccess: '用户名更新成功！',
+    profileUpdateFailed: '更新失败：',
+    profileSave: '保存',
+    profileSaving: '保存中...',
+    profileCancel: '取消',
+    profileEditUsername: '修改用户名',
+    profileSignOut: '退出登录',
+    profileBestScores: '历史最佳成绩',
+    profileLoadingScores: '加载成绩中...',
+    profileNoScores: '暂无成绩',
+    profileNoScoresDesc: '完成测试后，您的最佳成绩将显示在这里',
+    profileBest: '最佳',
+    profileBreakRecord: '想要打破纪录？',
+    profileBreakRecordDesc: '挑战自己，在全球排行榜上争取更好的排名！',
+    profileContinueTesting: '继续测试',
+    profileViewLeaderboard: '查看排行榜',
+
+    // Stats Page
+    statsLoadingData: '正在获取你的测试数据',
   },
   es: {
     // Navigation
@@ -902,6 +1055,50 @@ export const translations = {
     ratingAverage: 'Promedio',
     ratingNeedsPractice: 'Necesita Práctica',
 
+    // Test Benefits Section
+    testBenefitsTitle: 'Lo Que Mide',
+    testHowToImproveTitle: 'Cómo Mejorar',
+
+    // Simple Reaction Benefits
+    srtBenefits: 'Mide el <strong>tiempo de reacción simple</strong> - qué tan rápido tu cerebro procesa estímulos visuales y envía señales a los músculos. Refleja la eficiencia de las vías neuronales y la integración sensoriomotora.',
+    srtImprovements: '• Práctica regular: +10-20% de velocidad<br>• El ejercicio aeróbico mejora la cognición<br>• 7-9 horas de sueño para función óptima<br>• Enfócate en entornos tranquilos<br>• Mantente hidratado',
+
+    // Auditory Reaction Benefits
+    artBenefits: 'Mide el <strong>tiempo de reacción auditiva</strong> - qué tan rápido procesas y respondes al sonido. Evalúa la eficiencia de la corteza auditiva y las conexiones audio-motoras.',
+    artImprovements: '• El entrenamiento de audio agudiza el procesamiento<br>• Los instrumentos musicales mejoran la coordinación<br>• Ejercicios de localización de sonido<br>• Práctica diaria de alerta',
+
+    // Choice Reaction Benefits
+    crtBenefits: 'Mide el <strong>tiempo de reacción de elección</strong> y la <strong>velocidad de toma de decisiones</strong>. Involucra procesamiento cognitivo, discriminación de estímulos y selección de respuestas.',
+    crtImprovements: '• Entrenamiento de decisiones rápidas<br>• El reconocimiento de patrones reduce el procesamiento<br>• Minimiza las elecciones para reducir la fatiga<br>• Los juegos de acción mejoran la velocidad<br>• La preparación mental ayuda',
+
+    // Click Speed Benefits
+    csBenefits: 'Mide la <strong>destreza manual</strong> y el <strong>control motor fino</strong>. Evalúa la coordinación cerebro-nervio-músculo y la eficiencia de la corteza motora.',
+    csImprovements: '• Ejercicios de tapping con los dedos<br>• Optimiza la configuración del DPI del ratón<br>• Posición de mano ergonómica<br>• Estiramientos de muñeca<br>• Sesiones de práctica cortas',
+
+    // Typing Benefits
+    typingBenefits: 'Mide la <strong>velocidad y precisión de escritura</strong>, evaluando habilidades motoras, procesamiento del lenguaje y coordinación. Refleja la eficiencia de la memoria motora.',
+    typingImprovements: '• Aprende mecanografía correctamente<br>• La práctica diaria construye memoria<br>• Enfócate primero en la precisión<br>• Usa lecciones estructuradas<br>• Mantén una buena postura',
+
+    // Sequence Memory Benefits
+    smBenefits: 'Mide la <strong>memoria de trabajo visoespacial</strong> - mantener y manipular información visual. Involucra el hipocampo y la corteza prefrontal.',
+    smImprovements: '• Usa agrupación y visualización<br>• Aumenta gradualmente la longitud<br>• Crea asociaciones mnemotécnicas<br>• Practica sin distracciones<br>• Crucigramas y Sudoku ayudan',
+
+    // Chimp Test Benefits
+    chimpBenefits: 'Mide la <strong>memoria de trabajo visoespacial</strong> y la <strong>asociación numérico-visual</strong>. Desafía el seguimiento simultáneo de múltiples elementos.',
+    chimpImprovements: '• Domina primero los niveles más bajos<br>• Usa patrones espaciales<br>• El ensayo verbal ayuda<br>• Elimina las distracciones<br>• Divide en grupos pequeños',
+
+    // Aim Trainer Benefits
+    aimBenefits: 'Mide la <strong>coordinación ojo-mano</strong>, el <strong>seguimiento visual</strong> y la <strong>precisión motora</strong>. Crucial para juegos y habilidades del mundo real.',
+    aimImprovements: '• Encuentra el DPI óptimo del ratón<br>• Usa el brazo para movimientos grandes, la muñeca para precisión<br>• Práctica regular de objetivos<br>• Movimiento suave del ratón<br>• Usa la visión periférica',
+
+    // Stroop Test Benefits
+    stroopBenefits: 'Mide la <strong>flexibilidad cognitiva</strong>, el <strong>control inhibitorio</strong> y la <strong>atención selectiva</strong>. Evalúa la capacidad de suprimir respuestas automáticas.',
+    stroImprovements: '• El mindfulness mejora el control<br>• Practica leer sin enfocarte en el color<br>• La lectura rápida ayuda<br>• Entrenamiento de memoria de trabajo<br>• Meditación regular',
+
+    // Number Memory Benefits
+    nmBenefits: 'Mide la <strong>capacidad del bucle fonológico</strong> - dígitos retenidos en la memoria de trabajo. Evalúa el span de memoria a corto plazo y la eficiencia del ensayo verbal.',
+    nmImprovements: '• Agrupa en pares/tripletes<br>• Usa patrones rítmicos<br>• Crea imágenes mentales<br>• Técnica del palacio de la memoria<br>• Aumenta gradualmente los dígitos',
+
     // Common
     loading: 'Cargando...',
     error: 'Algo salió mal',
@@ -916,6 +1113,8 @@ export const translations = {
     getReady: 'Prepárate...',
     pressArrow: '¡Presiona la flecha {direction}!',
     results: 'Resultados',
+    clickToStart: 'Haz clic para comenzar',
+    orPressAnyKeyToStart: 'o presiona cualquier tecla para comenzar',
 
     // Footer
     footerRights: 'Todos los derechos reservados',
@@ -1055,6 +1254,10 @@ export const translations = {
     typingTargetsPerSec: 'Objetivos/Seg',
     typingMisses: 'Fallos',
     typingTotalClicks: 'Clics Totales',
+    typingElapsedTime: 'Tiempo Transcurrido',
+    typingClickToStart: 'Haz clic para comenzar',
+    typingOrStartTyping: 'o simplemente comienza a escribir',
+    typingClickToStartTyping: 'Haz clic en comenzar y empieza a escribir...',
 
     // Chimp Test
     chimpTestTitle: 'Prueba del Chimpancé',
@@ -1088,6 +1291,8 @@ export const translations = {
     stroopTestAvgReaction: 'Reacción Promedio',
     stroopTestExample: 'Ejemplo',
     stroopTestExampleAnswer: 'Respuesta correcta',
+    stroopTestClickToStart: 'Haz clic para comenzar',
+    stroopTestOrPressAnyKey: 'o presiona cualquier tecla para comenzar',
 
     // Number Memory Test
     numberMemoryTitle: 'Prueba de Memoria de Números',
@@ -1180,6 +1385,30 @@ export const translations = {
     authPasswordUpdatedDesc: 'Tu contraseña ha sido actualizada. Ahora puedes iniciar sesión con tu nueva contraseña.',
     authPasswordUpdateError: 'Error al actualizar la contraseña. Por favor intenta de nuevo.',
     authInvalidResetLink: 'Enlace de restablecimiento inválido o expirado. Por favor solicita uno nuevo.',
+
+    // Profile Page
+    profileTitle: 'Perfil',
+    profileSubtitle: 'Ver tus puntuaciones y estadísticas',
+    profileUsernameRequired: 'El nombre de usuario no puede estar vacío',
+    profileUpdateSuccess: '¡Nombre de usuario actualizado exitosamente!',
+    profileUpdateFailed: 'Actualización fallida: ',
+    profileSave: 'Guardar',
+    profileSaving: 'Guardando...',
+    profileCancel: 'Cancelar',
+    profileEditUsername: 'Editar Nombre de Usuario',
+    profileSignOut: 'Cerrar Sesión',
+    profileBestScores: 'Mejores Puntuaciones',
+    profileLoadingScores: 'Cargando puntuaciones...',
+    profileNoScores: 'Aún Sin Puntuaciones',
+    profileNoScoresDesc: 'Completa las pruebas y tus mejores puntuaciones aparecerán aquí',
+    profileBest: 'Mejor',
+    profileBreakRecord: '¿Quieres romper tu récord?',
+    profileBreakRecordDesc: '¡Desafíate a ti mismo y sube en la tabla de clasificación global!',
+    profileContinueTesting: 'Continuar Probando',
+    profileViewLeaderboard: 'Ver Tabla de Clasificación',
+
+    // Stats Page
+    statsLoadingData: 'Obteniendo tus datos de prueba',
   },
 };
 

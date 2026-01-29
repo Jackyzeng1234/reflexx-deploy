@@ -53,14 +53,21 @@ export default function StroopTest() {
       const wordColor = COLORS[wordKey];
       const displayColor = COLORS[finalColorKey];
 
+      // Get color name in current language
+      const getColorName = (color: typeof COLORS[keyof typeof COLORS]) => {
+        if (language === 'zh') return color.chinese;
+        if (language === 'es') return color.spanish;
+        return color.name;
+      };
+
       newTrials.push({
-        word: wordColor.name,
+        word: getColorName(wordColor),
         color: displayColor.hex,
         correctColor: displayColor.name,
       });
     }
     return newTrials;
-  }, []);
+  }, [language]);
 
   const startGame = useCallback(() => {
     const newTrials = generateTrials();
@@ -73,6 +80,17 @@ export default function StroopTest() {
     setStartTime(performance.now());
     hasSavedRef.current = false;
   }, [generateTrials]);
+
+  // Handle keyboard input to start game
+  useEffect(() => {
+    if (gameState === 'idle') {
+      const handleKeyPress = () => {
+        startGame();
+      };
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [gameState, startGame]);
 
   const handleColorClick = (colorName: string) => {
     if (gameState !== 'playing') return;
@@ -149,115 +167,104 @@ export default function StroopTest() {
     : 0;
 
   return (
-    <div className="flex min-h-[600px] items-center justify-center">
-      <div className="w-full max-w-4xl">
-        {/* Idle State */}
-        {gameState === 'idle' && (
-          <div className="text-center">
-            <div className="mb-8 rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-                {t.stroopTestTitle}
-              </h2>
-              <div className="mb-6 text-left text-gray-700 dark:text-gray-300">
-                <p className="mb-3">1. {t.stroopTestInstruction1}</p>
-                <p className="mb-3">2. {t.stroopTestInstruction2}</p>
-                <p className="mb-3">3. {t.stroopTestInstruction3}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {t.stroopTestTip}
-                </p>
+    <div className="flex min-h-[500px] items-center justify-center py-8">
+      <div className="w-full max-w-5xl space-y-6">
+        {/* Main Game Area - Always visible when not finished */}
+        {gameState !== 'finished' && (
+          <div
+            className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80 relative overflow-hidden"
+            onClick={() => {
+              if (gameState === 'idle') {
+                startGame();
+              }
+            }}
+          >
+            {/* Game Content - Fixed height container */}
+            <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
+              {/* Header */}
+              <div className="mb-6 flex items-center justify-between">
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  {t.stroopTestRound} {currentTrial + 1}/{totalRounds}
+                </div>
+                <div className="text-lg text-gray-600 dark:text-gray-400">
+                  {t.stroopTestScore}: {score}
+                </div>
               </div>
-              {/* Example */}
-              <div className="mb-6 rounded-xl bg-white/50 p-6 dark:bg-gray-800/50">
-                <p className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  {t.stroopTestExample}:
-                </p>
-                <div className="mb-4">
-                  <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">Word: "RED" in {language === 'zh' ? '绿色' : 'green color'}</p>
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400" style={{ fontSize: '32px', fontWeight: 'bold' }}>RED</p>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    {t.stroopTestExampleAnswer}: <strong className="text-green-600">Green</strong>
-                  </p>
-                </div>
-                <div>
-                  <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">Word: "BLUE" in {language === 'zh' ? '红色' : 'red color'}</p>
-                  <p className="text-sm font-medium text-red-600 dark:text-red-400" style={{ fontSize: '32px', fontWeight: 'bold' }}>BLUE</p>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    {t.stroopTestExampleAnswer}: <strong className="text-red-600">Red</strong>
-                  </p>
-                </div>
+
+              {/* Word Display */}
+              <div className="mb-8 flex h-48 items-center justify-center rounded-xl border-2 border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+                {showWord ? (
+                  <div
+                    className="select-none text-7xl font-bold transition-all"
+                    style={{ color: trials[currentTrial]?.color }}
+                  >
+                    {trials[currentTrial]?.word}
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    {roundResult === true && (
+                      <div className="text-6xl">✓</div>
+                    )}
+                    {roundResult === false && (
+                      <div className="text-6xl">✗</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Color Options */}
+              <div className="grid grid-cols-2 gap-4">
+                {colorKeys.map((key) => {
+                  const color = COLORS[key];
+                  const getColorName = () => {
+                    if (language === 'zh') return color.chinese;
+                    if (language === 'es') return color.spanish;
+                    return color.name;
+                  };
+
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleColorClick(color.name)}
+                      disabled={!showWord}
+                      className={`rounded-xl border-2 p-6 font-bold text-2xl transition-all ${
+                        !showWord
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'hover:scale-105 hover:shadow-lg active:scale-95'
+                      }`}
+                      style={{
+                        borderColor: color.hex,
+                        color: color.hex,
+                      }}
+                    >
+                      {getColorName()}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-            <button
-              onClick={startGame}
-              className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
-            >
-              {t.startTest}
-            </button>
-          </div>
-        )}
 
-        {/* Playing State */}
-        {gameState === 'playing' && (
-          <div className="rounded-2xl border-2 border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
-            {/* Header */}
-            <div className="mb-6 flex items-center justify-between">
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
-                {t.stroopTestRound} {currentTrial + 1}/{totalRounds}
-              </div>
-              <div className="text-lg text-gray-600 dark:text-gray-400">
-                {t.stroopTestScore}: {score}
-              </div>
-            </div>
-
-            {/* Word Display */}
-            <div className="mb-8 flex h-48 items-center justify-center rounded-xl border-2 border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
-              {showWord ? (
-                <div
-                  className="select-none text-7xl font-bold transition-all"
-                  style={{ color: trials[currentTrial]?.color }}
-                >
-                  {trials[currentTrial]?.word}
-                </div>
-              ) : (
+            {/* Idle State - Click to Start Overlay */}
+            {gameState === 'idle' && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/40 backdrop-blur-sm cursor-pointer transition-all hover:scale-[1.02] hover:bg-black/10">
                 <div className="text-center">
-                  {roundResult === true && (
-                    <div className="text-6xl">✓</div>
-                  )}
-                  {roundResult === false && (
-                    <div className="text-6xl">✗</div>
-                  )}
+                  <div className="mb-4 text-6xl">🎨</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {t.clickToStart}
+                  </div>
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    {t.orPressAnyKeyToStart}
+                  </div>
                 </div>
-              )}
-            </div>
-
-            {/* Color Options */}
-            <div className="grid grid-cols-2 gap-4">
-              {colorKeys.map((key) => (
-                <button
-                  key={key}
-                  onClick={() => handleColorClick(COLORS[key].name)}
-                  disabled={!showWord}
-                  className={`rounded-xl border-2 p-6 font-bold text-2xl transition-all ${
-                    !showWord
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'hover:scale-105 hover:shadow-lg active:scale-95'
-                  }`}
-                  style={{
-                    borderColor: COLORS[key].hex,
-                    color: COLORS[key].hex,
-                  }}
-                >
-                  {COLORS[key].name}
-                </button>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Finished State */}
         {gameState === 'finished' && (
-          <div className="rounded-2xl border-2 border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
-            <div className="rounded-xl bg-primary-50 p-8 text-center dark:bg-primary-900/20">
+          <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
+            <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-purple-50 p-6 text-center shadow-lg dark:from-primary-900/30 dark:to-purple-900/30">
               <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
                 {t.stroopTestComplete}
               </h3>
@@ -287,7 +294,7 @@ export default function StroopTest() {
                 </div>
               </div>
 
-              <div className="mb-6 rounded-lg bg-white/50 p-4 dark:bg-gray-800/50">
+              <div className="mb-6 rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
                 <div className="text-lg font-semibold text-gray-900 dark:text-white">
                   {t.srtRank}: {getRating(score)}
                 </div>
@@ -296,14 +303,40 @@ export default function StroopTest() {
               <div className="flex justify-center">
                 <button
                   onClick={startGame}
-                  className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
+                  className="rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:from-primary-700 hover:to-purple-700 hover:shadow-2xl hover:-translate-y-0.5"
                 >
                   {t.srtTryAgain}
                 </button>
-                </div>
+              </div>
             </div>
           </div>
         )}
+
+        {/* Instructions, Benefits & Improvements - Three Columns */}
+        <div className="grid gap-4 lg:grid-cols-3">
+          {/* How to Play */}
+          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
+            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white">📖 {t.howToPlay}</h3>
+            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300 text-left">
+              <li>• {t.stroopTestInstruction1}</li>
+              <li>• {t.stroopTestInstruction2}</li>
+              <li>• {t.stroopTestInstruction3}</li>
+              <li>• {t.stroopTestTip}</li>
+            </ol>
+          </div>
+
+          {/* What This Measures */}
+          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
+            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300">🧠 {t.testBenefitsTitle}</h3>
+            <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200 text-left" dangerouslySetInnerHTML={{ __html: t.stroopBenefits }} />
+          </div>
+
+          {/* How To Improve */}
+          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
+            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300">📈 {t.testHowToImproveTitle}</h3>
+            <div className="text-sm leading-relaxed text-green-800 dark:text-green-200 text-left" dangerouslySetInnerHTML={{ __html: t.stroImprovements }} />
+          </div>
+        </div>
       </div>
     </div>
   );

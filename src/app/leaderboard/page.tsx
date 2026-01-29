@@ -31,7 +31,6 @@ export default function LeaderboardPage() {
     { id: 'sequence-memory', title: t.sequenceMemoryTitle, unit: t.statsLevel, lowerIsBetter: false },
     { id: 'typing', title: t.typingTitle, unit: 'WPM', lowerIsBetter: false },
     { id: 'chimp', title: t.chimpTestTitle, unit: t.statsLevel, lowerIsBetter: false },
-    { id: 'aim-trainer', title: t.aimTrainer, unit: t.statsScore, lowerIsBetter: false },
     { id: 'stroop', title: t.stroopTestTitle, unit: t.stroopTestScore, lowerIsBetter: false },
     { id: 'number-memory', title: t.numberMemoryTitle, unit: t.statsDigits, lowerIsBetter: false },
   ];
@@ -44,7 +43,6 @@ export default function LeaderboardPage() {
     'sequence-memory': 'sequence-memory-results',
     'typing': 'typing-results',
     'chimp': 'chimp-results',
-    'aim-trainer': 'aim-trainer-results',
     'stroop': 'stroop-results',
     'number-memory': 'number-memory-results',
   };
@@ -121,11 +119,6 @@ export default function LeaderboardPage() {
           break;
         case 'chimp':
           details = '';
-          break;
-        case 'aim-trainer':
-          details = score.details?.accuracy
-            ? `${t.statsAccuracy}: ${score.details.accuracy}%`
-            : '';
           break;
         case 'stroop':
           details = score.details?.averageReactionTime
@@ -256,13 +249,6 @@ export default function LeaderboardPage() {
           details: `${r.numbers} ${t.statsNumbers}`,
         }));
         break;
-      case 'aim-trainer':
-        processedResults = results.map((r: any) => ({
-          score: r.score,
-          timestamp: r.timestamp,
-          details: `${t.statsAccuracy}: ${r.accuracy}%`,
-        }));
-        break;
       case 'stroop':
         processedResults = results.map((r: any) => ({
           score: r.score,
@@ -333,7 +319,7 @@ export default function LeaderboardPage() {
                 className={`rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-all ${
                   testType === test.id
                     ? 'border-primary-500 bg-primary-600 text-white'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-primary-300 hover:bg-primary-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                    : 'border-gray-200/50 bg-white/80 text-gray-700 hover:border-primary-300 hover:bg-primary-50 dark:border-gray-700/50 dark:bg-gray-800/80 dark:text-gray-300'
                 }`}
               >
                 {test.title}
@@ -344,7 +330,7 @@ export default function LeaderboardPage() {
 
         {/* User's Best Score */}
         {userBest && (
-          <div className="mb-8 rounded-2xl border-2 border-primary-200 bg-primary-50 p-6 dark:border-primary-800 dark:bg-primary-900/20">
+          <div className="mb-8 rounded-2xl border-2 border-primary-200/50 bg-primary-50/80 backdrop-blur-sm p-6 dark:border-primary-800/50 dark:bg-primary-900/20">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">
@@ -363,7 +349,7 @@ export default function LeaderboardPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="mb-8 rounded-2xl border-2 border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-8 rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">⏳</div>
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               {t.lbLoading || 'Loading...'}
@@ -376,7 +362,7 @@ export default function LeaderboardPage() {
 
         {/* No Data State */}
         {!loading && leaderboard.length === 0 && (
-          <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300/50 bg-gray-50/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">🏆</div>
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               {t.statsNoDataTitle}
@@ -398,7 +384,7 @@ export default function LeaderboardPage() {
 
         {/* Leaderboard Table */}
         {!loading && leaderboard.length > 0 && (
-          <div className="overflow-hidden rounded-2xl border-2 border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm shadow-lg dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-900">
@@ -484,7 +470,7 @@ export default function LeaderboardPage() {
 
         {/* CTA */}
         {leaderboard.length > 0 && (
-          <div className="mt-8 rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 text-center dark:border-primary-800 dark:bg-primary-900/20">
+          <div className="mt-8 rounded-2xl border-2 border-primary-200/50 bg-primary-50/80 backdrop-blur-sm p-8 text-center dark:border-primary-800/50 dark:bg-primary-900/20">
             <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
               {t.lbWantToBeOnLeaderboard}
             </h3>

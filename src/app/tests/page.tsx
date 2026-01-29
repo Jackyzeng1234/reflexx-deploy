@@ -63,17 +63,6 @@ export default function TestsPage() {
       category: 'reaction',
     },
     {
-      id: 'aim-trainer',
-      title: t.aimTrainer,
-      description: t.aimTrainerDesc,
-      icon: '🎯',
-      color: 'from-orange-500 to-orange-600',
-      href: '/tests/aim-trainer',
-      status: 'available',
-      difficulty: 'medium',
-      category: 'speed',
-    },
-    {
       id: 'sequence-memory',
       title: t.sequenceMemoryTitle,
       description: t.sequenceMemoryDesc,
@@ -171,7 +160,7 @@ export default function TestsPage() {
                 <Link
                   key={test.id}
                   href={test.href}
-                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-green-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:hover:border-green-600"
+                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 shadow-sm transition-all hover:border-green-300 hover:shadow-xl dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-green-600"
                 >
                   <div className="flex flex-col items-center text-center">
                     <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${test.color} text-3xl shadow-lg`}>
@@ -207,7 +196,7 @@ export default function TestsPage() {
                 <Link
                   key={test.id}
                   href={test.href}
-                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-yellow-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:hover:border-yellow-600"
+                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 shadow-sm transition-all hover:border-yellow-300 hover:shadow-xl dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-yellow-600"
                 >
                   <div className="flex flex-col items-center text-center">
                     <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${test.color} text-3xl shadow-lg`}>
@@ -243,7 +232,7 @@ export default function TestsPage() {
                 <Link
                   key={test.id}
                   href={test.href}
-                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-red-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:hover:border-red-600"
+                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 shadow-sm transition-all hover:border-red-300 hover:shadow-xl dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-red-600"
                 >
                   <div className="flex flex-col items-center text-center">
                     <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${test.color} text-3xl shadow-lg`}>

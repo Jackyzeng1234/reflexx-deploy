@@ -33,7 +33,6 @@ export default function ProfilePage() {
     { id: 'sequence-memory', title: t.sequenceMemoryTitle, unit: t.statsLevel, icon: '🧠', lowerIsBetter: false },
     { id: 'typing', title: t.typingTitle, unit: 'Net WPM', icon: '⌨️', lowerIsBetter: false },
     { id: 'chimp', title: t.chimpTestTitle, unit: t.statsLevel, icon: '🐒', lowerIsBetter: false },
-    { id: 'aim-trainer', title: t.aimTrainer, unit: t.statsScore, icon: '🎯', lowerIsBetter: false },
     { id: 'stroop', title: t.stroopTestTitle, unit: t.stroopTestScore, icon: '🎨', lowerIsBetter: false },
     { id: 'number-memory', title: t.numberMemoryTitle, unit: t.statsDigits, icon: '🔢', lowerIsBetter: false },
   ];
@@ -82,7 +81,7 @@ export default function ProfilePage() {
 
   const handleUpdateUsername = async () => {
     if (!newUsername.trim()) {
-      setUpdateMessage('用户名不能为空');
+      setUpdateMessage(t.profileUsernameRequired);
       return;
     }
 
@@ -101,11 +100,11 @@ export default function ProfilePage() {
       await refreshProfile();
       setIsEditing(false);
       setNewUsername('');
-      setUpdateMessage('用户名更新成功！');
+      setUpdateMessage(t.profileUpdateSuccess);
       setTimeout(() => setUpdateMessage(''), 3000);
     } catch (error: any) {
       console.error('Error updating username:', error);
-      setUpdateMessage('更新失败：' + error.message);
+      setUpdateMessage(t.profileUpdateFailed + error.message);
     } finally {
       setUpdateLoading(false);
     }
@@ -122,7 +121,7 @@ export default function ProfilePage() {
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-4 text-6xl">⏳</div>
           <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-            加载中...
+            {t.loading}
           </h2>
         </div>
       </div>
@@ -135,10 +134,10 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
-            个人中心
+            {t.profileTitle}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            查看您的测试成绩和统计信息
+            {t.profileSubtitle}
           </p>
         </div>
 
@@ -166,7 +165,7 @@ export default function ProfilePage() {
                         disabled={updateLoading}
                         className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
                       >
-                        {updateLoading ? '保存中...' : '保存'}
+                        {updateLoading ? t.profileSaving : t.profileSave}
                       </button>
                       <button
                         onClick={() => {
@@ -176,7 +175,7 @@ export default function ProfilePage() {
                         }}
                         className="rounded-lg bg-gray-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-gray-700"
                       >
-                        取消
+                        {t.profileCancel}
                       </button>
                     </div>
                   ) : (
@@ -190,7 +189,7 @@ export default function ProfilePage() {
 
               {updateMessage && (
                 <div className={`mb-2 text-sm font-semibold ${
-                  updateMessage.includes('成功') ? 'text-green-600' : 'text-red-600'
+                  updateMessage.includes(t.profileUpdateSuccess) || updateMessage.includes('success') || updateMessage.includes('Successfully') || updateMessage.includes('exitosamente') ? 'text-green-600' : 'text-red-600'
                 }`}>
                   {updateMessage}
                 </div>
@@ -206,14 +205,14 @@ export default function ProfilePage() {
                     }}
                     className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
                   >
-                    修改用户名
+                    {t.profileEditUsername}
                   </button>
                 )}
                 <button
                   onClick={handleSignOut}
                   className="rounded-lg border-2 border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
                 >
-                  退出登录
+                  {t.profileSignOut}
                 </button>
               </div>
             </div>
@@ -223,28 +222,28 @@ export default function ProfilePage() {
         {/* Best Scores Grid */}
         <div className="mb-8">
           <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-            历史最佳成绩
+            {t.profileBestScores}
           </h2>
 
           {loading ? (
             <div className="rounded-2xl border-2 border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4 text-6xl">⏳</div>
-              <p className="text-gray-600 dark:text-gray-300">加载成绩中...</p>
+              <p className="text-gray-600 dark:text-gray-300">{t.profileLoadingScores}</p>
             </div>
           ) : Object.keys(bestScores).length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4 text-6xl">📊</div>
               <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
-                暂无成绩
+                {t.profileNoScores}
               </h3>
               <p className="mb-6 text-gray-600 dark:text-gray-300">
-                完成测试后，您的最佳成绩将显示在这里
+                {t.profileNoScoresDesc}
               </p>
               <Link
                 href="/tests"
                 className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
               >
-                开始测试
+                {t.getStarted}
                 <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -265,7 +264,7 @@ export default function ProfilePage() {
                     <div className="mb-3 flex items-center justify-between">
                       <div className="text-4xl">{test.icon}</div>
                       <div className="rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                        最佳
+                        {t.profileBest}
                       </div>
                     </div>
                     <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
@@ -291,17 +290,17 @@ export default function ProfilePage() {
         {Object.keys(bestScores).length > 0 && (
           <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 text-center dark:border-primary-800 dark:bg-primary-900/20">
             <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-              想要打破纪录？
+              {t.profileBreakRecord}
             </h3>
             <p className="mb-6 text-gray-600 dark:text-gray-300">
-              挑战自己，在全球排行榜上争取更好的排名！
+              {t.profileBreakRecordDesc}
             </p>
             <div className="flex justify-center space-x-4">
               <Link
                 href="/tests"
                 className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
               >
-                继续测试
+                {t.profileContinueTesting}
                 <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -310,7 +309,7 @@ export default function ProfilePage() {
                 href="/leaderboard"
                 className="inline-flex items-center rounded-lg border-2 border-primary-600 px-6 py-3 font-semibold text-primary-600 transition-all hover:bg-primary-50 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-900/20"
               >
-                查看排行榜
+                {t.profileViewLeaderboard}
               </Link>
             </div>
           </div>

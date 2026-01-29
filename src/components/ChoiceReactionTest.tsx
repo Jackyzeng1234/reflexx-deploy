@@ -58,6 +58,17 @@ export default function ChoiceReactionTest() {
     }, delay);
   }, [getRandomTarget]);
 
+  // Handle keyboard input to start game
+  useEffect(() => {
+    if (gameState === 'idle') {
+      const handleKeyPress = () => {
+        startGame();
+      };
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [gameState, startGame]);
+
   const nextRound = useCallback(() => {
     if (currentRound + 1 >= totalRounds) {
       setGameState('finished');
@@ -145,118 +156,145 @@ export default function ChoiceReactionTest() {
     : 0;
 
   return (
-    <div className="flex min-h-[500px] items-center justify-center">
-      {/* Idle State */}
-      {gameState === 'idle' && (
-        <div className="text-center">
-          <div className="mb-8 rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-              {t.howToPlay}
-            </h2>
-            <div className="mb-6 text-left text-gray-700 dark:text-gray-300">
-              <p className="mb-3">1. {t.choiceReactionInstruction1}</p>
-              <p className="mb-3">2. {t.choiceReactionInstruction2}</p>
-              <p className="mb-3">3. {t.choiceReactionInstruction3.replace('{rounds}', String(totalRounds))}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {t.choiceReactionPenalty}
-              </p>
-            </div>
-            <div className="mb-6 flex justify-center gap-4">
-              {targets.map((target) => (
-                <div
-                  key={target.key}
-                  className="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-gray-300 bg-white text-3xl font-bold text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
-                >
-                  {target.icon}
-                </div>
-              ))}
-            </div>
-          </div>
-          <button
-            onClick={startGame}
-            className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
+    <div className="flex min-h-[500px] items-center justify-center py-8">
+      <div className="w-full max-w-5xl space-y-6">
+        {/* Main Game Area - Always visible when not finished */}
+        {gameState !== 'finished' && (
+          <div
+            className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80 relative overflow-hidden"
+            onClick={() => {
+              if (gameState === 'idle') {
+                startGame();
+              }
+            }}
           >
-            {t.startTest}
-          </button>
-        </div>
-      )}
-
-      {/* Waiting State */}
-      {gameState === 'waiting' && (
-        <div className="text-center">
-          <div className="mb-8 text-7xl">⏳</div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t.getReady}
-          </p>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            Round {currentRound + 1} / {totalRounds}
-          </p>
-        </div>
-      )}
-
-      {/* Ready State */}
-      {gameState === 'ready' && currentTarget && (
-        <div className="text-center">
-          <div className="mb-8 flex h-48 w-48 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-700 text-9xl shadow-2xl">
-            {currentTarget.icon}
-          </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t.pressArrow.replace('{direction}', currentTarget.label)}
-          </p>
-        </div>
-      )}
-
-      {/* Finished State */}
-      {gameState === 'finished' && reactionTimes.length > 0 && (
-        <div className="w-full max-w-2xl text-center">
-          <div className="mb-8 rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-            <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
-              {t.srtResults}
-            </h2>
-
-            <div className="mb-6">
-              <div className="text-5xl font-bold text-primary-600 dark:text-primary-400">
-                {averageTime}ms
-              </div>
-              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                {t.srtAverage}
-              </div>
-            </div>
-
-            <div className="mb-6 rounded-xl bg-white/50 p-4 dark:bg-gray-800/50">
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t.srtRank}: {getRating(averageTime)}
-              </div>
-            </div>
-
-            <div className="mb-4 grid grid-cols-5 gap-2">
-              {reactionTimes.map((time, index) => (
-                <div
-                  key={index}
-                  className={`rounded-lg p-2 text-center text-sm ${
-                    time < 500
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : time < 600
-                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                  }`}
-                >
-                  {Math.round(time)}ms
+            {/* Game Content - Fixed height container */}
+            <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
+              {/* Waiting State */}
+              {gameState === 'waiting' && (
+                <div className="flex h-full min-h-[500px] items-center justify-center">
+                  <div className="text-center">
+                    <div className="mb-8 text-7xl">⏳</div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {t.getReady}
+                    </p>
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                      Round {currentRound + 1} / {totalRounds}
+                    </p>
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {/* Ready State */}
+              {gameState === 'ready' && currentTarget && (
+                <div className="flex h-full min-h-[500px] items-center justify-center">
+                  <div className="text-center">
+                    <div className="mb-8 flex h-48 w-48 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-700 text-9xl shadow-2xl">
+                      {currentTarget.icon}
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {t.pressArrow.replace('{direction}', currentTarget.label)}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Idle State - Click to Start Overlay */}
+            {gameState === 'idle' && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/40 backdrop-blur-sm cursor-pointer transition-all hover:scale-[1.02] hover:bg-black/10">
+                <div className="text-center">
+                  <div className="mb-4 text-6xl">🎮</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {t.clickToStart}
+                  </div>
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    {t.orPressAnyKeyToStart}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Finished State */}
+        {gameState === 'finished' && reactionTimes.length > 0 && (
+          <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
+            <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-purple-50 p-6 text-center shadow-lg dark:from-primary-900/30 dark:to-purple-900/30">
+              <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+                {t.srtResults}
+              </h3>
+
+              <div className="mb-4">
+                <div className="text-5xl font-bold text-primary-600 dark:text-primary-400">
+                  {averageTime}ms
+                </div>
+                <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  {t.srtAverage}
+                </div>
+              </div>
+
+              <div className="mb-6 rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t.srtRank}: {getRating(averageTime)}
+                </div>
+              </div>
+
+              <div className="mb-6 grid grid-cols-5 gap-2">
+                {reactionTimes.map((time, index) => (
+                  <div
+                    key={index}
+                    className={`rounded-lg p-2 text-center text-sm ${
+                      time < 500
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : time < 600
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    }`}
+                  >
+                    {Math.round(time)}ms
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={startGame}
+                  className="rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:from-primary-700 hover:to-purple-700 hover:shadow-2xl hover:-translate-y-0.5"
+                >
+                  {t.srtTryAgain}
+                </button>
+              </div>
             </div>
           </div>
+        )}
 
-          <div className="flex justify-center">
-            <button
-              onClick={startGame}
-              className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
-            >
-              {t.srtTryAgain}
-            </button>
-            </div>
+        {/* Instructions, Benefits & Improvements - Three Columns */}
+        <div className="grid gap-4 lg:grid-cols-3">
+          {/* How to Play */}
+          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
+            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white">📖 {t.howToPlay}</h3>
+            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300 text-left">
+              <li>• {t.choiceReactionInstruction1}</li>
+              <li>• {t.choiceReactionInstruction2}</li>
+              <li>• {t.choiceReactionInstruction3.replace('{rounds}', String(totalRounds))}</li>
+              <li>• {t.choiceReactionPenalty}</li>
+            </ol>
+          </div>
+
+          {/* What This Measures */}
+          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
+            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300">🧠 {t.testBenefitsTitle}</h3>
+            <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200 text-left" dangerouslySetInnerHTML={{ __html: t.crtBenefits }} />
+          </div>
+
+          {/* How To Improve */}
+          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
+            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300">📈 {t.testHowToImproveTitle}</h3>
+            <div className="text-sm leading-relaxed text-green-800 dark:text-green-200 text-left" dangerouslySetInnerHTML={{ __html: t.crtImprovements }} />
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

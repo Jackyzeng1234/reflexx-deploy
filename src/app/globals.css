@@ -55,13 +55,14 @@
     border-color: #e5e7eb;
   }
   body {
-    background-color: #ffffff;
+    background: linear-gradient(135deg, #bfdbfe 0%, #c7d2fe 25%, #ddd6fe 50%, #e9d5ff 75%, #f0abfc 100%);
     color: #111827;
     font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
   }
 
   .dark body {
-    background-color: #111827;
+    background: linear-gradient(135deg, #1e3a8a 0%, #312e81 35%, #4c1d95 65%, #701a75 100%);
     color: #f9fafb;
   }
 

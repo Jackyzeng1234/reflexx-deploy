@@ -21,7 +21,6 @@ const localStorageToTestType: Record<string, string> = {
   'typing-results': 'typing',
   'chimp-results': 'chimp',
   'choice-reaction-results': 'choice-reaction',
-  'aim-trainer-results': 'aim-trainer',
   'stroop-results': 'stroop',
   'number-memory-results': 'number-memory',
 };
@@ -159,13 +158,6 @@ export default function StatsPage() {
           timestamp: new Date(created_at).getTime(),
         };
 
-      case 'aim-trainer':
-        return {
-          score: value,
-          accuracy: details?.accuracy || 0,
-          timestamp: new Date(created_at).getTime(),
-        };
-
       case 'stroop':
         return {
           score: value,
@@ -266,16 +258,6 @@ export default function StatsPage() {
       getAverage: (results) => Math.round(results.reduce((sum, r) => sum + r.average, 0) / results.length),
       getBest: (results) => Math.min(...results.map((r) => r.average)),
     },
-    'aim-trainer-results': {
-      title: t.statsAimTrainerTitle,
-      icon: '🎯',
-      color: 'red',
-      unit: t.statsScore,
-      getValue: (r) => r.score,
-      getDisplay: (r) => ({ label: `${t.statsScore}: ${r.score}`, value: `${t.statsAccuracy}: ${r.accuracy}%` }),
-      getAverage: (results) => Math.round(results.reduce((sum, r) => sum + r.score, 0) / results.length),
-      getBest: (results) => Math.max(...results.map((r) => r.score)),
-    },
     'stroop-results': {
       title: t.statsStroopTitle,
       icon: '🎨',
@@ -313,16 +295,16 @@ export default function StatsPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="mb-8 rounded-2xl border-2 border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-8 rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">📊</div>
-            <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">加载中...</h3>
-            <p className="text-gray-600 dark:text-gray-300">正在获取你的测试数据</p>
+            <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{t.loading}</h3>
+            <p className="text-gray-600 dark:text-gray-300">{t.statsLoadingData}</p>
           </div>
         )}
 
         {/* No Data State */}
         {!loading && !hasAnyData && (
-          <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300/50 bg-gray-50/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">📊</div>
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{t.statsNoDataTitle}</h3>
             <p className="mb-6 text-gray-600 dark:text-gray-300">{t.statsNoData}</p>
@@ -425,7 +407,7 @@ export default function StatsPage() {
                 const recentResults = results.slice(-5).reverse();
 
                 return (
-                  <div key={testType} className="rounded-2xl border-2 border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                  <div key={testType} className="rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 dark:border-gray-700/50 dark:bg-gray-800/80">
                     <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
                       {config.title} - {t.statsRecentSimpleReactionTests.split('Simple')[1] || t.statsRecentSimpleReactionTests}
                     </h2>
@@ -435,7 +417,7 @@ export default function StatsPage() {
                         return (
                           <div
                             key={index}
-                            className="flex items-center justify-between rounded-lg bg-gray-50 p-4 dark:bg-gray-700"
+                            className="flex items-center justify-between rounded-lg bg-gray-50/80 backdrop-blur-sm p-4 dark:bg-gray-700/80"
                           >
                             <div className="flex items-center gap-4">
                               <div className="text-2xl">{config.icon}</div>

@@ -53,15 +53,6 @@ export default function HomePage() {
       difficulty: t.difficultyMedium,
     },
     {
-      id: 'aim-trainer',
-      title: t.aimTrainer,
-      description: t.aimTrainerDesc,
-      icon: '🎯',
-      color: 'from-orange-500 to-orange-600',
-      href: '/tests/aim-trainer',
-      difficulty: t.difficultyMedium,
-    },
-    {
       id: 'sequence-memory',
       title: t.sequenceMemoryTitle,
       description: t.sequenceMemoryDesc,
@@ -102,9 +93,9 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="container relative mx-auto px-4 py-16 text-center">
+        <div className="container relative mx-auto px-4 pt-16 pb-8 text-center">
           <div className="mx-auto max-w-4xl">
             <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
               {t.heroTitle}
@@ -128,13 +119,10 @@ export default function HomePage() {
       </section>
 
       {/* Tests Section */}
-      <section className="py-12 dark:bg-gray-900">
+      <section className="pt-4 pb-12">
         <div className="container mx-auto px-4">
           <div className="mb-8 text-center">
-            <h2 className="mb-3 text-4xl font-bold text-gray-900 dark:text-white">
-              {t.navTests}
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
               {t.chooseTest}
             </p>
           </div>
@@ -144,7 +132,7 @@ export default function HomePage() {
               <Link
                 key={test.id}
                 href={test.href}
-                className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-primary-300 hover:shadow-lg hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600"
+                className="group relative overflow-hidden rounded-xl border-2 border-white/40 bg-white/60 backdrop-blur-md p-5 shadow-sm transition-all hover:border-primary-300 hover:bg-white/70 hover:shadow-lg hover:-translate-y-1 dark:border-white/10 dark:bg-black/30 dark:hover:bg-black/40 dark:hover:border-primary-600"
               >
                 <div className="flex flex-col items-center text-center">
                   <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${test.color} text-2xl shadow-md`}>
@@ -173,7 +161,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 dark:bg-gray-800">
+      <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="mb-8 text-center">
             <h2 className="mb-3 text-4xl font-bold text-gray-900 dark:text-white">
@@ -185,7 +173,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-900">
+            <div className="rounded-2xl bg-white/60 backdrop-blur-md p-6 shadow-lg dark:bg-black/30">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/30">
                 <svg className="h-7 w-7 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -197,7 +185,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-900">
+            <div className="rounded-2xl bg-white/60 backdrop-blur-md p-6 shadow-lg dark:bg-black/30">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/30">
                 <svg className="h-7 w-7 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -209,7 +197,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-900">
+            <div className="rounded-2xl bg-white/60 backdrop-blur-md p-6 shadow-lg dark:bg-black/30">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/30">
                 <svg className="h-7 w-7 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
