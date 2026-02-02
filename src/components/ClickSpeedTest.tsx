@@ -41,10 +41,10 @@ export default function ClickSpeedTest() {
     }
 
     if (testState === 'finished') {
-      // Reset and restart
+      // Reset to idle state to allow duration selection
+      setTestState('idle');
       setClicks(0);
       setCps(0);
-      startTest();
       return;
     }
 
@@ -190,29 +190,32 @@ export default function ClickSpeedTest() {
           </p>
         </div>
 
-        {/* Duration Selector */}
-        {testState === 'idle' && (
-          <div className="mb-8 rounded-2xl border-2 border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-              {t.cstSelectDuration}
-            </h2>
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-              {durations.map((duration) => (
-                <button
-                  key={duration}
-                  onClick={() => setSelectedDuration(duration)}
-                  className={`rounded-lg border-2 px-4 py-3 font-semibold transition-all ${
-                    selectedDuration === duration
-                      ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                      : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300 hover:bg-primary-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-600 dark:hover:bg-primary-900/10'
-                  }`}
-                >
-                  {duration}s
-                </button>
-              ))}
-            </div>
+        {/* Duration Selector - Always visible */}
+        <div className="mb-8 rounded-2xl border-2 border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+            {t.cstSelectDuration}
+          </h2>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {durations.map((duration) => (
+              <button
+                key={duration}
+                onClick={() => setSelectedDuration(duration)}
+                disabled={testState === 'running' || testState === 'cooldown'}
+                className={`rounded-lg border-2 px-4 py-3 font-semibold transition-all ${
+                  selectedDuration === duration
+                    ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+                    : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300 hover:bg-primary-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-600 dark:hover:bg-primary-900/10'
+                } ${
+                  testState === 'running' || testState === 'cooldown'
+                    ? 'cursor-not-allowed opacity-50'
+                    : ''
+                }`}
+              >
+                {duration}s
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
         {/* Click Area */}
         <div className="mb-8">
@@ -227,7 +230,7 @@ export default function ClickSpeedTest() {
                 ? 'border-green-400 bg-green-500'
                 : 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 dark:border-primary-700'
             } shadow-xl`}
-            style={{ aspectRatio: '2/1' }}
+            style={{ aspectRatio: '21/9' }}
           >
             <div className="flex h-full flex-col items-center justify-center text-white">
               {testState === 'idle' && (
@@ -297,36 +300,36 @@ export default function ClickSpeedTest() {
         {/* Results */}
         {testState === 'finished' && (
           <div className="space-y-6">
-            <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-              <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 dark:border-primary-800 dark:bg-primary-900/20">
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <div className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                     {t.cstTotalClicks}
                   </div>
-                  <div className="text-5xl font-bold text-primary-600 dark:text-primary-400">
+                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
                     {clicks}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <div className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                     {t.cstAverageCPS}
                   </div>
-                  <div className="text-5xl font-bold text-primary-600 dark:text-primary-400">
+                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
                     {finalCps}
                   </div>
-                  <div className={`mt-2 text-lg font-semibold ${getCpsRating(finalCps).color}`}>
+                  <div className={`mt-1 text-base font-semibold ${getCpsRating(finalCps).color}`}>
                     {getCpsRating(finalCps).text}
                   </div>
                 </div>
               </div>
 
               {/* Best Record */}
-              <div className="mt-6 border-t border-primary-200 pt-6 dark:border-primary-800">
+              <div className="mt-4 border-t border-primary-200 pt-4 dark:border-primary-800">
                 <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <div className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                     {t.cstBestRecord} ({getDurationKey(selectedDuration)})
                   </div>
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {Math.max(
                       ...JSON.parse(localStorage.getItem('click-speed-results') || '[]')
                         .filter((r: any) => r.duration === selectedDuration)
@@ -347,7 +350,7 @@ export default function ClickSpeedTest() {
                   setClicks(0);
                   setCps(0);
                 }}
-                className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
+                className="w-full max-w-sm rounded-2xl bg-[var(--color-accent)] px-6 py-3 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
               >
                 {t.cstRestart}
               </button>

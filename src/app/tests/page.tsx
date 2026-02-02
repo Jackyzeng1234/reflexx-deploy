@@ -2,6 +2,17 @@
 
 import { useI18n } from '@/lib/i18n';
 import Link from 'next/link';
+import {
+  SimpleReactionIcon,
+  AuditoryReactionIcon,
+  ClickSpeedIcon,
+  TypingIcon,
+  ChoiceReactionIcon,
+  SequenceMemoryIcon,
+  ChimpTestIcon,
+  StroopTestIcon,
+  NumberMemoryIcon,
+} from '@/components/TestIcons';
 
 export default function TestsPage() {
   const { t } = useI18n();
@@ -11,8 +22,7 @@ export default function TestsPage() {
       id: 'simple-reaction',
       title: t.simpleReaction,
       description: t.simpleReactionDesc,
-      icon: '⚡',
-      color: 'from-blue-500 to-blue-600',
+      icon: SimpleReactionIcon,
       href: '/tests/simple-reaction',
       status: 'available',
       difficulty: 'easy',
@@ -22,8 +32,7 @@ export default function TestsPage() {
       id: 'auditory-reaction',
       title: t.auditoryReactionTitle,
       description: t.auditoryReactionDesc,
-      icon: '🔊',
-      color: 'from-cyan-500 to-cyan-600',
+      icon: AuditoryReactionIcon,
       href: '/tests/auditory-reaction',
       status: 'available',
       difficulty: 'easy',
@@ -33,8 +42,7 @@ export default function TestsPage() {
       id: 'click-speed',
       title: t.clickSpeed,
       description: t.clickSpeedDesc,
-      icon: '🖱️',
-      color: 'from-green-500 to-green-600',
+      icon: ClickSpeedIcon,
       href: '/tests/click-speed',
       status: 'available',
       difficulty: 'easy',
@@ -44,8 +52,7 @@ export default function TestsPage() {
       id: 'typing',
       title: t.typingTitle,
       description: t.typingDesc,
-      icon: '⌨️',
-      color: 'from-teal-500 to-teal-600',
+      icon: TypingIcon,
       href: '/tests/typing',
       status: 'available',
       difficulty: 'medium',
@@ -55,8 +62,7 @@ export default function TestsPage() {
       id: 'choice-reaction',
       title: t.choiceReaction,
       description: t.choiceReactionDesc,
-      icon: '🎮',
-      color: 'from-purple-500 to-purple-600',
+      icon: ChoiceReactionIcon,
       href: '/tests/choice-reaction',
       status: 'available',
       difficulty: 'medium',
@@ -66,8 +72,7 @@ export default function TestsPage() {
       id: 'sequence-memory',
       title: t.sequenceMemoryTitle,
       description: t.sequenceMemoryDesc,
-      icon: '🧠',
-      color: 'from-pink-500 to-pink-600',
+      icon: SequenceMemoryIcon,
       href: '/tests/sequence-memory',
       status: 'available',
       difficulty: 'medium',
@@ -77,8 +82,7 @@ export default function TestsPage() {
       id: 'chimp-test',
       title: t.chimpTestTitle,
       description: t.chimpTestDesc,
-      icon: '🐵',
-      color: 'from-amber-500 to-amber-600',
+      icon: ChimpTestIcon,
       href: '/tests/chimp-test',
       status: 'available',
       difficulty: 'hard',
@@ -88,8 +92,7 @@ export default function TestsPage() {
       id: 'stroop-test',
       title: t.stroopTestTitle,
       description: t.stroopTestDesc,
-      icon: '🎨',
-      color: 'from-violet-500 to-violet-600',
+      icon: StroopTestIcon,
       href: '/tests/stroop-test',
       status: 'available',
       difficulty: 'hard',
@@ -99,8 +102,7 @@ export default function TestsPage() {
       id: 'number-memory',
       title: t.numberMemoryTitle,
       description: t.numberMemoryDesc,
-      icon: '🔢',
-      color: 'from-rose-500 to-rose-600',
+      icon: NumberMemoryIcon,
       href: '/tests/number-memory',
       status: 'available',
       difficulty: 'hard',
@@ -111,18 +113,21 @@ export default function TestsPage() {
   const difficultyConfig = {
     easy: {
       label: t.difficultyEasy,
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
+      bgColor: 'bg-green-50 dark:bg-green-950',
       textColor: 'text-green-700 dark:text-green-400',
+      borderColor: 'border-green-200 dark:border-green-800',
     },
     medium: {
       label: t.difficultyMedium,
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
+      bgColor: 'bg-yellow-50 dark:bg-yellow-950',
       textColor: 'text-yellow-700 dark:text-yellow-400',
+      borderColor: 'border-yellow-200 dark:border-yellow-800',
     },
     hard: {
       label: t.difficultyHard,
-      bgColor: 'bg-red-100 dark:bg-red-900/30',
+      bgColor: 'bg-red-50 dark:bg-red-950',
       textColor: 'text-red-700 dark:text-red-400',
+      borderColor: 'border-red-200 dark:border-red-800',
     },
   };
 
@@ -131,14 +136,14 @@ export default function TestsPage() {
   const hardTests = tests.filter((test) => test.difficulty === 'hard');
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen px-4 py-16">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-4 text-5xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
             {t.navTests}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-xl text-[var(--color-text-secondary)]">
             {t.chooseTest}
           </p>
         </div>
@@ -148,145 +153,148 @@ export default function TestsPage() {
           {/* Easy Tests */}
           <div>
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                <span className="text-xl">🌱</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100">
+                <span className="text-2xl">⭐</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-3xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
                 {difficultyConfig.easy.label}
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {easyTests.map((test) => (
-                <Link
-                  key={test.id}
-                  href={test.href}
-                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 shadow-sm transition-all hover:border-green-300 hover:shadow-xl dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-green-600"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${test.color} text-3xl shadow-lg`}>
-                      {test.icon}
+            <div className="bento-grid">
+              {easyTests.map((test) => {
+                const IconComponent = test.icon;
+                return (
+                  <Link
+                    key={test.id}
+                    href={test.href}
+                    className="bento-card group relative flex flex-col items-center text-center text-[var(--color-text)] transition-all hover:text-[var(--color-text)]"
+                  >
+                    <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 text-[var(--color-accent)] shadow-sm group-hover:scale-110 transition-transform">
+                      <IconComponent />
                     </div>
-                    <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="mb-2 text-xl font-bold leading-tight">
                       {test.title}
                     </h3>
-                    <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                    <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)] line-clamp-2">
                       {test.description}
                     </p>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${difficultyConfig.easy.bgColor} ${difficultyConfig.easy.textColor}`}>
+                    <span className={`mt-auto rounded-full px-3 py-1 text-xs font-semibold ${difficultyConfig.easy.bgColor} ${difficultyConfig.easy.textColor}`}>
                       {difficultyConfig.easy.label}
                     </span>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
           {/* Medium Tests */}
           <div>
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-                <span className="text-xl">🌿</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100">
+                <span className="text-2xl">⭐⭐</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-3xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
                 {difficultyConfig.medium.label}
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {mediumTests.map((test) => (
-                <Link
-                  key={test.id}
-                  href={test.href}
-                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 shadow-sm transition-all hover:border-yellow-300 hover:shadow-xl dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-yellow-600"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${test.color} text-3xl shadow-lg`}>
-                      {test.icon}
+            <div className="bento-grid">
+              {mediumTests.map((test) => {
+                const IconComponent = test.icon;
+                return (
+                  <Link
+                    key={test.id}
+                    href={test.href}
+                    className="bento-card group relative flex flex-col items-center text-center text-[var(--color-text)] transition-all hover:text-[var(--color-text)]"
+                  >
+                    <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 text-[var(--color-accent)] shadow-sm group-hover:scale-110 transition-transform">
+                      <IconComponent />
                     </div>
-                    <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="mb-2 text-xl font-bold leading-tight">
                       {test.title}
                     </h3>
-                    <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                    <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)] line-clamp-2">
                       {test.description}
                     </p>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${difficultyConfig.medium.bgColor} ${difficultyConfig.medium.textColor}`}>
+                    <span className={`mt-auto rounded-full px-3 py-1 text-xs font-semibold ${difficultyConfig.medium.bgColor} ${difficultyConfig.medium.textColor}`}>
                       {difficultyConfig.medium.label}
                     </span>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
           {/* Hard Tests */}
           <div>
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                <span className="text-xl">🌳</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100">
+                <span className="text-2xl">⭐⭐⭐</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-3xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
                 {difficultyConfig.hard.label}
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {hardTests.map((test) => (
-                <Link
-                  key={test.id}
-                  href={test.href}
-                  className="group relative overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 shadow-sm transition-all hover:border-red-300 hover:shadow-xl dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-red-600"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${test.color} text-3xl shadow-lg`}>
-                      {test.icon}
+            <div className="bento-grid">
+              {hardTests.map((test) => {
+                const IconComponent = test.icon;
+                return (
+                  <Link
+                    key={test.id}
+                    href={test.href}
+                    className="bento-card group relative flex flex-col items-center text-center text-[var(--color-text)] transition-all hover:text-[var(--color-text)]"
+                  >
+                    <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 text-[var(--color-accent)] shadow-sm group-hover:scale-110 transition-transform">
+                      <IconComponent />
                     </div>
-                    <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="mb-2 text-xl font-bold leading-tight">
                       {test.title}
                     </h3>
-                    <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                    <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)] line-clamp-2">
                       {test.description}
                     </p>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${difficultyConfig.hard.bgColor} ${difficultyConfig.hard.textColor}`}>
+                    <span className={`mt-auto rounded-full px-3 py-1 text-xs font-semibold ${difficultyConfig.hard.bgColor} ${difficultyConfig.hard.textColor}`}>
                       {difficultyConfig.hard.label}
                     </span>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Info Section */}
-        <div className="mt-12 rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-          <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+        {/* Info Section - Bento Card */}
+        <div className="mt-16 bento-card bg-blue-50">
+          <h2 className="mb-4 text-2xl font-bold">
             {t.aboutTests}
           </h2>
-          <div className="space-y-4 text-gray-700 dark:text-gray-300">
-            <p>
+          <div className="space-y-4 text-[var(--color-text)]">
+            <p className="text-[var(--color-text-secondary)]">
               {t.aboutTestsDesc1}
             </p>
-            <p>
+            <p className="text-[var(--color-text-secondary)]">
               {t.aboutTestsDesc2}
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm dark:bg-green-900/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm">
                   ✓
                 </div>
                 <span className="text-sm font-medium">{t.millisecondAccuracy}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm dark:bg-green-900/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm">
                   ✓
                 </div>
                 <span className="text-sm font-medium">{t.progressTracking}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm dark:bg-green-900/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm">
                   ✓
                 </div>
                 <span className="text-sm font-medium">{t.globalLeaderboards}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm dark:bg-green-900/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm">
                   ✓
                 </div>
                 <span className="text-sm font-medium">{t.multiLanguageSupport}</span>

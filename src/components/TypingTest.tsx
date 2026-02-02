@@ -104,6 +104,7 @@ export default function TypingTest() {
   const [userInput, setUserInput] = useState('');
   const [startTime, setStartTime] = useState<number>(0);
   const [wpm, setWpm] = useState(0);
+  const [rawWpm, setRawWpm] = useState(0);  // 保存 raw WPM (未考虑准确率)
   const [accuracy, setAccuracy] = useState(0);
   const [errors, setErrors] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0); // 已用时间（秒）
@@ -128,6 +129,7 @@ export default function TypingTest() {
     userInputRef.current = ''; // 重置 ref
     setStartTime(0);
     setWpm(0);
+    setRawWpm(0);  // 重置 raw WPM
     setAccuracy(100);
     setErrors(0);
     setElapsedTime(0); // 重置已用时间
@@ -181,12 +183,11 @@ export default function TypingTest() {
     const timeElapsedMinutes = elapsedTime / 60; // 转换为分钟
     const wordsTyped = userInputRef.current.length / 5;
     const finalWpm = timeElapsedMinutes > 0 ? Math.round(wordsTyped / timeElapsedMinutes) : 0;
-    setWpm(finalWpm);
+    const netWpm = Math.round(finalWpm * (accuracy / 100));
+    setRawWpm(finalWpm);  // 保存 raw WPM (用于显示)
+    setWpm(netWpm);  // 设置为 net WPM (最终成绩)
     setTestState('finished');
     hasSavedRef.current = true;
-
-    // Submit score
-    const netWpm = Math.round(finalWpm * (accuracy / 100));
     submitScore({
       test_type: 'typing',
       score: netWpm,
@@ -198,7 +199,7 @@ export default function TypingTest() {
       if (!submittedToDb) {
         const savedResults = JSON.parse(localStorage.getItem('typing-results') || '[]');
         savedResults.push({
-          wpm: finalWpm,
+          wpm: netWpm,  // 保存 net WPM (已考虑准确率)
           accuracy: accuracy,
           timestamp: Date.now(),
         });
@@ -415,7 +416,7 @@ export default function TypingTest() {
                   <div className="rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
                     <div className="text-sm text-gray-600 dark:text-gray-400">{t.typingTestTypingSpeed}</div>
                     <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-                      {wpm} <span className="text-lg">WPM</span>
+                      {rawWpm} <span className="text-lg">WPM</span>
                     </div>
                   </div>
                   <div className="rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
@@ -427,7 +428,7 @@ export default function TypingTest() {
                   <div className="rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
                     <div className="text-sm text-gray-600 dark:text-gray-400">{t.netWPM}</div>
                     <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                      {(wpm * (accuracy / 100)).toFixed(0)}
+                      {wpm}
                     </div>
                   </div>
                 </div>
@@ -441,7 +442,7 @@ export default function TypingTest() {
               <div className="flex justify-center">
                 <button
                   onClick={startTest}
-                  className="rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:from-primary-700 hover:to-purple-700 hover:shadow-2xl hover:-translate-y-0.5"
+                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
                 >
                   {t.srtTryAgain}
                 </button>

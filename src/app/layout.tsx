@@ -10,25 +10,25 @@ import StructuredData from '@/components/StructuredData';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: '⚡ Reaction Time Test',
-  description: 'Free online reaction time tests. Measure your reflexes and cognitive abilities with professional-grade tools. Test your reaction speed, click speed, and more.',
-  keywords: ['reaction time test', 'reaction test', 'click speed test', 'cps test', 'aim trainer', 'reflex test'],
-  authors: [{ name: 'ReactionTest' }],
+  title: 'ReflexX - Professional Reaction Time Testing | Test Your Limits',
+  description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed with professional-grade tools. Test your limits and track your progress.',
+  keywords: ['reflex test', 'reflexx', 'reaction time test', 'reaction test', 'click speed test', 'cps test', 'aim trainer', 'reflex training'],
+  authors: [{ name: 'ReflexX' }],
   icons: {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.svg',
   },
   openGraph: {
-    title: 'Reaction Time Test - Measure Your Reflexes',
-    description: 'Free online reaction time tests. Measure your reflexes and cognitive abilities with professional-grade tools.',
+    title: 'ReflexX - Professional Reaction Time Testing | Test Your Limits',
+    description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed with professional-grade tools.',
     type: 'website',
     locale: 'en_US',
     alternateLocale: ['zh_CN', 'es_ES'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Reaction Time Test - Measure Your Reflexes',
-    description: 'Free online reaction time tests. Measure your reflexes and cognitive abilities.',
+    title: 'ReflexX - Professional Reaction Time Testing | Test Your Limits',
+    description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed.',
   },
   alternates: {
     canonical: '/',
@@ -49,22 +49,22 @@ export default function RootLayout({
   const websiteStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Reaction Time Test",
-    "alternateName": "ReactionTest",
-    "url": "https://yourdomain.com",
-    "description": "Free online reaction time tests and cognitive assessments. Measure your reflexes, clicking speed, memory, and more with professional-grade tools.",
+    "name": "ReflexX",
+    "alternateName": "ReflexX - Professional Reaction Time Testing",
+    "url": "https://reflextest-online.com",
+    "description": "Professional reaction time testing by ReflexX. Measure your reflexes, clicking speed, memory, and cognitive abilities with professional-grade tools. Test your limits today.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://yourdomain.com/tests?q={search_term_string}"
+        "urlTemplate": "https://reflextest-online.com/tests?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "ReactionTest",
-      "url": "https://yourdomain.com"
+      "name": "ReflexX",
+      "url": "https://reflextest-online.com"
     }
   };
 

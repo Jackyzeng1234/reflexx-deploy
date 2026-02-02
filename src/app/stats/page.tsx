@@ -25,6 +25,19 @@ const localStorageToTestType: Record<string, string> = {
   'number-memory-results': 'number-memory',
 };
 
+// 测试类型的固定顺序（与首页保持一致）
+const TEST_ORDER = [
+  'simple-reaction-results',
+  'auditory-reaction-results',
+  'click-speed-results',
+  'typing-results',
+  'choice-reaction-results',
+  'sequence-memory-results',
+  'chimp-results',
+  'stroop-results',
+  'number-memory-results',
+];
+
 export default function StatsPage() {
   const { t } = useI18n();
   const { user } = useAuth();
@@ -147,7 +160,7 @@ export default function StatsPage() {
 
       case 'typing':
         return {
-          wpm: details?.wpm || value,
+          wpm: value,  // value 是 score 字段,已经是 net WPM
           accuracy: details?.accuracy || 100,
           timestamp: new Date(created_at).getTime(),
         };
@@ -324,7 +337,10 @@ export default function StatsPage() {
         {!loading && hasAnyData && (
           <>
             <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {Object.entries(allResults).map(([testType, results]) => {
+              {TEST_ORDER
+                .filter((testType) => allResults[testType])
+                .map((testType) => {
+                  const results = allResults[testType];
                 const config = testConfig[testType];
                 if (!config) return null;
 
@@ -377,7 +393,10 @@ export default function StatsPage() {
             {/* Progress Charts */}
             <div className="mb-8 space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.progressChartTitle}</h2>
-              {Object.entries(allResults).map(([testType, results]) => {
+              {TEST_ORDER
+                .filter((testType) => allResults[testType])
+                .map((testType) => {
+                  const results = allResults[testType];
                 const config = testConfig[testType];
                 if (!config || results.length < 2) return null;
 
@@ -399,7 +418,10 @@ export default function StatsPage() {
 
             {/* Recent Tests */}
             <div className="mb-8 space-y-6">
-              {Object.entries(allResults).map(([testType, results]) => {
+              {TEST_ORDER
+                .filter((testType) => allResults[testType])
+                .map((testType) => {
+                  const results = allResults[testType];
                 const config = testConfig[testType];
                 if (!config) return null;
 

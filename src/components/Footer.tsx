@@ -13,12 +13,14 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-lg">
                 <svg className="h-5 w-5 text-white" viewBox="0 0 100 100" fill="currentColor">
-                  <path d="M 55 20 L 35 50 L 50 50 L 45 80 L 65 45 L 50 45 Z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round"/>
+                  <text x="50%" y="55%" textAnchor="middle" dy=".3em" fontSize="50" fontWeight="bold">⚡</text>
                 </svg>
               </div>
-              <span className="font-bold text-lg">ReactionTest</span>
+              <span className="font-bold text-lg">
+                <span className="text-gray-700 dark:text-gray-300">REFLEX</span><span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">X</span>
+              </span>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {t.professionalGrade}
@@ -71,7 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>&copy; {currentYear} ReactionTest. {t.footerRights}</p>
+          <p>&copy; {currentYear} ReflexX. {t.footerRights}</p>
         </div>
       </div>
     </footer>

@@ -63,7 +63,7 @@ export default function StroopTest() {
       newTrials.push({
         word: getColorName(wordColor),
         color: displayColor.hex,
-        correctColor: displayColor.name,
+        correctColor: getColorName(displayColor), // 保存翻译后的颜色名称
       });
     }
     return newTrials;
@@ -225,7 +225,7 @@ export default function StroopTest() {
                   return (
                     <button
                       key={key}
-                      onClick={() => handleColorClick(color.name)}
+                      onClick={() => handleColorClick(getColorName())}
                       disabled={!showWord}
                       className={`rounded-xl border-2 p-6 font-bold text-2xl transition-all ${
                         !showWord
@@ -303,7 +303,7 @@ export default function StroopTest() {
               <div className="flex justify-center">
                 <button
                   onClick={startGame}
-                  className="rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:from-primary-700 hover:to-purple-700 hover:shadow-2xl hover:-translate-y-0.5"
+                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
                 >
                   {t.srtTryAgain}
                 </button>

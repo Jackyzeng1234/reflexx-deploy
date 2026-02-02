@@ -10,8 +10,8 @@ export const translations = {
     navLogout: 'Logout',
 
     // Home Page
-    heroTitle: 'Test Your Reaction Speed',
-    heroSubtitle: 'Measure your reaction time with professional tests',
+    heroTitle: 'ReflexX - Test Your Limits',
+    heroSubtitle: 'Professional reaction time testing to measure your cognitive abilities',
     heroCTA: 'Start Testing',
 
     // Test Cards
@@ -104,7 +104,7 @@ export const translations = {
     cstTotalClicks: 'Total Clicks',
     cstAverageCPS: 'Average CPS',
     cstBestRecord: 'Your Best Record',
-    cstRestart: 'Restart',
+    cstRestart: 'Try Again',
     timesUp: 'Time\'s Up!',
     restartIn: 'Restart in {seconds}s',
     cstInstruction1: 'Select your desired test duration',
@@ -112,7 +112,7 @@ export const translations = {
     cstInstruction3: 'Keep clicking until the time runs out',
     cstInstruction4: 'Try to achieve 8+ CPS for excellent rating!',
     cstProTip: 'Pro Tip: Use a gaming mouse and ensure your surface is stable for best results!',
-    clickToRestart: 'Click to restart',
+    clickToRestart: 'Restart',
 
     // Durations
     duration1s: '1 Second',
@@ -174,6 +174,7 @@ export const translations = {
     results: 'Results',
     clickToStart: 'Click to Start',
     orPressAnyKeyToStart: 'or press any key to start',
+    clickToRestart: 'Restart',
 
     // Footer
     footerRights: 'All rights reserved',
@@ -183,7 +184,7 @@ export const translations = {
 
     // Additional
     getStarted: 'Get Started',
-    chooseTest: 'Choose a brain game to measure your cognitive skills',
+    chooseTest: 'Choose brain games to measure your cognitive skills',
     startTest: 'Start Test',
     whyChooseUs: 'Why Choose Us?',
     professionalGrade: 'Professional testing for accurate results',
@@ -480,8 +481,8 @@ export const translations = {
     navLogout: '登出',
 
     // Home Page
-    heroTitle: '测试你的反应速度',
-    heroSubtitle: '使用专业测试测量你的反应时间',
+    heroTitle: 'ReflexX - 挑战你的极限',
+    heroSubtitle: '专业反应时间测试，测量你的认知能力',
     heroCTA: '开始测试',
 
     // Test Cards
@@ -575,7 +576,7 @@ export const translations = {
     cstTotalClicks: '总点击数',
     cstAverageCPS: '平均CPS',
     cstBestRecord: '你的最佳记录',
-    cstRestart: '重新开始',
+    cstRestart: '再试一次',
     timesUp: '时间到！',
     restartIn: '{seconds}秒后可重新开始',
     cstInstruction1: '选择你想要的测试时长',
@@ -583,7 +584,7 @@ export const translations = {
     cstInstruction3: '持续点击直到时间结束',
     cstInstruction4: '尝试达到8+ CPS获得优秀评级！',
     cstProTip: '专业提示：使用游戏鼠标并确保表面稳定以获得最佳效果！',
-    clickToRestart: '点击重新开始',
+    clickToRestart: '重新开始',
 
     // Durations
     duration1s: '1秒',
@@ -645,6 +646,7 @@ export const translations = {
     results: '结果',
     clickToStart: '点击开始',
     orPressAnyKeyToStart: '或按任意键开始',
+    clickToRestart: '重新开始',
 
     // Footer
     footerRights: '版权所有',
@@ -654,7 +656,7 @@ export const translations = {
 
     // Additional
     getStarted: '开始测试',
-    chooseTest: '选择一个大脑游戏来测量你的认知技能',
+    chooseTest: '选择大脑游戏来测量你的认知技能',
     startTest: '开始测试',
     whyChooseUs: '为什么选择我们？',
     professionalGrade: '专业级测试，结果准确可靠',
@@ -951,8 +953,8 @@ export const translations = {
     navLogout: 'Cerrar Sesión',
 
     // Home Page
-    heroTitle: 'Prueba Tu Velocidad de Reacción',
-    heroSubtitle: 'Mide tu tiempo de reacción con pruebas profesionales',
+    heroTitle: 'ReflexX - Desafía Tus Límites',
+    heroSubtitle: 'Pruebas profesionales de tiempo de reacción para medir tus capacidades cognitivas',
     heroCTA: 'Comenzar',
 
     // Test Cards
@@ -1001,7 +1003,7 @@ export const translations = {
     cstTotalClicks: 'Total de Clics',
     cstAverageCPS: 'CPS Promedio',
     cstBestRecord: 'Tu Mejor Registro',
-    cstRestart: 'Reiniciar',
+    cstRestart: 'Intentar de nuevo',
     timesUp: '¡Tiempo Agotado!',
     restartIn: 'Reiniciar en {seconds}s',
     cstInstruction1: 'Selecciona la duración de prueba deseada',
@@ -1009,7 +1011,7 @@ export const translations = {
     cstInstruction3: 'Sigue haciendo clic hasta que se agote el tiempo',
     cstInstruction4: '¡Intenta lograr 8+ CPS para una calificación excelente!',
     cstProTip: 'Consejo profesional: ¡Usa un ratón gaming y asegúrate de que tu superficie sea estable para obtener los mejores resultados!',
-    clickToRestart: 'Clic para reiniciar',
+    clickToRestart: 'Reiniciar',
 
     // Durations
     duration1s: '1 Segundo',
@@ -1115,6 +1117,7 @@ export const translations = {
     results: 'Resultados',
     clickToStart: 'Haz clic para comenzar',
     orPressAnyKeyToStart: 'o presiona cualquier tecla para comenzar',
+    clickToRestart: 'Reiniciar',
 
     // Footer
     footerRights: 'Todos los derechos reservados',
@@ -1124,7 +1127,7 @@ export const translations = {
 
     // Additional
     getStarted: 'Comenzar',
-    chooseTest: 'Elige un juego de cerebro para medir tus habilidades cognitivas',
+    chooseTest: 'Elige juegos de cerebro para medir tus habilidades cognitivas',
     startTest: 'Comenzar Prueba',
     whyChooseUs: '¿Por Qué Elegirnos?',
     professionalGrade: 'Pruebas profesionales para resultados precisos',

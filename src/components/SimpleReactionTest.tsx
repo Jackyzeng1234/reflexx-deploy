@@ -190,7 +190,9 @@ export default function SimpleReactionTest() {
               <div className="text-center">
                 <div className="mb-4 text-6xl">⚠️</div>
                 <div className="text-3xl font-bold">{t.srtTooEarly}</div>
-                <div className="mt-4 text-xl opacity-90">Click to try again</div>
+                <div className="mt-4 text-xl opacity-90 cursor-pointer hover:opacity-100 transition-opacity" onClick={() => setGameState('waiting')}>
+                  {t.clickToRestart}
+                </div>
               </div>
             )}
 
@@ -198,7 +200,9 @@ export default function SimpleReactionTest() {
               <div className="text-center">
                 <div className="mb-4 text-6xl">✅</div>
                 <div className="text-3xl font-bold">{t.srtResults}</div>
-                <div className="mt-4 text-xl opacity-90">Click to try again</div>
+                <div className="mt-4 text-xl opacity-90 cursor-pointer hover:opacity-100 transition-opacity" onClick={() => setGameState('waiting')}>
+                  {t.clickToRestart}
+                </div>
               </div>
             )}
           </div>

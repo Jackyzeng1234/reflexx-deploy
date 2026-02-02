@@ -319,9 +319,9 @@ export default function AuditoryReactionTest() {
             <div className="flex justify-center">
               <button
                 onClick={startTest}
-                className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
+                className="w-full max-w-sm rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
               >
-                {t.startTest}
+                {t.srtTryAgain}
               </button>
               </div>
           </div>

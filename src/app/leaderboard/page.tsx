@@ -47,6 +47,19 @@ export default function LeaderboardPage() {
     'number-memory': 'number-memory-results',
   };
 
+  // test_type 到实际路由的映射
+  const testTypeToRoute: Record<string, string> = {
+    'simple-reaction': 'simple-reaction',
+    'auditory-reaction': 'auditory-reaction',
+    'choice-reaction': 'choice-reaction',
+    'click-speed': 'click-speed',
+    'sequence-memory': 'sequence-memory',
+    'typing': 'typing',
+    'chimp': 'chimp-test',
+    'stroop': 'stroop-test',
+    'number-memory': 'number-memory',
+  };
+
   useEffect(() => {
     loadLeaderboard();
   }, [testType, user]); // 添加 user 作为依赖，登录状态改变时重新加载
@@ -371,7 +384,7 @@ export default function LeaderboardPage() {
               {t.lbNoRecordsForTest.replace('{test}', currentTest?.title || '')}
             </p>
             <Link
-              href={`/tests/${testType}`}
+              href={`/tests/${testTypeToRoute[testType]}`}
               className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
             >
               {t.statsStartTesting}
@@ -478,7 +491,7 @@ export default function LeaderboardPage() {
               {t.lbWantToBeOnLeaderboardDesc}
             </p>
             <Link
-              href={`/tests/${testType}`}
+              href={`/tests/${testTypeToRoute[testType]}`}
               className="inline-flex items-center rounded-lg bg-primary-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
             >
               {t.statsStartTesting}

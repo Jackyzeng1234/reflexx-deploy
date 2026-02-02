@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Styles Comparison</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #f5f5f7;
+            --card-bg: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent: #0071e3;
+            --border: #e5e5ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 60px;
+            font-size: 1.125rem;
+        }
+
+        .style-section {
+            margin-bottom: 80px;
+        }
+
+        .style-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .style-description {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 16px;
+        }
+
+        .icon-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .icon-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border-color: var(--accent);
+        }
+
+        .icon-card .icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-card .label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Style 1: Emoji (Current) */
+        .emoji {
+            font-size: 36px;
+        }
+
+        /* Style 2: Outline Icons */
+        .outline-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--text);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Style 3: Filled Icons */
+        .filled-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--accent);
+        }
+
+        /* Style 4: Gradient Icons */
+        .gradient-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: url(#gradient1);
+        }
+
+        /* Style 5: Duotone Icons */
+        .duotone-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .duotone-icon .primary {
+            fill: var(--accent);
+        }
+
+        .duotone-icon .secondary {
+            fill: var(--text-secondary);
+            opacity: 0.3;
+        }
+
+        /* Style 6: 3D Icons */
+        .icon-3d {
+            font-size: 36px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+            transform: translateY(-2px);
+        }
+
+        /* Style 7: Minimal Icons */
+        .minimal-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--text);
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        @media (max-width: 1200px) {
+            .icons-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .icons-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图标风格对比</h1>
+        <p class="subtitle">选择最适合你Bento Grid设计的图标风格</p>
+
+        <!-- Style 1: Emoji (Current) -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>1️⃣</span> Emoji（当前使用）
+            </h2>
+            <p class="style-description">简单、直观、易识别。所有系统都支持。</p>
+            <div class="icons-grid">
+                <div class="icon-card">
+                    <div class="icon emoji">⚡</div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🔊</div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🖱️</div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">⌨️</div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🎮</div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🧠</div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🐵</div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🎨</div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon emoji">🔢</div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style 2: Outline Icons -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>2️⃣</span> 线条图标（Outline）
+            </h2>
+            <p class="style-description">专业、现代、优雅。类似Lucide/Heroicons风格。</p>
+            <div class="icons-grid">
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M5 2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zm6 8a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2zm7-2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12h4m-2-2v4m6-1h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 13l3 3m0 0l-3 3m3-3h-8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-4.3 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.32z" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-4.3 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.32z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>
+                    </div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2v4m0 12v4m10-10h-4m-12 0H2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card outline-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h8m-4-4v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style 3: Filled Icons -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>3️⃣</span> 填充图标（Filled）
+            </h2>
+            <p class="style-description">视觉冲击力强，类似Apple SF Symbols。</p>
+            <div class="icons-grid">
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4v-4z"/></svg>
+                    </div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M5 2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zm6 8a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2zm7-2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2z"/></svg>
+                    </div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 2v4h2V8H4zm4 0v4h2V8H8zm4 0v4h2V8h-2zm4 0v4h2V8h-2zM4 14v4h2v-4H4zm4 0v4h2v-4H8zm4 0v4h2v-4h-2zm4 0v4h2v-4h-2z"/></svg>
+                    </div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M2 12a10 10 0 0 1 18-3 10 10 0 0 1-3 18"/></svg>
+                    </div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    </div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/><path d="M7 12h2m2 2h2m2 2h2"/></svg>
+                    </div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8m-4-4h8" stroke="white" stroke-width="2"/></svg>
+                    </div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card filled-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style 4: Gradient Icons -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>4️⃣</span> 渐变图标（Gradient）
+            </h2>
+            <p class="style-description">现代感强，色彩丰富，视觉吸引力高。</p>
+            <div class="icons-grid">
+                <svg width="0" height="0"><defs><linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0071e3;stop-opacity:1" /><stop offset="100%" style="stop-color:#00d4ff;stop-opacity:1" /></linearGradient></defs></svg>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4v-4z"/></svg>
+                    </div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M5 2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg>
+                    </div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                    </div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                    </div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10"/></svg>
+                    </div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                    </div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+                    </div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card gradient-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                    </div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style 5: Duotone Icons -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>5️⃣</span> 双色图标（Duotone）
+            </h2>
+            <p class="style-description">层次感强，类似iOS风格，适合Bento Grid。</p>
+            <div class="icons-grid">
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path class="secondary" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" opacity="0.3"/><path class="primary" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path class="secondary" d="M11 5L6 9H2v6h4l5 4v-4z" opacity="0.3"/><path class="primary" d="M11 5L6 9H2v6h4l5 4v-4z"/></svg>
+                    </div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect class="secondary" x="2" y="2" width="8" height="8" rx="1" opacity="0.3"/><rect class="secondary" x="8" y="10" width="8" height="8" rx="1" opacity="0.3"/><rect class="secondary" x="14" y="18" width="8" height="8" rx="1" opacity="0.3"/></svg>
+                    </div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect class="secondary" x="2" y="4" width="20" height="16" rx="2" opacity="0.3"/><path class="primary" d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/></svg>
+                    </div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle class="secondary" cx="12" cy="12" r="10" opacity="0.3"/><path class="primary" d="M12 8a4 4 0 0 1 4 4"/></svg>
+                    </div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle class="secondary" cx="12" cy="12" r="10" opacity="0.3"/><path class="primary" d="M12 8a4 4 0 0 1 0 8 4 4 0 0 1 0-8zm-5 9a5 5 0 0 1 10 0"/></svg>
+                    </div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle class="secondary" cx="12" cy="12" r="10" opacity="0.3"/><circle class="primary" cx="12" cy="12" r="6"/></svg>
+                    </div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle class="secondary" cx="12" cy="12" r="10" opacity="0.3"/><circle class="primary" cx="12" cy="12" r="4"/></svg>
+                    </div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card duotone-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect class="secondary" x="3" y="3" width="18" height="18" rx="2" opacity="0.3"/><path class="primary" d="M8 12h8m-4-4v8"/></svg>
+                    </div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style 6: 3D Emoji -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>6️⃣</span> 3D Emoji图标
+            </h2>
+            <p class="style-description">Emoji + 阴影效果，更有层次感。</p>
+            <div class="icons-grid">
+                <div class="icon-card">
+                    <div class="icon icon-3d">⚡</div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🔊</div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🖱️</div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">⌨️</div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🎮</div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🧠</div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🐵</div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🎨</div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card">
+                    <div class="icon icon-3d">🔢</div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style 7: Minimal -->
+        <div class="style-section">
+            <h2 class="style-title">
+                <span>7️⃣</span> 极简图标（Minimal）
+            </h2>
+            <p class="style-description">超细线条，最简约，适合极简设计。</p>
+            <div class="icons-grid">
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">简单反应</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-linecap="round"/><path d="M12 8v4" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">听觉反应</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><path d="M6 6l4 4m0-4l-4 4m8-4l4 4m0-4l-4 4" stroke-linecap="round" stroke-width="3"/></svg>
+                    </div>
+                    <div class="label">点击速度</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1" stroke-linecap="round"/><path d="M8 10h.01M16 10h.01M8 14h.01M16 14h.01" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">打字测试</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="2" stroke-linecap="round"/><circle cx="15" cy="15" r="2" stroke-linecap="round"/><path d="M15 9l-6 6" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">选择反应</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" stroke-linecap="round"/><circle cx="12" cy="6" r="2" stroke-linecap="round"/><circle cx="12" cy="18" r="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">序列记忆</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="1.5" stroke-linecap="round"/><circle cx="15" cy="9" r="1.5" stroke-linecap="round"/><circle cx="9" cy="15" r="1.5" stroke-linecap="round"/><circle cx="15" cy="15" r="1.5" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">Chimp测试</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-linecap="round"/><path d="M12 8v4m-2-2h4" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">Stroop测试</div>
+                </div>
+                <div class="icon-card minimal-icon">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1" stroke-linecap="round"/><path d="M12 10v4m-2-2h4" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="label">数字记忆</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 80px; padding: 40px; background: white; border-radius: 20px;">
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 16px;">💡 我的推荐</h2>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px;">
+                对于当前的Bento Grid风格，我推荐使用以下图标风格：
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 800px; margin: 0 auto;">
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 12px;">🥇</div>
+                    <div style="font-weight: 700; margin-bottom: 8px;">双色图标</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">层次感强，最适合Bento Grid</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 12px;">🥈</div>
+                    <div style="font-weight: 700; margin-bottom: 8px;">填充图标</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">视觉冲击力强</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 12px;">🥉</div>
+                    <div style="font-weight: 700; margin-bottom: 8px;">3D Emoji</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">保持有趣感但更有层次</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
