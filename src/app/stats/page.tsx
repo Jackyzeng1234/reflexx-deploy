@@ -82,6 +82,12 @@ export default function StatsPage() {
     const startTime = performance.now();
     console.log('📊 [性能] 开始从数据库加载统计数据...');
 
+    // TypeScript 类型保护：确保 user 不为 null
+    if (!user) {
+      console.warn('⚠️ 用户未登录，跳过数据库查询');
+      return;
+    }
+
     try {
       const queryStart = performance.now();
       // 只查询需要的字段，而不是 *

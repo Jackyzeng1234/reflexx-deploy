@@ -174,7 +174,6 @@ export const translations = {
     results: 'Results',
     clickToStart: 'Click to Start',
     orPressAnyKeyToStart: 'or press any key to start',
-    clickToRestart: 'Restart',
 
     // Footer
     footerRights: 'All rights reserved',
@@ -425,8 +424,6 @@ export const translations = {
     authForgotPassword: 'Forgot Password?',
     authForgotPasswordTitle: 'Reset Your Password',
     authForgotPasswordSubtitle: 'Enter your email address and we\'ll send you a link to reset your password.',
-    authEmail: 'Email',
-    authEmailPlaceholder: 'Enter your email',
     authSendResetLink: 'Send Reset Link',
     authBackToLogin: 'Back to Login',
     authResetLinkSent: 'Reset Link Sent',
@@ -646,7 +643,6 @@ export const translations = {
     results: '结果',
     clickToStart: '点击开始',
     orPressAnyKeyToStart: '或按任意键开始',
-    clickToRestart: '重新开始',
 
     // Footer
     footerRights: '版权所有',
@@ -897,8 +893,6 @@ export const translations = {
     authForgotPassword: '忘记密码？',
     authForgotPasswordTitle: '重置密码',
     authForgotPasswordSubtitle: '输入您的邮箱地址，我们将向您发送重置密码的链接。',
-    authEmail: '邮箱',
-    authEmailPlaceholder: '请输入邮箱',
     authSendResetLink: '发送重置链接',
     authBackToLogin: '返回登录',
     authResetLinkSent: '重置链接已发送',
@@ -1117,7 +1111,6 @@ export const translations = {
     results: 'Resultados',
     clickToStart: 'Haz clic para comenzar',
     orPressAnyKeyToStart: 'o presiona cualquier tecla para comenzar',
-    clickToRestart: 'Reiniciar',
 
     // Footer
     footerRights: 'Todos los derechos reservados',
@@ -1368,8 +1361,6 @@ export const translations = {
     authForgotPassword: '¿Olvidaste tu contraseña?',
     authForgotPasswordTitle: 'Restablecer Tu Contraseña',
     authForgotPasswordSubtitle: 'Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.',
-    authEmail: 'Correo Electrónico',
-    authEmailPlaceholder: 'Ingresa tu correo electrónico',
     authSendResetLink: 'Enviar Enlace de Restablecimiento',
     authBackToLogin: 'Volver al Inicio de Sesión',
     authResetLinkSent: 'Enlace Enviado',

@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // 获取 profile
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
-            .select('id, username')
+            .select('id, username, created_at, updated_at')
             .eq('id', session.user.id)
             .single();
 
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // 获取 profile
             supabase
               .from('profiles')
-              .select('id, username')
+              .select('id, username, created_at, updated_at')
               .eq('id', session.user.id)
               .single()
               .then(({ data, error }) => {
@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { supabase } = await import('@/lib/supabase/client');
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username')
+        .select('id, username, created_at, updated_at')
         .eq('id', user.id)
         .single();
 

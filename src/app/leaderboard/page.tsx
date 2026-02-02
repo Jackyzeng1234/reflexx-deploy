@@ -149,7 +149,7 @@ export default function LeaderboardPage() {
         details,
         username: (score as any).profiles?.username || 'Anonymous',
         userId: userId,
-        isUser: score.user_id === user.id,
+        isUser: user ? score.user_id === user.id : false,
       };
 
       // 如果该用户还没有记录，或者新成绩更好

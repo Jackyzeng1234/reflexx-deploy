@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed.',
   },
   alternates: {
-    canonical: '/',
+    canonical: 'https://reflexx.uk',
     languages: {
-      'en': '/',
-      'zh': '/zh',
-      'es': '/es',
+      'en': 'https://reflexx.uk/en',
+      'zh': 'https://reflexx.uk/zh',
+      'es': 'https://reflexx.uk/es',
     },
   },
 };
@@ -51,20 +51,20 @@ export default function RootLayout({
     "@type": "WebSite",
     "name": "ReflexX",
     "alternateName": "ReflexX - Professional Reaction Time Testing",
-    "url": "https://reflextest-online.com",
+    "url": "https://reflexx.uk",
     "description": "Professional reaction time testing by ReflexX. Measure your reflexes, clicking speed, memory, and cognitive abilities with professional-grade tools. Test your limits today.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://reflextest-online.com/tests?q={search_term_string}"
+        "urlTemplate": "https://reflexx.uk/tests?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
       "name": "ReflexX",
-      "url": "https://reflextest-online.com"
+      "url": "https://reflexx.uk"
     }
   };
 
