@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 获取环境变量中的接收邮箱
-    const recipientEmail = process.env.CONTACT_EMAIL || 'contact@reflextest-online.com';
+    const recipientEmail = process.env.CONTACT_EMAIL || 'jackyzeng1234@gmail.com';
 
     // 使用 Resend 发送邮件
     const resendApiKey = process.env.RESEND_API_KEY;
