@@ -21,13 +21,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem(STORAGE_KEY) as LanguageCode;
     if (saved && translations[saved]) {
       setLanguageState(saved);
-    } else {
-      // Detect browser language
-      const browserLang = navigator.language.split('-')[0] as LanguageCode;
-      if (translations[browserLang]) {
-        setLanguageState(browserLang);
-      }
     }
+    // 如果没有保存的语言偏好，保持默认的英文，不再检测浏览器语言
   }, []);
 
   const setLanguage = (lang: LanguageCode) => {
