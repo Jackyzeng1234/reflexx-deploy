@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed with professional-grade tools. Test your limits and track your progress.',
   keywords: ['reflex test', 'reflexx', 'reaction time test', 'reaction test', 'click speed test', 'cps test', 'aim trainer', 'reflex training'],
   authors: [{ name: 'ReflexX' }],
+  verification: {
+    google: '1nnkbQnsfU1QeeL_1Uxy_mnK5aSGUGYeSoDa7bsXs0s',
+  },
   icons: {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.svg',
