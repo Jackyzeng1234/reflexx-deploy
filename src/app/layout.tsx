@@ -16,7 +16,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'ReflexX' }],
   verification: {
     google: '1nnkbQnsfU1QeeL_1Uxy_mnK5aSGUGYeSoDa7bsXs0s',
-    bing: 'BA889168A79214B6442EE82A4F80695E',
   },
   icons: {
     icon: '/favicon.svg',
@@ -41,6 +40,9 @@ export const metadata: Metadata = {
       'zh': 'https://reflexx.uk/zh',
       'es': 'https://reflexx.uk/es',
     },
+  },
+  other: {
+    'msvalidate.01': 'BA889168A79214B6442EE82A4F80695E',
   },
 };
 
