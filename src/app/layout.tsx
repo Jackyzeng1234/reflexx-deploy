@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { I18nProvider } from '@/lib/i18n';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
 import StructuredData from '@/components/StructuredData';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -80,6 +81,7 @@ export default function RootLayout({
         <StructuredData data={websiteStructuredData} />
       </head>
       <body className={inter.className}>
+        <GoogleAnalytics />
         <AuthProvider>
           <I18nProvider>
             <div className="flex min-h-screen flex-col">
