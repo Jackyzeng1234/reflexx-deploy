@@ -152,7 +152,8 @@ export default function AuthPage() {
 
         console.log('注册成功，用户ID:', data.user.id);
 
-        router.push('/');
+        // 跳转到验证邮箱页面
+        router.push(`/auth/confirm-email?email=${encodeURIComponent(email)}`);
       }
     } catch (err: any) {
       console.log('捕获到异常:', err);

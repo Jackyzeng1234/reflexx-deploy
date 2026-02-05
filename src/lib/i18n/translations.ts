@@ -430,6 +430,19 @@ export const translations = {
     authResetLinkSentDesc: 'We\'ve sent a password reset link to your email. Please check your inbox.',
     authResetLinkSentError: 'Failed to send reset link. Please try again.',
 
+    // Confirm Email
+    authConfirmEmailTitle: 'Check Your Email!',
+    authConfirmEmailSubtitle: 'We\'ve sent a confirmation email to',
+    authConfirmEmailDesc: 'Check your inbox and click the confirmation link to activate your account and unlock all features.',
+    authConfirmEmailSpam: 'Don\'t see it? Check your spam folder!',
+    authConfirmEmailResend: 'Resend Email',
+    authConfirmEmailResendWait: 'Resend Email ({seconds}s)',
+    authConfirmEmailBackToHome: '← Back to Home',
+    authConfirmEmailSent: 'Confirmation email sent!',
+    authConfirmEmailError: 'Failed to send confirmation email. Please try again.',
+    authConfirmEmailRateLimit: 'Too many requests. Please wait a few minutes before trying again.',
+    authConfirmEmailVerified: 'Email verified! Redirecting...',
+
     // Reset Password
     authResetPasswordTitle: 'Set New Password',
     authResetPasswordSubtitle: 'Enter your new password below.',
@@ -899,6 +912,19 @@ export const translations = {
     authResetLinkSentDesc: '我们已向您的邮箱发送了密码重置链接。请查收。',
     authResetLinkSentError: '发送重置链接失败。请重试。',
 
+    // Confirm Email
+    authConfirmEmailTitle: '请检查您的邮箱！',
+    authConfirmEmailSubtitle: '我们已向',
+    authConfirmEmailDesc: '请查收邮箱并点击确认链接，激活账户解锁更多功能吧。',
+    authConfirmEmailSpam: '没有收到？请检查垃圾邮件文件夹！',
+    authConfirmEmailResend: '重新发送邮件',
+    authConfirmEmailResendWait: '重新发送邮件 ({seconds}秒)',
+    authConfirmEmailBackToHome: '← 返回首页',
+    authConfirmEmailSent: '确认邮件已发送！',
+    authConfirmEmailError: '发送确认邮件失败。请重试。',
+    authConfirmEmailRateLimit: '请求过于频繁，请几分钟后再试。',
+    authConfirmEmailVerified: '邮箱已验证！正在跳转...',
+
     // Reset Password
     authResetPasswordTitle: '设置新密码',
     authResetPasswordSubtitle: '请输入您的新密码。',
@@ -1366,6 +1392,19 @@ export const translations = {
     authResetLinkSent: 'Enlace Enviado',
     authResetLinkSentDesc: 'Hemos enviado un enlace de restablecimiento de contraseña a tu correo electrónico. Por favor revisa tu bandeja de entrada.',
     authResetLinkSentError: 'Error al enviar el enlace de restablecimiento. Por favor intenta de nuevo.',
+
+    // Confirm Email
+    authConfirmEmailTitle: '¡Revisa tu Correo Electrónico!',
+    authConfirmEmailSubtitle: 'Hemos enviado un correo de confirmación a',
+    authConfirmEmailDesc: 'Revisa tu correo y haz clic en el enlace de confirmación para activar tu cuenta.',
+    authConfirmEmailSpam: '¿No lo ves? Revisa tu carpeta de spam!',
+    authConfirmEmailResend: 'Reenviar Correo',
+    authConfirmEmailResendWait: 'Reenviar Correo ({seconds}s)',
+    authConfirmEmailBackToHome: '← Volver al Inicio',
+    authConfirmEmailSent: '¡Correo de confirmación enviado!',
+    authConfirmEmailError: 'Error al enviar el correo de confirmación. Por favor intenta de nuevo.',
+    authConfirmEmailRateLimit: 'Demasiadas solicitudes. Por favor espera unos minutos antes de intentar de nuevo.',
+    authConfirmEmailVerified: '¡Correo verificado! Redirigiendo...',
 
     // Reset Password
     authResetPasswordTitle: 'Establecer Nueva Contraseña',
