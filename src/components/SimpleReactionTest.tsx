@@ -3,16 +3,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { useTimeout } from '@/hooks/useTimeout';
 
 type GameState = 'idle' | 'waiting' | 'ready' | 'too-early' | 'finished';
 
 export default function SimpleReactionTest() {
   const { t } = useI18n();
+  const { setTimeout, clearTimeout } = useTimeout();
   const [gameState, setGameState] = useState<GameState>('idle');
   const [startTime, setStartTime] = useState<number>(0);
   const [reactionTimes, setReactionTimes] = useState<number[]>([]);
   const [currentRound, setCurrentRound] = useState(0);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const hasSavedRef = useRef(false);
 
   const totalRounds = 5;
@@ -23,12 +24,11 @@ export default function SimpleReactionTest() {
     setReactionTimes([]);
     hasSavedRef.current = false;
     const delay = Math.random() * 3000 + 2000; // 2-5 seconds random delay
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       setStartTime(performance.now());
       setGameState('ready');
     }, delay);
-    setTimeoutId(timeout);
-  }, []);
+  }, [setTimeout]);
 
   const handleClick = useCallback(() => {
     if (gameState === 'idle' || gameState === 'finished' || gameState === 'too-early') {
@@ -37,7 +37,7 @@ export default function SimpleReactionTest() {
     }
 
     if (gameState === 'waiting') {
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout();
       setGameState('too-early');
       return;
     }
@@ -81,14 +81,13 @@ export default function SimpleReactionTest() {
         setCurrentRound(currentRound + 1);
         setGameState('waiting');
         const delay = Math.random() * 3000 + 2000;
-        const timeout = setTimeout(() => {
+        setTimeout(() => {
           setStartTime(performance.now());
           setGameState('ready');
         }, delay);
-        setTimeoutId(timeout);
       }
     }
-  }, [gameState, startTime, reactionTimes, currentRound, timeoutId, startTest]);
+  }, [gameState, startTime, reactionTimes, currentRound, startTest, setTimeout, clearTimeout]);
 
   const getRating = (avgTime: number) => {
     if (avgTime < 200) return t.ratingSuper;
@@ -126,12 +125,6 @@ export default function SimpleReactionTest() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleClick]);
 
-  useEffect(() => {
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [timeoutId]);
-
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-5xl">
@@ -152,16 +145,16 @@ export default function SimpleReactionTest() {
         <div className="mb-8 overflow-hidden rounded-2xl border-2 border-gray-200 shadow-xl dark:border-gray-700">
           <div
             onClick={handleClick}
-            className={`relative flex aspect-[2/1] cursor-pointer items-center justify-center transition-all duration-200 ${
+            className={`relative flex aspect-[21/9] cursor-pointer items-center justify-center transition-all duration-200 ${
               gameState === 'idle'
-                ? 'bg-gradient-to-br from-primary-500 to-primary-700 text-white'
+                ? 'bg-gradient-to-br from-primary-500 to-primary-700 text-white dark:from-primary-600 dark:to-primary-800'
                 : gameState === 'waiting'
-                ? 'bg-red-500 text-white'
+                ? 'bg-red-500 text-white dark:bg-red-600'
                 : gameState === 'ready'
-                ? 'bg-green-500 text-white'
+                ? 'bg-green-500 text-white dark:bg-green-600'
                 : gameState === 'too-early'
-                ? 'bg-orange-500 text-white'
-                : 'bg-gradient-to-br from-primary-500 to-primary-700 text-white'
+                ? 'bg-orange-500 text-white dark:bg-orange-600'
+                : 'bg-gradient-to-br from-blue-50 to-indigo-50 text-gray-900 dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-white'
             }`}
           >
             {gameState === 'idle' && (
@@ -197,81 +190,45 @@ export default function SimpleReactionTest() {
             )}
 
             {gameState === 'finished' && (
-              <div className="text-center">
-                <div className="mb-4 text-6xl">✅</div>
-                <div className="text-3xl font-bold">{t.srtResults}</div>
-                <div className="mt-4 text-xl opacity-90 cursor-pointer hover:opacity-100 transition-opacity" onClick={() => setGameState('waiting')}>
-                  {t.clickToRestart}
+              <div className="w-full px-8 py-6">
+                <div className="mb-6 text-center">
+                  <div className="mb-3 text-5xl">📊</div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.srtResults}</h3>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="text-center">
+                    <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtAverage}</div>
+                    <div className="text-4xl font-bold text-gray-900 dark:text-white">{averageTime}<span className="text-2xl">ms</span></div>
+                    <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-white ${
+                      averageTime < 200 ? 'bg-purple-500' :
+                      averageTime < 250 ? 'bg-green-500' :
+                      averageTime < 300 ? 'bg-blue-500' :
+                      averageTime < 350 ? 'bg-yellow-500' :
+                      averageTime < 400 ? 'bg-orange-500' :
+                      'bg-red-500'
+                    }`}>
+                      {getRating(averageTime)}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtBest}</div>
+                    <div className="text-4xl font-bold text-gray-900 dark:text-white">{bestTime}<span className="text-2xl">ms</span></div>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={handleClick}
+                    className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+                  >
+                    {t.srtTryAgain}
+                  </button>
                 </div>
               </div>
             )}
           </div>
         </div>
-
-        {/* Results */}
-        {gameState === 'finished' && reactionTimes.length > 0 && (
-          <div className="space-y-6">
-            <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {t.srtAverage}
-                  </div>
-                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                    {averageTime}ms
-                  </div>
-                  <div className={`mt-2 inline-block rounded-full px-4 py-1 text-sm font-semibold ${getRatingColor(averageTime)}`}>
-                    {getRating(averageTime)}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {t.srtBest}
-                  </div>
-                  <div className="text-4xl font-bold text-green-600 dark:text-green-400">
-                    {bestTime}ms
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {t.srtRank}
-                  </div>
-                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-                    Top {Math.min(Math.round(Math.exp((300 - averageTime) / 100) * 10), 100)}%
-                  </div>
-                </div>
-              </div>
-
-              {/* Round Details */}
-              <div className="mt-6 border-t border-primary-200 pt-6 dark:border-primary-800">
-                <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">Round Details</h3>
-                <div className="grid grid-cols-5 gap-3">
-                  {reactionTimes.map((time, index) => (
-                    <div
-                      key={index}
-                      className="rounded-lg bg-white p-3 text-center shadow-sm dark:bg-gray-800"
-                    >
-                      <div className="text-xs text-gray-500">#{index + 1}</div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
-                        {Math.round(time)}ms
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-center">
-              <button
-                onClick={handleClick}
-                className="w-full max-w-sm rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
-              >
-                {t.srtTryAgain}
-              </button>
-              </div>
-          </div>
-        )}
 
         {/* Instructions, Benefits & Improvements - Three Columns */}
         <div className="mt-6 grid gap-4 lg:grid-cols-3">

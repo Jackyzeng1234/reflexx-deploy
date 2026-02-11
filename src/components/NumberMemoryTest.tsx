@@ -3,11 +3,13 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { useTimeout } from '@/hooks/useTimeout';
 
 type TestState = 'idle' | 'showing' | 'input' | 'finished';
 
 export default function NumberMemoryTest() {
   const { t } = useI18n();
+  const { setTimeout } = useTimeout();
   const [gameState, setGameState] = useState<TestState>('idle');
   const [currentNumber, setCurrentNumber] = useState('');
   const [userInput, setUserInput] = useState('');
@@ -36,7 +38,7 @@ export default function NumberMemoryTest() {
     setTimeout(() => {
       setGameState('input');
     }, 3000);
-  }, [generateNumber]);
+  }, [generateNumber, setTimeout]);
 
   // Handle keyboard input to start game
   useEffect(() => {
@@ -97,7 +99,7 @@ export default function NumberMemoryTest() {
     setTimeout(() => {
       setGameState('input');
     }, newDisplayTime);
-  }, [currentNumber, userInput, currentLevel, generateNumber]);
+  }, [currentNumber, userInput, currentLevel, generateNumber, setTimeout]);
 
   const getRating = (digits: number) => {
     if (digits >= 12) return t.ratingSuper;
@@ -237,54 +239,49 @@ export default function NumberMemoryTest() {
 
         {/* Finished State */}
         {gameState === 'finished' && (
-          <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
-            <div className="rounded-2xl bg-gradient-to-br from-red-50 to-orange-50 p-6 text-center shadow-lg dark:from-red-900/30 dark:to-orange-900/30">
-              <div className="mb-4 text-6xl">❌</div>
-              <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="rounded-3xl border-2 border-gray-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="text-center">
+              <div className="mb-4 text-6xl">📊</div>
+              <h3 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
                 {t.numberMemoryWrong}
               </h3>
 
-              <div className="mb-8 space-y-4">
-                <div>
+              <div className="mb-8 grid gap-4 md:grid-cols-3">
+                <div className="text-center">
                   <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                     {t.numberMemoryCorrectAnswer}
                   </div>
-                  <div className="text-5xl font-bold text-green-600 dark:text-green-400 tracking-widest">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 tracking-widest">
                     {currentNumber}
                   </div>
                 </div>
-                <div>
+                <div className="text-center">
                   <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                     {t.numberMemoryYourAnswer}
                   </div>
-                  <div className="text-5xl font-bold text-red-600 dark:text-red-400 tracking-widest">
+                  <div className="text-3xl font-bold text-red-600 dark:text-red-400 tracking-widest">
                     {userInput || t.numberMemoryNoAnswer}
                   </div>
                 </div>
-                <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-700">
+                <div className="text-center">
                   <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                     {t.numberMemoryReached}
                   </div>
-                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                    {currentLevel - 1} {t.numberMemoryDigits}
+                  <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+                    {currentLevel - 1}
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {t.numberMemoryDigits}
                   </div>
                 </div>
               </div>
 
-              <div className="mb-6 rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
-                <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {t.srtRank}: {getRating(currentLevel - 1)}
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
-                </button>
-              </div>
+              <button
+                onClick={startGame}
+                className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+              >
+                {t.srtTryAgain}
+              </button>
             </div>
           </div>
         )}

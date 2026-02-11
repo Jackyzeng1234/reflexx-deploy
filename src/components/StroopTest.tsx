@@ -263,29 +263,30 @@ export default function StroopTest() {
 
         {/* Finished State */}
         {gameState === 'finished' && (
-          <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
-            <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-purple-50 p-6 text-center shadow-lg dark:from-primary-900/30 dark:to-purple-900/30">
-              <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="rounded-3xl border-2 border-gray-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="text-center">
+              <div className="mb-4 text-6xl">📊</div>
+              <h3 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
                 {t.stroopTestComplete}
               </h3>
 
-              <div className="mb-8 grid grid-cols-2 gap-6">
-                <div>
+              <div className="mb-8 grid gap-4 md:grid-cols-2">
+                <div className="text-center">
                   <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                     {t.stroopTestScore}
                   </div>
-                  <div className="text-5xl font-bold text-primary-600 dark:text-primary-400">
+                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
                     {score}/{totalRounds}
                   </div>
                   <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {((score / totalRounds) * 100).toFixed(0)}%
                   </div>
                 </div>
-                <div>
+                <div className="text-center">
                   <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
                     {t.stroopTestAvgReaction}
                   </div>
-                  <div className="text-5xl font-bold text-green-600 dark:text-green-400">
+                  <div className="text-4xl font-bold text-green-600 dark:text-green-400">
                     {averageReactionTime}
                   </div>
                   <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -294,20 +295,12 @@ export default function StroopTest() {
                 </div>
               </div>
 
-              <div className="mb-6 rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
-                <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {t.srtRank}: {getRating(score)}
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
-                </button>
-              </div>
+              <button
+                onClick={startGame}
+                className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+              >
+                {t.srtTryAgain}
+              </button>
             </div>
           </div>
         )}

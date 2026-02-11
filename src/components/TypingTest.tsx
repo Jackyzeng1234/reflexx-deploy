@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { useTimeout } from '@/hooks/useTimeout';
 
 type TestState = 'idle' | 'typing' | 'finished';
 
@@ -99,6 +100,7 @@ const sampleTexts = [
 
 export default function TypingTest() {
   const { t } = useI18n();
+  const { setTimeout: timeout } = useTimeout();
   const [testState, setTestState] = useState<TestState>('idle');
   const [currentText, setCurrentText] = useState('');
   const [userInput, setUserInput] = useState('');
@@ -146,10 +148,10 @@ export default function TypingTest() {
       timerRef.current = null;
     }
 
-    setTimeout(() => {
+    timeout(() => {
       textareaRef.current?.focus();
     }, 100);
-  }, [currentText]);
+  }, [currentText, timeout]);
 
   const startGame = useCallback(() => {
     if (isGameStartedRef.current) return; // 使用 ref 检查
@@ -170,8 +172,53 @@ export default function TypingTest() {
     }, 100);
   }, []);
 
+  const restartGame = useCallback(() => {
+    // Select a new random text
+    let newText;
+    do {
+      newText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+    } while (newText === currentText && sampleTexts.length > 1);
+
+    setCurrentText(newText);
+    setUserInput('');
+    userInputRef.current = '';
+    setStartTime(0);
+    setWpm(0);
+    setRawWpm(0);
+    setAccuracy(100);
+    setErrors(0);
+    setElapsedTime(0);
+    setIsStarted(true); // 直接开始，不需要再点击
+    setOverlayVisible(false);
+    setTestState('typing');
+    hasSavedRef.current = false;
+    actualStartTimeRef.current = performance.now();
+    isGameStartedRef.current = true;
+
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Start timer
+    timerRef.current = setInterval(() => {
+      if (actualStartTimeRef.current > 0) {
+        const elapsed = (performance.now() - actualStartTimeRef.current) / 1000;
+        setElapsedTime(Math.round(elapsed));
+      }
+    }, 100);
+
+    timeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
+  }, [currentText, timeout]);
+
   const handleFinish = useCallback(() => {
-    if (testState === 'finished' || hasSavedRef.current) return;
+    // 防止重复调用
+    if (hasSavedRef.current || testState === 'finished') {
+      return;
+    }
 
     // Stop the timer
     if (timerRef.current) {
@@ -184,10 +231,15 @@ export default function TypingTest() {
     const wordsTyped = userInputRef.current.length / 5;
     const finalWpm = timeElapsedMinutes > 0 ? Math.round(wordsTyped / timeElapsedMinutes) : 0;
     const netWpm = Math.round(finalWpm * (accuracy / 100));
+
     setRawWpm(finalWpm);  // 保存 raw WPM (用于显示)
     setWpm(netWpm);  // 设置为 net WPM (最终成绩)
-    setTestState('finished');
     hasSavedRef.current = true;
+
+    // 设置 finished 状态
+    setTestState('finished');
+
+    // Submit score
     submitScore({
       test_type: 'typing',
       score: netWpm,
@@ -407,42 +459,31 @@ export default function TypingTest() {
 
           {/* Finished State */}
           {testState === 'finished' && (
-            <div className="space-y-6">
-              <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-purple-50 p-6 text-center shadow-lg dark:from-primary-900/30 dark:to-purple-900/30">
-                <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-                  {t.typingTestComplete}
-                </h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t.typingTestTypingSpeed}</div>
-                    <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-                      {rawWpm} <span className="text-lg">WPM</span>
-                    </div>
-                  </div>
-                  <div className="rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t.typingAccuracy}</div>
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                      {accuracy.toFixed(1)}<span className="text-lg">%</span>
-                    </div>
-                  </div>
-                  <div className="rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t.netWPM}</div>
-                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                      {wpm}
-                    </div>
-                  </div>
+            <div className="w-full px-8 py-6">
+              <div className="mb-6 text-center">
+                <div className="mb-3 text-5xl">📊</div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.typingTestComplete}</h3>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="text-center">
+                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.typingTestTypingSpeed}</div>
+                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{rawWpm}<span className="text-2xl">WPM</span></div>
                 </div>
-                <div className="mt-4 inline-block rounded-xl bg-white/50 px-6 py-3 shadow-sm dark:bg-gray-800/50">
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {t.srtRank}: {getRating(wpm, accuracy)}
-                  </div>
+                <div className="text-center">
+                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.typingAccuracy}</div>
+                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{accuracy.toFixed(1)}<span className="text-2xl">%</span></div>
+                </div>
+                <div className="text-center">
+                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.netWPM}</div>
+                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{wpm}</div>
                 </div>
               </div>
 
-              <div className="flex justify-center">
+              <div className="mt-6 text-center">
                 <button
-                  onClick={startTest}
-                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+                  onClick={restartGame}
+                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
                 >
                   {t.srtTryAgain}
                 </button>

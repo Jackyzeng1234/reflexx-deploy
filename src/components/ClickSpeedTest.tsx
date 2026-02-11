@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { TestDuration } from '@/types';
-import { submitScore } from '@/lib/scores';
+import { submitScore, getBestScore } from '@/lib/scores';
 
 type TestState = 'idle' | 'running' | 'finished' | 'cooldown';
 
@@ -15,18 +15,27 @@ export default function ClickSpeedTest() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [cps, setCps] = useState(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [bestCps, setBestCps] = useState<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
-  const hasSavedRef = useRef(false); // 防止重复保存
+  const hasSavedRef = useRef(false);
 
   const durations: TestDuration[] = [1, 5, 10, 30, 60, 100];
+
+  useEffect(() => {
+    async function loadBestScore() {
+      const score = await getBestScore('click-speed');
+      setBestCps(score);
+    }
+    loadBestScore();
+  }, []);
 
   const startTest = useCallback(() => {
     setTestState('running');
     setClicks(0);
     setTimeLeft(selectedDuration);
     setCps(0);
-    hasSavedRef.current = false; // 重置保存标志
+    hasSavedRef.current = false;
   }, [selectedDuration]);
 
   const handleClick = useCallback(() => {
@@ -36,12 +45,10 @@ export default function ClickSpeedTest() {
     }
 
     if (testState === 'cooldown') {
-      // Ignore clicks during cooldown
       return;
     }
 
     if (testState === 'finished') {
-      // Reset to idle state to allow duration selection
       setTestState('idle');
       setClicks(0);
       setCps(0);
@@ -63,14 +70,11 @@ export default function ClickSpeedTest() {
       intervalRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            // Clear interval immediately
             if (intervalRef.current) {
               clearInterval(intervalRef.current);
             }
 
-            // Save result using current clicks value
             setClicks((currentClicks) => {
-              // 防止重复保存
               if (hasSavedRef.current) {
                 return currentClicks;
               }
@@ -78,7 +82,6 @@ export default function ClickSpeedTest() {
 
               const finalCps = parseFloat((currentClicks / selectedDuration).toFixed(2));
 
-              // Submit to Supabase and check if user is logged in
               submitScore({
                 test_type: 'click-speed',
                 score: finalCps,
@@ -86,8 +89,7 @@ export default function ClickSpeedTest() {
                   clicks: currentClicks,
                   duration: selectedDuration,
                 },
-              }).then((submittedToDb) => {
-                // Only save to localStorage if NOT logged in (submission failed)
+              }).then(async (submittedToDb) => {
                 if (!submittedToDb) {
                   const savedResults = JSON.parse(localStorage.getItem('click-speed-results') || '[]');
                   savedResults.push({
@@ -98,12 +100,13 @@ export default function ClickSpeedTest() {
                   });
                   localStorage.setItem('click-speed-results', JSON.stringify(savedResults.slice(-100)));
                 }
+                const score = await getBestScore('click-speed');
+                setBestCps(score);
               }).catch(console.error);
 
               return currentClicks;
             });
 
-            // Enter cooldown state instead of finished
             setTestState('cooldown');
             setCooldownRemaining(2);
 
@@ -120,7 +123,6 @@ export default function ClickSpeedTest() {
     };
   }, [testState, selectedDuration]);
 
-  // Cooldown timer
   useEffect(() => {
     if (testState === 'cooldown') {
       cooldownRef.current = setInterval(() => {
@@ -157,24 +159,12 @@ export default function ClickSpeedTest() {
   const finalCps = clicks > 0 ? (clicks / selectedDuration).toFixed(2) : '0.00';
   const getCpsRating = (cps: string) => {
     const num = parseFloat(cps);
-    if (num >= 10) return { text: t.ratingSuper, color: 'text-purple-600' };
-    if (num >= 8) return { text: t.ratingExcellent, color: 'text-green-600' };
-    if (num >= 6) return { text: t.ratingGreat, color: 'text-blue-600' };
-    if (num >= 5) return { text: t.ratingGood, color: 'text-yellow-600' };
-    if (num >= 4) return { text: t.ratingAverage, color: 'text-orange-600' };
-    return { text: t.ratingNeedsPractice, color: 'text-red-600' };
-  };
-
-  const getDurationKey = (duration: TestDuration) => {
-    const keys: Record<TestDuration, string> = {
-      1: t.duration1s,
-      5: t.duration5s,
-      10: t.duration10s,
-      30: t.duration30s,
-      60: t.duration60s,
-      100: t.duration100s,
-    };
-    return keys[duration];
+    if (num >= 10) return { text: t.ratingSuper, bg: 'bg-purple-500' };
+    if (num >= 8) return { text: t.ratingExcellent, bg: 'bg-green-500' };
+    if (num >= 6) return { text: t.ratingGreat, bg: 'bg-blue-500' };
+    if (num >= 5) return { text: t.ratingGood, bg: 'bg-yellow-500' };
+    if (num >= 4) return { text: t.ratingAverage, bg: 'bg-orange-500' };
+    return { text: t.ratingNeedsPractice, bg: 'bg-red-500' };
   };
 
   return (
@@ -190,11 +180,8 @@ export default function ClickSpeedTest() {
           </p>
         </div>
 
-        {/* Duration Selector - Always visible */}
+        {/* Duration Selector */}
         <div className="mb-8 rounded-2xl border-2 border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-            {t.cstSelectDuration}
-          </h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             {durations.map((duration) => (
               <button
@@ -219,148 +206,89 @@ export default function ClickSpeedTest() {
 
         {/* Click Area */}
         <div className="mb-8">
-          <button
-            onClick={handleClick}
-            className={`relative w-full overflow-hidden rounded-2xl border-2 transition-all ${
-              testState === 'idle'
-                ? 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 dark:border-primary-700'
-                : testState === 'running'
-                ? 'border-green-400 bg-green-500 hover:bg-green-600 active:scale-95'
-                : testState === 'cooldown'
-                ? 'border-green-400 bg-green-500'
-                : 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 dark:border-primary-700'
-            } shadow-xl`}
-            style={{ aspectRatio: '21/9' }}
-          >
-            <div className="flex h-full flex-col items-center justify-center text-white">
-              {testState === 'idle' && (
-                <>
-                  <div className="mb-4 text-7xl">🖱️</div>
-                  <div className="text-3xl font-bold">{t.cstStart}</div>
-                  <div className="mt-2 text-lg opacity-90">Click or press Space</div>
-                </>
-              )}
+          {testState === 'finished' ? (
+            <div
+              className="relative w-full rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl dark:border-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20"
+              style={{ aspectRatio: '21/9' }}
+            >
+              <div className="flex h-full flex-col items-center justify-center p-8">
+                <div className="w-full px-8 py-6">
+                  <div className="mb-6 text-center">
+                    <div className="mb-3 text-5xl">📊</div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.cstResults}</h3>
+                  </div>
 
-              {testState === 'running' && (
-                <>
-                  <div className="text-8xl font-bold">{clicks}</div>
-                  <div className="mt-2 text-xl opacity-90">{t.cstClicks}</div>
-                  <div className="mt-4 text-2xl font-semibold">{timeLeft}s</div>
-                </>
-              )}
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="text-center">
+                      <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.cstTotalClicks}</div>
+                      <div className="text-4xl font-bold text-gray-900 dark:text-white">{clicks}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.cstAverageCPS}</div>
+                      <div className="text-4xl font-bold text-gray-900 dark:text-white">{finalCps}</div>
+                      <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-white ${getCpsRating(finalCps).bg}`}>
+                        {getCpsRating(finalCps).text}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.cstBestRecord}</div>
+                      <div className="text-4xl font-bold text-gray-900 dark:text-white">{bestCps !== null ? bestCps.toFixed(2) : '--'}</div>
+                    </div>
+                  </div>
 
-              {testState === 'cooldown' && (
-                <>
-                  <div className="mb-4 text-6xl">🏁</div>
-                  <div className="text-4xl font-bold">{t.timesUp}</div>
-                </>
-              )}
-
-              {testState === 'finished' && (
-                <>
-                  <div className="mb-4 text-6xl">🔄</div>
-                  <div className="text-4xl font-bold text-white">{t.cstResults}</div>
-                  <div className="mt-2 text-lg text-white opacity-90">{t.clickToRestart}</div>
-                </>
-              )}
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={handleClick}
+                      className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+                    >
+                      {t.srtTryAgain}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </button>
+          ) : (
+            <button
+              onClick={handleClick}
+              className={`relative w-full cursor-pointer overflow-hidden rounded-2xl border-2 transition-all ${
+                testState === 'idle'
+                  ? 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 text-white dark:border-primary-700'
+                  : testState === 'running'
+                  ? 'border-green-400 bg-green-500 text-white hover:bg-green-600 active:scale-95'
+                  : 'border-green-400 bg-green-500 text-white'
+              } shadow-xl`}
+              style={{ aspectRatio: '21/9' }}
+            >
+              <div className="flex h-full flex-col items-center justify-center text-white">
+                {testState === 'idle' && (
+                  <>
+                    <div className="mb-4 text-7xl">🖱️</div>
+                    <div className="text-3xl font-bold">{t.cstStart}</div>
+                    <div className="mt-2 text-lg opacity-90">Click or press Space</div>
+                  </>
+                )}
+
+                {testState === 'running' && (
+                  <>
+                    <div className="text-8xl font-bold">{clicks}</div>
+                    <div className="mt-2 text-xl opacity-90">{t.cstClicks}</div>
+                    <div className="mt-4 text-2xl font-semibold">{timeLeft}s</div>
+                  </>
+                )}
+
+                {testState === 'cooldown' && (
+                  <>
+                    <div className="mb-4 text-6xl">🏁</div>
+                    <div className="text-4xl font-bold">{t.timesUp}</div>
+                  </>
+                )}
+              </div>
+            </button>
+          )}
         </div>
 
-        {/* Stats Display */}
-        {(testState === 'running' || testState === 'cooldown' || testState === 'finished') && (
-          <div className="mb-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border-2 border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-800 dark:bg-blue-900/20">
-              <div className="mb-2 text-sm font-medium text-blue-700 dark:text-blue-400">
-                {t.cstClicks}
-              </div>
-              <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">{clicks}</div>
-            </div>
-
-            <div className="rounded-xl border-2 border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-900/20">
-              <div className="mb-2 text-sm font-medium text-green-700 dark:text-green-400">
-                {t.cstCPS}
-              </div>
-              <div className="text-4xl font-bold text-green-600 dark:text-green-400">
-                {testState === 'finished' ? finalCps : cps.toFixed(2)}
-              </div>
-            </div>
-
-            <div className="rounded-xl border-2 border-purple-200 bg-purple-50 p-6 text-center dark:border-purple-800 dark:bg-purple-900/20">
-              <div className="mb-2 text-sm font-medium text-purple-700 dark:text-purple-400">
-                {t.cstTime}
-              </div>
-              <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">
-                {testState === 'finished' ? selectedDuration : timeLeft}s
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Results */}
-        {testState === 'finished' && (
-          <div className="space-y-6">
-            <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-5 dark:border-primary-800 dark:bg-primary-900/20">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="text-center">
-                  <div className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {t.cstTotalClicks}
-                  </div>
-                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                    {clicks}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {t.cstAverageCPS}
-                  </div>
-                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                    {finalCps}
-                  </div>
-                  <div className={`mt-1 text-base font-semibold ${getCpsRating(finalCps).color}`}>
-                    {getCpsRating(finalCps).text}
-                  </div>
-                </div>
-              </div>
-
-              {/* Best Record */}
-              <div className="mt-4 border-t border-primary-200 pt-4 dark:border-primary-800">
-                <div className="text-center">
-                  <div className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {t.cstBestRecord} ({getDurationKey(selectedDuration)})
-                  </div>
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {Math.max(
-                      ...JSON.parse(localStorage.getItem('click-speed-results') || '[]')
-                        .filter((r: any) => r.duration === selectedDuration)
-                        .map((r: any) => r.cps),
-                      0
-                    ).toFixed(2)}{' '}
-                    CPS
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-center">
-              <button
-                onClick={() => {
-                  setTestState('idle');
-                  setClicks(0);
-                  setCps(0);
-                }}
-                className="w-full max-w-sm rounded-2xl bg-[var(--color-accent)] px-6 py-3 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-              >
-                {t.cstRestart}
-              </button>
-              </div>
-          </div>
-        )}
-
-        {/* Instructions, Benefits & Improvements - Three Columns */}
+        {/* Instructions, Benefits & Improvements */}
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {/* How to Play */}
           <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
             <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white text-center">📖 {t.howToPlay}</h3>
             <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -375,13 +303,11 @@ export default function ClickSpeedTest() {
             </div>
           </div>
 
-          {/* What This Measures */}
           <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
             <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300 text-center">🧠 {t.testBenefitsTitle}</h3>
             <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200" dangerouslySetInnerHTML={{ __html: t.csBenefits }} />
           </div>
 
-          {/* How To Improve */}
           <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
             <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300 text-center">📈 {t.testHowToImproveTitle}</h3>
             <div className="text-sm leading-relaxed text-green-800 dark:text-green-200" dangerouslySetInnerHTML={{ __html: t.csImprovements }} />

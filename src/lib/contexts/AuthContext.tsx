@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/supabase/client';
+import { loadAllBestScoresToCache, clearUserBestScoreCache } from '@/lib/scores';
 
 interface AuthContextType {
   user: User | null;
@@ -93,12 +94,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // 监听认证状态变化
-        const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (!isMounted) return;
+
+          // 处理登出事件
+          if (event === 'SIGNED_OUT' || (event as string) === 'USER_DELETED') {
+            // 清理用户缓存（在 session?.user 变为 null 之前获取 userId）
+            const prevUserId = user?.id;
+            if (prevUserId) {
+              clearUserBestScoreCache(prevUserId);
+            }
+          }
 
           setUser(session?.user ?? null);
 
           if (session?.user) {
+            // 处理登录/注册事件 - 加载最佳记录到缓存
+            if (event === 'SIGNED_IN' || (event as string) === 'USER_CREATED' || event === 'TOKEN_REFRESHED') {
+              loadAllBestScoresToCache(session.user.id).catch(console.error);
+            }
+
             // 获取 profile
             supabase
               .from('profiles')
@@ -190,6 +205,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     const { supabase } = await import('@/lib/supabase/client');
+
+    // 清理当前用户的缓存
+    if (user?.id) {
+      clearUserBestScoreCache(user.id);
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     setUser(null);

@@ -3,18 +3,19 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { useTimeout } from '@/hooks/useTimeout';
 
 type TestState = 'idle' | 'waiting' | 'ready' | 'too-early' | 'finished';
 
 export default function AuditoryReactionTest() {
   const { t } = useI18n();
+  const { setTimeout: timeout, clearTimeout: clearDelayTimeout } = useTimeout();
   const [testState, setTestState] = useState<TestState>('idle');
   const [reactionTimes, setReactionTimes] = useState<number[]>([]);
   const [startTime, setStartTime] = useState<number>(0);
   const [currentRound, setCurrentRound] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [totalRounds] = useState(5);
   const hasSavedRef = useRef(false);
 
@@ -63,7 +64,7 @@ export default function AuditoryReactionTest() {
       setTestState('ready');
       setIsPlaying(true);
 
-      setTimeout(() => {
+      timeout(() => {
         setIsPlaying(false);
       }, 300);
     } catch (error) {
@@ -72,11 +73,11 @@ export default function AuditoryReactionTest() {
       setStartTime(performance.now());
       setTestState('ready');
       setIsPlaying(true);
-      setTimeout(() => {
+      timeout(() => {
         setIsPlaying(false);
       }, 300);
     }
-  }, []);
+  }, [timeout]);
 
   const startTest = useCallback(async () => {
     console.log('Starting test...');
@@ -106,11 +107,11 @@ export default function AuditoryReactionTest() {
     const delay = Math.random() * 3000 + 2000; // 2-5 seconds
     console.log('Will play tone in', Math.round(delay), 'ms');
 
-    timeoutRef.current = setTimeout(() => {
+    timeout(() => {
       console.log('Delay timeout, playing tone now');
       playTone();
     }, delay);
-  }, [playTone]);
+  }, [playTone, timeout]);
 
   const handleClick = useCallback(() => {
     if (testState === 'idle' || testState === 'finished' || testState === 'too-early') {
@@ -119,10 +120,8 @@ export default function AuditoryReactionTest() {
     }
 
     if (testState === 'waiting') {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        console.log('Cleared timeout due to early click');
-      }
+      clearDelayTimeout();
+      console.log('Cleared timeout due to early click');
       setTestState('too-early');
       return;
     }
@@ -167,13 +166,13 @@ export default function AuditoryReactionTest() {
         setTestState('waiting');
         const delay = Math.random() * 3000 + 2000;
         console.log('Next round will play tone in', Math.round(delay), 'ms');
-        timeoutRef.current = setTimeout(() => {
+        timeout(() => {
           console.log('Next round: Delay timeout, playing tone now');
           playTone();
         }, delay);
       }
     }
-  }, [testState, currentRound, reactionTimes, startTime, startTest, playTone, totalRounds]);
+  }, [testState, currentRound, reactionTimes, startTime, startTest, playTone, totalRounds, timeout, clearDelayTimeout]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -194,7 +193,6 @@ export default function AuditoryReactionTest() {
   // Separate cleanup for component unmount
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close().catch(() => {});
       }
@@ -205,6 +203,8 @@ export default function AuditoryReactionTest() {
     reactionTimes.length > 0
       ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
       : 0;
+
+  const bestTime = reactionTimes.length > 0 ? Math.round(Math.min(...reactionTimes)) : 0;
 
   const getRating = (avgTime: number) => {
     if (avgTime < 300) return t.ratingSuper;
@@ -221,15 +221,9 @@ export default function AuditoryReactionTest() {
         {/* Main Test Area */}
         <div
           onClick={handleClick}
-          className={`relative mb-8 flex h-96 cursor-pointer items-center justify-center rounded-2xl border-4 transition-all ${
-            testState === 'idle'
-              ? 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 dark:border-primary-700'
-              : testState === 'waiting'
-              ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-900/30'
-              : testState === 'ready' || isPlaying
-              ? 'border-green-400 bg-green-500'
-              : testState === 'too-early'
-              ? 'border-red-400 bg-red-500'
+          className={`relative mb-8 flex aspect-[21/9] cursor-pointer items-center justify-center rounded-2xl border-4 transition-all ${
+            testState === 'finished'
+              ? 'border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 dark:border-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20'
               : 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 dark:border-primary-700'
           }`}
         >
@@ -242,12 +236,12 @@ export default function AuditoryReactionTest() {
           )}
 
           {testState === 'waiting' && (
-            <div className="text-center">
+            <div className="text-center text-white">
               <div className="mb-6 text-8xl">👂</div>
-              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+              <div className="text-4xl font-bold">
                 {t.auditoryReactionWait}
               </div>
-              <div className="mt-4 text-xl text-gray-700 dark:text-gray-300">
+              <div className="mt-4 text-xl opacity-90">
                 {t.srtAverage} {currentRound + 1} / {totalRounds}
               </div>
             </div>
@@ -269,63 +263,44 @@ export default function AuditoryReactionTest() {
           )}
 
           {testState === 'finished' && (
-            <div className="text-center text-white">
-              <div className="mb-6 text-8xl">📊</div>
-              <div className="text-4xl font-bold">{t.auditoryReactionResults}</div>
-              <div className="mt-4 text-xl">{t.srtTryAgain}</div>
+            <div className="w-full px-8 py-6">
+              <div className="mb-6 text-center text-gray-900 dark:text-white">
+                <div className="mb-3 text-5xl">📊</div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.auditoryReactionResults}</h3>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="text-center">
+                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtAverage}</div>
+                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{averageTime}<span className="text-2xl">ms</span></div>
+                  <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-white ${
+                    averageTime < 300 ? 'bg-purple-500' :
+                    averageTime < 400 ? 'bg-green-500' :
+                    averageTime < 500 ? 'bg-blue-500' :
+                    averageTime < 600 ? 'bg-yellow-500' :
+                    averageTime < 700 ? 'bg-orange-500' :
+                    'bg-red-500'
+                  }`}>
+                    {getRating(averageTime)}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtBest}</div>
+                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{bestTime}<span className="text-2xl">ms</span></div>
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleClick}
+                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+                >
+                  {t.srtTryAgain}
+                </button>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Results */}
-        {testState === 'finished' && reactionTimes.length > 0 && (
-          <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 dark:border-primary-800 dark:bg-primary-900/20">
-            <h2 className="mb-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
-              {t.srtResults}
-            </h2>
-
-            <div className="mb-6 text-center">
-              <div className="text-6xl font-bold text-primary-600 dark:text-primary-400">
-                {averageTime}ms
-              </div>
-              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                {t.srtAverage}
-              </div>
-            </div>
-
-            <div className="mb-6 rounded-xl bg-white/50 p-4 text-center dark:bg-gray-800/50">
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                Your Rank: {getRating(averageTime)}
-              </div>
-            </div>
-
-            <div className="mb-6 grid grid-cols-5 gap-2">
-              {reactionTimes.map((time, index) => (
-                <div
-                  key={index}
-                  className={`rounded-lg p-2 text-center text-sm ${
-                    time < 400
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : time < 500
-                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                  }`}
-                >
-                  {Math.round(time)}ms
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                onClick={startTest}
-                className="w-full max-w-sm rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-              >
-                {t.srtTryAgain}
-              </button>
-              </div>
-          </div>
-        )}
 
         {/* Instructions, Benefits & Improvements - Three Columns */}
         <div className="mt-6 grid gap-4 lg:grid-cols-3">

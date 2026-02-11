@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { useTimeout } from '@/hooks/useTimeout';
 
 type GameState = 'idle' | 'showing' | 'input' | 'finished';
 
@@ -13,6 +14,7 @@ interface Tile {
 
 export default function SequenceMemoryTest() {
   const { t } = useI18n();
+  const { setTimeout } = useTimeout();
   const [gameState, setGameState] = useState<GameState>('idle');
   const [sequence, setSequence] = useState<number[]>([]);
   const [playerInput, setPlayerInput] = useState<number[]>([]);
@@ -20,6 +22,7 @@ export default function SequenceMemoryTest() {
   const [activeTile, setActiveTile] = useState<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hasSavedRef = useRef(false);
+  const isShowingSequenceRef = useRef(false); // 追踪是否正在展示序列
 
   const tiles: Tile[] = [
     { id: 0, isActive: false },
@@ -128,6 +131,7 @@ export default function SequenceMemoryTest() {
     setCurrentLevel(1);
     setGameState('showing');
     hasSavedRef.current = false;
+    isShowingSequenceRef.current = false;
   }, []);
 
   // Handle keyboard input to start game
@@ -142,12 +146,21 @@ export default function SequenceMemoryTest() {
   }, [gameState, startGame]);
 
   const showSequence = useCallback(() => {
-    if (gameState !== 'showing') return;
+    if (gameState !== 'showing' || isShowingSequenceRef.current) return;
+
+    isShowingSequenceRef.current = true;
 
     const showTile = (index: number) => {
+      // 检查是否仍在展示状态
+      if (!isShowingSequenceRef.current || gameState !== 'showing') {
+        isShowingSequenceRef.current = false;
+        return;
+      }
+
       if (index >= sequence.length) {
         setGameState('input');
         setActiveTile(null);
+        isShowingSequenceRef.current = false;
         return;
       }
 
@@ -155,7 +168,11 @@ export default function SequenceMemoryTest() {
       setActiveTile(tileId);
       playTone(tileId); // Play tone when showing
 
+      // 使用 useTimeout hook
       setTimeout(() => {
+        // 再次检查状态
+        if (!isShowingSequenceRef.current) return;
+
         setActiveTile(null);
         setTimeout(() => {
           showTile(index + 1);
@@ -164,18 +181,18 @@ export default function SequenceMemoryTest() {
     };
 
     showTile(0);
-  }, [gameState, sequence, playTone]);
+  }, [gameState, sequence, playTone, setTimeout]);
 
   useEffect(() => {
     if (gameState === 'showing' && sequence.length > 0) {
-      const timer = setTimeout(() => {
+      const timer = window.setTimeout(() => {
         showSequence();
       }, 500);
-      return () => clearTimeout(timer);
+      return () => window.clearTimeout(timer);
     }
   }, [gameState, sequence, showSequence]);
 
-  const handleTileClick = (tileId: number) => {
+  const handleTileClick = useCallback((tileId: number) => {
     if (gameState !== 'input') return;
 
     // Play tone when clicking
@@ -228,9 +245,10 @@ export default function SequenceMemoryTest() {
         setCurrentLevel(currentLevel + 1);
         setGameState('showing');
         setActiveTile(null);
+        isShowingSequenceRef.current = false;
       }, 1000);
     }
-  };
+  }, [gameState, playerInput, sequence, currentLevel, playTone, playErrorSound, setTimeout]);
 
   const getRating = (level: number) => {
     if (level >= 15) return t.ratingSuper;
@@ -264,7 +282,7 @@ export default function SequenceMemoryTest() {
             }}
           >
             {/* Game Content - Fixed height container */}
-            <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
+            <div className={`min-h-[450px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
               {/* Level Display */}
               <div className="mb-6 text-center">
                 <div className="text-5xl font-bold text-primary-600 dark:text-primary-400">
@@ -284,7 +302,7 @@ export default function SequenceMemoryTest() {
 
               {/* Tiles Grid */}
               <div className="relative max-w-md mx-auto">
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-3 gap-5">
                   {tiles.map((tile) => (
                     <button
                       key={tile.id}
@@ -322,27 +340,45 @@ export default function SequenceMemoryTest() {
 
         {/* Finished State */}
         {gameState === 'finished' && (
-          <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
-            <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-purple-50 p-6 text-center shadow-lg dark:from-primary-900/30 dark:to-purple-900/30">
-              <div className="mb-4 text-6xl">❌</div>
-              <h3 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="rounded-3xl border-2 border-gray-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="text-center">
+              <div className="mb-4 text-6xl">📊</div>
+              <h3 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
                 {t.sequenceMemoryGameOver}
               </h3>
-              <p className="mb-2 text-xl text-gray-700 dark:text-gray-300">
-                {t.sequenceMemoryLevel} {currentLevel}
-              </p>
-              <p className="mb-6 text-lg text-gray-600 dark:text-gray-400">
-                {getRating(currentLevel)}
-              </p>
 
-              <div className="flex justify-center">
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
-                </button>
+              <div className="mb-8 grid gap-4 md:grid-cols-2">
+                <div className="text-center">
+                  <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                    {t.sequenceMemoryLevel}
+                  </div>
+                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
+                    {currentLevel}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">
+                    {t.rating}
+                  </div>
+                  <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-white ${
+                    currentLevel >= 15 ? 'bg-purple-500' :
+                    currentLevel >= 12 ? 'bg-green-500' :
+                    currentLevel >= 9 ? 'bg-blue-500' :
+                    currentLevel >= 6 ? 'bg-yellow-500' :
+                    currentLevel >= 4 ? 'bg-orange-500' :
+                    'bg-red-500'
+                  }`}>
+                    {getRating(currentLevel)}
+                  </div>
+                </div>
               </div>
+
+              <button
+                onClick={startGame}
+                className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+              >
+                {t.srtTryAgain}
+              </button>
             </div>
           </div>
         )}

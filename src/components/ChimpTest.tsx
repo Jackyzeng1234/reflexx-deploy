@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { useTimeout } from '@/hooks/useTimeout';
 
 type GameState = 'idle' | 'memorize' | 'recall' | 'finished';
 
@@ -15,38 +16,14 @@ interface NumberTile {
 
 export default function ChimpTest() {
   const { t } = useI18n();
+  const { setTimeout } = useTimeout();
   const [gameState, setGameState] = useState<GameState>('idle');
   const [tiles, setTiles] = useState<NumberTile[]>([]);
   const [nextNumber, setNextNumber] = useState(1);
   const [currentLevel, setCurrentLevel] = useState(1);
   const hasSavedRef = useRef(false);
 
-  const startGame = useCallback(() => {
-    const count = 4; // Start with 4 numbers
-    generateTiles(count);
-    setCurrentLevel(1);
-    setNextNumber(1);
-    setGameState('memorize');
-    hasSavedRef.current = false;
-
-    // Hide numbers after 2 seconds
-    setTimeout(() => {
-      setGameState('recall');
-    }, 2000);
-  }, []);
-
-  // Handle keyboard input to start game
-  useEffect(() => {
-    if (gameState === 'idle') {
-      const handleKeyPress = () => {
-        startGame();
-      };
-      window.addEventListener('keydown', handleKeyPress);
-      return () => window.removeEventListener('keydown', handleKeyPress);
-    }
-  }, [gameState, startGame]);
-
-  const generateTiles = (count: number) => {
+  const generateTiles = useCallback((count: number) => {
     const newTiles: NumberTile[] = [];
     const buttonSize = 60; // 60px button size
     const padding = 70; // pixels of padding needed between buttons
@@ -92,9 +69,34 @@ export default function ChimpTest() {
     // Shuffle positions
     newTiles.sort(() => Math.random() - 0.5);
     setTiles(newTiles);
-  };
+  }, []);
 
-  const handleTileClick = (clickedTile: NumberTile) => {
+  const startGame = useCallback(() => {
+    const count = 4; // Start with 4 numbers
+    generateTiles(count);
+    setCurrentLevel(1);
+    setNextNumber(1);
+    setGameState('memorize');
+    hasSavedRef.current = false;
+
+    // Hide numbers after 2 seconds
+    setTimeout(() => {
+      setGameState('recall');
+    }, 2000);
+  }, [generateTiles, setTimeout]);
+
+  // Handle keyboard input to start game
+  useEffect(() => {
+    if (gameState === 'idle') {
+      const handleKeyPress = () => {
+        startGame();
+      };
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [gameState, startGame]);
+
+  const handleTileClick = useCallback((clickedTile: NumberTile) => {
     if (gameState !== 'recall') return;
 
     if (clickedTile.value !== nextNumber) {
@@ -151,7 +153,7 @@ export default function ChimpTest() {
         }, 2000);
       }, 1000);
     }
-  };
+  }, [gameState, nextNumber, tiles.length, currentLevel, generateTiles, setTimeout]);
 
   const getRating = (level: number) => {
     if (level >= 10) return t.ratingSuper;
@@ -223,7 +225,7 @@ export default function ChimpTest() {
             {gameState === 'idle' && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/40 backdrop-blur-sm cursor-pointer transition-all hover:scale-[1.02] hover:bg-black/10">
                 <div className="text-center">
-                  <div className="mb-4 text-6xl">🐵</div>
+                  <div className="mb-4 text-6xl">📊</div>
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {t.clickToStart}
                   </div>
@@ -238,32 +240,38 @@ export default function ChimpTest() {
 
         {/* Finished State */}
         {gameState === 'finished' && (
-          <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
-            <div className="rounded-2xl bg-gradient-to-br from-red-50 to-orange-50 p-6 text-center shadow-lg dark:from-red-900/30 dark:to-orange-900/30">
-              <div className="mb-4 text-6xl">🐵</div>
-              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="rounded-3xl border-2 border-gray-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="text-center">
+              <div className="mb-4 text-6xl">📊</div>
+              <h3 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
                 {t.chimpTestGameOver}
               </h3>
-              <p className="mb-4 text-xl text-gray-700 dark:text-gray-300">
-                {t.chimpTestReached} <strong className="text-primary-600">Level {currentLevel}</strong>
-              </p>
-              <p className="mb-6 text-gray-600 dark:text-gray-400">
-                {t.chimpTestSuccess} {tiles.length - 1} {t.chimpTestNumbers}
-              </p>
-              <div className="mb-6 rounded-xl bg-white/50 p-4 shadow-sm dark:bg-gray-800/50">
-                <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {t.srtRank}: {getRating(currentLevel)}
+
+              <div className="mb-8 grid gap-4 md:grid-cols-2">
+                <div className="text-center">
+                  <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                    {t.chimpTestReached}
+                  </div>
+                  <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
+                    Level {currentLevel}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                    {t.chimpTestNumbers}
+                  </div>
+                  <div className="text-4xl font-bold text-green-600 dark:text-green-400">
+                    {tiles.length - 1}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-center">
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-[var(--color-accent)] px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
-                </button>
-              </div>
+              <button
+                onClick={startGame}
+                className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
+              >
+                {t.srtTryAgain}
+              </button>
             </div>
           </div>
         )}
