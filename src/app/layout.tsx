@@ -11,9 +11,9 @@ import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ReflexX - Professional Reaction Time Testing | Test Your Limits',
-  description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed with professional-grade tools. Test your limits and track your progress.',
-  keywords: ['reflex test', 'reflexx', 'reaction time test', 'reaction test', 'click speed test', 'cps test', 'aim trainer', 'reflex training'],
+  title: 'ReflexX - Free Reaction & Memory Tests',
+  description: 'Test your reaction time, memory, and cognitive abilities with 9+ free online tests. Global leaderboard, no signup required. Start testing now!',
+  keywords: ['reflex test', 'reflexx', 'reaction time test', 'reaction test', 'click speed test', 'cps test', 'aim trainer', 'reflex training', 'memory test', 'cognitive test'],
   authors: [{ name: 'ReflexX' }],
   verification: {
     google: '1nnkbQnsfU1QeeL_1Uxy_mnK5aSGUGYeSoDa7bsXs0s',
@@ -23,16 +23,16 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.svg',
   },
   openGraph: {
-    title: 'ReflexX - Professional Reaction Time Testing | Test Your Limits',
-    description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed with professional-grade tools.',
+    title: 'ReflexX - Free Reaction & Memory Tests',
+    description: 'Test your reaction time, memory, and cognitive abilities with 9+ free online tests. Global leaderboard, no signup required.',
     type: 'website',
     locale: 'en_US',
     alternateLocale: ['zh_CN', 'es_ES'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ReflexX - Professional Reaction Time Testing | Test Your Limits',
-    description: 'Free online reaction time tests by ReflexX. Measure your reflexes and reaction speed.',
+    title: 'ReflexX - Free Reaction & Memory Tests',
+    description: 'Test your reaction time, memory, and cognitive abilities with 9+ free online tests. Global leaderboard, no signup.',
   },
   alternates: {
     canonical: 'https://reflexx.uk',

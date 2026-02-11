@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Stroop Test - Measure Cognitive Flexibility | ReactionTest',
-  description: 'Test your cognitive flexibility and inhibitory control with the Stroop Test. Challenge your brain processing speed.',
+  title: 'Stroop Test - Brain Processing Speed Game | ReflexX',
+  description: 'Test your cognitive flexibility with the Stroop Test. Measure inhibitory control and processing speed. Free online, instant results. Try now!',
   keywords: ['stroop test', 'cognitive flexibility test', 'inhibitory control test', 'color word test', 'brain processing test'],
   openGraph: {
-    title: 'Stroop Test - Measure Your Cognitive Abilities',
-    description: 'Test your cognitive flexibility and inhibitory control.',
+    title: 'Stroop Test - Brain Processing Speed Game | ReflexX',
+    description: 'Test your cognitive flexibility with the Stroop Test. Measure inhibitory control and processing speed.',
     type: 'website',
   },
 };

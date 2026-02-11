@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Sequence Memory Test - Train Your Memory | ReactionTest',
-  description: 'Test and improve your spatial memory with this sequence memory test. Remember tile patterns and challenge your brain.',
-  keywords: ['sequence memory test', 'spatial memory test', 'memory game', 'pattern memory test', 'brain training'],
+  title: 'Sequence Memory Test - Pattern Recall | ReflexX',
+  description: 'Test your sequence memory and pattern recognition. Compare your score globally and track improvement. Free online memory test.',
+  keywords: ['sequence memory test', 'spatial memory test', 'memory game', 'pattern memory test', 'brain training', 'pattern recall'],
   openGraph: {
-    title: 'Sequence Memory Test - Train Your Memory',
-    description: 'Test and improve your spatial memory with this sequence memory test.',
+    title: 'Sequence Memory Test - Pattern Recall | ReflexX',
+    description: 'Test your sequence memory and pattern recognition. Compare your score globally.',
     type: 'website',
   },
 };

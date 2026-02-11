@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Choice Reaction Test - Measure Decision Speed | ReactionTest',
-  description: 'Test your choice reaction time and decision-making speed. Measure cognitive processing with multiple choice options.',
-  keywords: ['choice reaction test', 'decision making test', 'cognitive reaction test', 'multiple choice reaction'],
+  title: 'Choice Reaction Test - Decision Speed | ReflexX',
+  description: 'Test your decision-making speed with multiple choice reactions. Measure cognitive processing speed. Free online, global comparison.',
+  keywords: ['choice reaction test', 'decision making test', 'cognitive reaction test', 'multiple choice reaction', 'decision speed'],
   openGraph: {
-    title: 'Choice Reaction Test - Measure Decision Speed',
-    description: 'Test your choice reaction time and decision-making speed.',
+    title: 'Choice Reaction Test - Decision Speed | ReflexX',
+    description: 'Test your decision-making speed with multiple choice reactions. Measure cognitive processing speed.',
     type: 'website',
   },
 };

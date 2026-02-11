@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Auditory Reaction Test - Measure Your Sound Reflexes | ReactionTest',
-  description: 'Test your auditory reaction time with sound cues. Measure how fast you respond to audio stimuli accurately.',
-  keywords: ['auditory reaction test', 'sound reaction test', 'audio reflex test', 'hearing reaction time'],
+  title: 'Auditory Reaction Test - Sound Reflex Speed | ReflexX',
+  description: 'Test your reaction to sound stimuli. Compare auditory vs visual reflexes. Free online test with accurate timing. Try now!',
+  keywords: ['auditory reaction test', 'sound reaction test', 'audio reflex test', 'hearing reaction time', 'sound reflex speed'],
   openGraph: {
-    title: 'Auditory Reaction Test - Measure Your Sound Reflexes',
-    description: 'Test your auditory reaction time with sound cues.',
+    title: 'Auditory Reaction Test - Sound Reflex Speed | ReflexX',
+    description: 'Test your reaction to sound stimuli. Compare auditory vs visual reflexes.',
     type: 'website',
   },
 };

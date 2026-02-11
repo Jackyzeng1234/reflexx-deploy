@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Typing Speed Test - Measure WPM & Accuracy | ReactionTest',
-  description: 'Free online typing speed test. Measure your typing speed in words per minute (WPM), accuracy, and typing performance.',
+  title: 'Typing Speed Test - Measure WPM & Accuracy | ReflexX',
+  description: 'Test your typing speed in WPM and accuracy. Free online typing test with real-time feedback. Track improvement. Try now!',
   keywords: ['typing speed test', 'wpm test', 'typing test', 'words per minute test', 'typing speed test online free'],
   openGraph: {
-    title: 'Typing Speed Test - Measure Your Typing Speed',
-    description: 'Test your typing speed and accuracy. Measure your WPM (words per minute).',
+    title: 'Typing Speed Test - Measure WPM & Accuracy | ReflexX',
+    description: 'Test your typing speed in WPM and accuracy. Free online typing test with real-time feedback.',
     type: 'website',
   },
 };

@@ -3,12 +3,12 @@ import ClickSpeedTest from '@/components/ClickSpeedTest';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Click Speed Test - CPS Test | ReactionTest',
-  description: 'Test your clicking speed with our CPS test. Measure your clicks per second in 1s, 5s, 10s, 30s, 60s, and 100s durations.',
+  title: 'Click Speed Test - Measure CPS (1s-100s) | ReflexX',
+  description: 'Test your CPS (clicks per second) in multiple durations. Free online click speed test. Compare globally. Try now!',
   keywords: ['click speed test', 'cps test', 'clicks per second', 'click test', 'mouse click speed', 'kahoot click speed'],
   openGraph: {
-    title: 'Click Speed Test - Measure Your Clicking Speed',
-    description: 'Test your clicking speed with our CPS test. Measure your clicks per second.',
+    title: 'Click Speed Test - Measure CPS (1s-100s) | ReflexX',
+    description: 'Test your CPS (clicks per second) in multiple durations. Free online click speed test.',
     type: 'website',
   },
 };

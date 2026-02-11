@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'Chimp Test - Measure Spatial Memory | ReactionTest',
-  description: 'Test your spatial working memory with the Chimp Test. Remember number locations and challenge your memory skills.',
+  title: 'Chimp Test - Memory Game with Strategy Tips | ReflexX',
+  description: 'Test your working memory with the Chimp Test. Includes strategy tips for higher levels. Free online, global leaderboard. Try now!',
   keywords: ['chimp test', 'spatial memory test', 'working memory test', 'chimpanzee test', 'number memory game'],
   openGraph: {
-    title: 'Chimp Test - Measure Your Spatial Memory',
-    description: 'Test your spatial working memory with the Chimp Test.',
+    title: 'Chimp Test - Memory Game with Strategy Tips | ReflexX',
+    description: 'Test your working memory with the Chimp Test. Includes strategy tips for higher levels.',
     type: 'website',
   },
 };
