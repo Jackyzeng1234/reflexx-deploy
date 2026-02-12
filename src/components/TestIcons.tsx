@@ -50,7 +50,7 @@ export const SequenceMemoryIcon: React.FC<TestIconProps> = ({ className = "" }) 
 // Chimp Test - 黑猩猩测试
 export const ChimpTestIcon: React.FC<TestIconProps> = ({ className = "" }) => (
   <span className={className} style={{ fontSize: '56px', lineHeight: 1 }}>
-    🐒
+    🦍
   </span>
 );
 
@@ -65,5 +65,12 @@ export const StroopTestIcon: React.FC<TestIconProps> = ({ className = "" }) => (
 export const NumberMemoryIcon: React.FC<TestIconProps> = ({ className = "" }) => (
   <span className={className} style={{ fontSize: '56px', lineHeight: 1 }}>
     🔢
+  </span>
+);
+
+// Aim Trainer - 瞄准训练
+export const AimTrainerIcon: React.FC<TestIconProps> = ({ className = "" }) => (
+  <span className={className} style={{ fontSize: '56px', lineHeight: 1 }}>
+    🎯
   </span>
 );

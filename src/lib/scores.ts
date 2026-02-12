@@ -148,8 +148,9 @@ function getGuestBestScore(testType: string): number | null {
       case 'simple-reaction':
       case 'auditory-reaction':
       case 'choice-reaction':
+      case 'aim-trainer':
         // 反应时间测试：越小越好
-        return Math.min(...results.map((r: any) => r.average));
+        return Math.min(...results.map((r: any) => r.average || r.avgReaction));
 
       case 'click-speed':
         // 点击速度：越大越好
@@ -188,12 +189,20 @@ async function getUserBestScoreFromDB(
   try {
     console.log(`📊 [DB] 查询 ${testType} 最佳记录...`);
 
+    // 反应时间测试：越小越好（升序）
+    const isReactionTest = [
+      'simple-reaction',
+      'auditory-reaction',
+      'choice-reaction',
+      'aim-trainer'
+    ].includes(testType);
+
     const { data, error } = await supabase
       .from('scores')
       .select('score')
       .eq('user_id', userId)
       .eq('test_type', testType)
-      .order('score', { ascending: false })
+      .order('score', { ascending: isReactionTest })  // 反应测试升序，其他降序
       .limit(1);
 
     if (error) throw error;

@@ -62,6 +62,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
 
+    {
+      url: `${BASE_URL}/tests/aim-trainer`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+
     // ===== 记忆测试页面 =====
     {
       url: `${BASE_URL}/tests/sequence-memory`,

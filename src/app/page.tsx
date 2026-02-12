@@ -6,6 +6,7 @@ import {
   SimpleReactionIcon,
   AuditoryReactionIcon,
   ClickSpeedIcon,
+  AimTrainerIcon,
   TypingIcon,
   ChoiceReactionIcon,
   SequenceMemoryIcon,
@@ -40,6 +41,14 @@ export default function HomePage() {
       description: t.clickSpeedDesc,
       icon: ClickSpeedIcon,
       href: '/tests/click-speed',
+      difficulty: t.difficultyEasy,
+    },
+    {
+      id: 'aim-trainer',
+      title: t.aimTrainer,
+      description: t.aimTrainerDesc,
+      icon: AimTrainerIcon,
+      href: '/tests/aim-trainer',
       difficulty: t.difficultyEasy,
     },
     {
@@ -147,20 +156,9 @@ export default function HomePage() {
                   </h3>
 
                   {/* Description */}
-                  <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)] line-clamp-2">
+                  <p className="text-sm leading-relaxed text-[var(--color-text-secondary)] line-clamp-2">
                     {test.description}
                   </p>
-
-                  {/* Difficulty Badge */}
-                  <span className={`mt-auto rounded-full px-3 py-1 text-xs font-semibold ${
-                    test.difficulty === t.difficultyEasy
-                      ? 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400'
-                      : test.difficulty === t.difficultyMedium
-                      ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400'
-                      : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
-                  }`}>
-                    {test.difficulty}
-                  </span>
                 </Link>
               );
             })}

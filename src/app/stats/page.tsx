@@ -16,6 +16,7 @@ interface TestResult {
 const localStorageToTestType: Record<string, string> = {
   'simple-reaction-results': 'simple-reaction',
   'click-speed-results': 'click-speed',
+  'aim-trainer-results': 'aim-trainer',
   'auditory-reaction-results': 'auditory-reaction',
   'sequence-memory-results': 'sequence-memory',
   'typing-results': 'typing',
@@ -30,6 +31,7 @@ const TEST_ORDER = [
   'simple-reaction-results',
   'auditory-reaction-results',
   'click-speed-results',
+  'aim-trainer-results',
   'typing-results',
   'choice-reaction-results',
   'sequence-memory-results',
@@ -158,6 +160,13 @@ export default function StatsPage() {
           timestamp: new Date(created_at).getTime(),
         };
 
+      case 'aim-trainer':
+        return {
+          avgReaction: value,
+          bestReaction: details?.bestReaction || 0,
+          timestamp: new Date(created_at).getTime(),
+        };
+
       case 'sequence-memory':
         return {
           level: value,
@@ -226,6 +235,24 @@ export default function StatsPage() {
       getDisplay: (r) => ({ label: `${r.cps.toFixed(2)} CPS`, value: `${r.clicks} ${t.statsClicksIn} ${r.duration}s` }),
       getAverage: (results) => parseFloat((results.reduce((sum, r) => sum + r.cps, 0) / results.length).toFixed(2)),
       getBest: (results) => Math.max(...results.map((r) => r.cps)),
+    },
+    'aim-trainer-results': {
+      title: t.statsAimTrainerTitle,
+      icon: '🎯',
+      color: 'red',
+      unit: 'ms',
+      getValue: (r) => r.avgReaction,
+      getDisplay: (r) => ({ label: `${r.avgReaction}ms`, value: `${r.bestReaction}ms` }),
+      getAverage: (results) => {
+        const validResults = results.filter((r) => r.avgReaction > 0);
+        if (validResults.length === 0) return 0;
+        return Math.round(validResults.reduce((sum, r) => sum + r.avgReaction, 0) / validResults.length);
+      },
+      getBest: (results) => {
+        const validResults = results.filter((r) => r.avgReaction > 0);
+        if (validResults.length === 0) return 0;
+        return Math.min(...validResults.map((r) => r.avgReaction));
+      },
     },
     'auditory-reaction-results': {
       title: t.statsAuditoryReactionTitle,
