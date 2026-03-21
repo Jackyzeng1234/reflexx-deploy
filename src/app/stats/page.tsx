@@ -349,7 +349,7 @@ export default function StatsPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="mb-8 rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
+          <div className="mb-8 rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">📊</div>
             <h3 className="mb-2 text-2xl font-bold text-black">{t.loading}</h3>
             <p className="text-black">{t.statsLoadingData}</p>
@@ -358,7 +358,7 @@ export default function StatsPage() {
 
         {/* No Data State */}
         {!loading && !hasAnyData && (
-          <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300/50 bg-gray-50/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
+          <div className="mb-8 rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">📊</div>
             <h3 className="mb-2 text-2xl font-bold text-black">{t.statsNoDataTitle}</h3>
             <p className="mb-6 text-black">{t.statsNoData}</p>
@@ -391,7 +391,7 @@ export default function StatsPage() {
                 return (
                   <div
                     key={testType}
-                    className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/80 backdrop-blur-sm p-6 dark:border-blue-800/50 dark:bg-blue-900/20"
+                    className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-6 dark:border-blue-800/50 dark:bg-blue-900/20"
                     style={{ borderColor: '#3b82f6' }}
                   >
                     <div className="mb-4 flex items-center justify-between">
@@ -470,7 +470,7 @@ export default function StatsPage() {
                 const recentResults = results.slice(-5).reverse();
 
                 return (
-                  <div key={testType} className="rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 dark:border-gray-700/50 dark:bg-gray-800/80">
+                  <div key={testType} className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-6 dark:border-gray-700/50 dark:bg-gray-800/80">
                     <h2 className="mb-4 text-xl font-bold text-black">
                       {config.title} - {t.statsRecentSimpleReactionTests.split('Simple')[1] || t.statsRecentSimpleReactionTests}
                     </h2>
@@ -480,7 +480,7 @@ export default function StatsPage() {
                         return (
                           <div
                             key={index}
-                            className="flex items-center justify-between rounded-lg bg-gray-50/80 backdrop-blur-sm p-4 dark:bg-gray-700/80"
+                            className="flex items-center justify-between rounded-lg bg-white/70 backdrop-blur-md p-4 dark:bg-gray-700/80"
                           >
                             <div className="flex items-center gap-4">
                               <div className="text-2xl">{config.icon}</div>
@@ -506,7 +506,7 @@ export default function StatsPage() {
             </div>
 
             {/* Continue Testing CTA */}
-            <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 text-center dark:border-primary-800 dark:bg-primary-900/20">
+            <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 text-center dark:border-primary-800 dark:bg-primary-900/20">
               <h3 className="mb-4 text-2xl font-bold text-black">
                 {t.statsKeepImproving}
               </h3>

@@ -354,7 +354,7 @@ export default function LeaderboardPage() {
 
         {/* User's Best Score */}
         {userBest && (
-          <div className="mb-8 rounded-2xl border-2 border-primary-200/50 bg-primary-50/80 backdrop-blur-sm p-6 dark:border-primary-800/50 dark:bg-primary-900/20">
+          <div className="mb-8 rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-6 dark:border-primary-800/50 dark:bg-primary-900/20">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="mb-1 text-lg font-bold text-black">
@@ -373,7 +373,7 @@ export default function LeaderboardPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="mb-8 rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
+          <div className="mb-8 rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">⏳</div>
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               {t.lbLoading || 'Loading...'}
@@ -386,7 +386,7 @@ export default function LeaderboardPage() {
 
         {/* No Data State */}
         {!loading && leaderboard.length === 0 && (
-          <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300/50 bg-gray-50/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
+          <div className="mb-8 rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">🏆</div>
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               {t.statsNoDataTitle}
@@ -408,7 +408,7 @@ export default function LeaderboardPage() {
 
         {/* Leaderboard Table */}
         {!loading && leaderboard.length > 0 && (
-          <div className="overflow-hidden rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm shadow-lg dark:border-gray-700/50 dark:bg-gray-800/80">
+          <div className="overflow-hidden rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md shadow-lg dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-900">
@@ -494,7 +494,7 @@ export default function LeaderboardPage() {
 
         {/* CTA */}
         {leaderboard.length > 0 && (
-          <div className="mt-8 rounded-2xl border-2 border-primary-200/50 bg-primary-50/80 backdrop-blur-sm p-8 text-center dark:border-primary-800/50 dark:bg-primary-900/20">
+          <div className="mt-8 rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 text-center dark:border-primary-800/50 dark:bg-primary-900/20">
             <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
               {t.lbWantToBeOnLeaderboard}
             </h3>

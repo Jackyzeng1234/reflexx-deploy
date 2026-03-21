@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>背景样式Demo - ReflexX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        .demo-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .demo-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .demo-label h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .demo-label p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .content-card {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .content-card h3 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .content-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .content-card button {
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .content-card button:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        /* 遮罩层 - 与当前网站一致 */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(9, 9, 11, 0.5);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== 方案1：深色渐变网格背景 ========== */
+        .bg-option-1 {
+            background-color: #0a0a0a;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+        }
+
+        /* ========== 方案2：点阵圆点背景 ========== */
+        .bg-option-2 {
+            background-color: #09090b;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.25) 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: center center;
+        }
+
+        /* ========== 方案3：深色斜线纹理 ========== */
+        .bg-option-3 {
+            background-color: #0a0a0a;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.02) 10px,
+                rgba(255, 255, 255, 0.02) 20px
+            );
+        }
+
+        /* ========== 方案4：径向渐变光晕背景 ========== */
+        .bg-option-4 {
+            background-color: #09090b;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+            background-size: 100% 100%;
+        }
+
+        /* ========== 方案5：多层几何网格背景 ========== */
+        .bg-option-5 {
+            background-color: #09090b;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            background-size: 100px 100px, 100px 100px, 100% 100%;
+            background-position: center center;
+        }
+        /* ========== 方案6：波浪纹理背景 ========== */
+        .bg-option-6 {
+            background-color: #09090b;
+            background-image:
+                radial-gradient(ellipse at top, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
+                linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+        }
+
+        /* ========== 方案7：发光粒子背景 ========== */
+        .bg-option-7 {
+            background-color: #09090b;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.35) 0%, transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.30) 0%, transparent 35%),
+                radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 30% 80%, rgba(34, 211, 238, 0.28) 0%, transparent 30%);
+        }
+
+        /* ========== 方案8：几何三角背景 ========== */
+        .bg-option-8 {
+            background-color: #09090b;
+            background-image:
+                linear-gradient(135deg, rgba(59, 130, 246, 0.15) 25%, transparent 25%),
+                linear-gradient(225deg, rgba(59, 130, 246, 0.15) 25%, transparent 25%),
+                linear-gradient(45deg, rgba(59, 130, 246, 0.15) 25%, transparent 25%),
+                linear-gradient(315deg, rgba(59, 130, 246, 0.15) 25%, transparent 25%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 0, 30px -30px, 0px 30px;
+        }
+
+        /* ========== 方案9：噪点质感背景 ========== */
+        .bg-option-9 {
+            background-color: #09090b;
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.25'/%3E%3C/svg%3E"),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+        }
+
+        /* ========== 方案10：极简线条背景 ========== */
+        .bg-option-10 {
+            background-color: #09090b;
+            background-image:
+                linear-gradient(90deg, transparent 92%, rgba(59, 130, 246, 0.25) 92%, rgba(59, 130, 246, 0.25) 100%),
+                linear-gradient(transparent 92%, rgba(139, 92, 246, 0.20) 92%, rgba(139, 92, 246, 0.20) 100%);
+            background-size: 150px 150px, 80px 80px;
+        }
+
+        /* ========== 方案11：星空白点背景 ========== */
+        .bg-option-11 {
+            background-color: #000000;
+            background-image:
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+            background-size: 50px 50px, 100px 100px, 150px 150px, 200px 200px;
+            background-position: 0 0, 25px 25px, 50px 50px, 75px 75px;
+        }
+
+        /* ========== 方案12：星空极光背景 ========== */
+        .bg-option-12 {
+            background-color: #000000;
+            background-image:
+                /* 星空层 */
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+                /* 极光层 */
+                linear-gradient(180deg,
+                    transparent 0%,
+                    rgba(34, 211, 238, 0.08) 20%,
+                    rgba(139, 92, 246, 0.10) 40%,
+                    rgba(34, 197, 94, 0.06) 60%,
+                    rgba(59, 130, 246, 0.08) 80%,
+                    transparent 100%
+                ),
+                /* 极光流动层 */
+                linear-gradient(120deg,
+                    transparent 0%,
+                    rgba(34, 211, 238, 0.05) 30%,
+                    rgba(139, 92, 246, 0.06) 50%,
+                    rgba(34, 197, 94, 0.04) 70%,
+                    transparent 100%
+                );
+            background-size:
+                50px 50px, 100px 100px, 150px 150px, 200px 200px,
+                100% 100%,
+                100% 100%;
+            background-position:
+                0 0, 25px 25px, 50px 50px, 75px 75px,
+                0 0,
+                0 0;
+        }
+
+        /* ========== 方案13：闪电图案背景 ========== */
+        .bg-option-13 {
+            background-color: #050510;
+            background-image:
+                /* 星空 */
+                radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+                /* 主闪电 - 使用锐利的对角线 */
+                linear-gradient(73deg,
+                    transparent 40%,
+                    rgba(200, 220, 255, 0.4) 40.5%,
+                    rgba(255, 255, 255, 0.9) 41%,
+                    rgba(200, 220, 255, 0.4) 41.5%,
+                    transparent 42%
+                ),
+                /* 闪电分支1 */
+                linear-gradient(55deg,
+                    transparent 45%,
+                    rgba(180, 200, 255, 0.3) 45.5%,
+                    rgba(255, 255, 255, 0.7) 46%,
+                    rgba(180, 200, 255, 0.3) 46.5%,
+                    transparent 47%
+                ),
+                /* 闪电分支2 */
+                linear-gradient(88deg,
+                    transparent 48%,
+                    rgba(160, 190, 255, 0.25) 48.5%,
+                    rgba(255, 255, 255, 0.6) 49%,
+                    rgba(160, 190, 255, 0.25) 49.5%,
+                    transparent 50%
+                ),
+                /* 闪电发光晕 */
+                radial-gradient(ellipse 120px 200px at 50% 50%,
+                    rgba(100, 150, 255, 0.15) 0%,
+                    rgba(80, 120, 255, 0.08) 30%,
+                    transparent 70%
+                ),
+                radial-gradient(ellipse 80px 150px at 48% 45%,
+                    rgba(150, 180, 255, 0.12) 0%,
+                    transparent 60%
+                );
+            background-size:
+                100px 100px, 150px 150px,
+                100% 100%,
+                100% 100%,
+                100% 100%,
+                100% 100%,
+                100% 100%;
+            background-position:
+                0 0, 50px 50px,
+                0 0,
+                0 0,
+                0 0,
+                50% 50%,
+                48% 45%;
+        }
+
+        /* ========== 方案14：点阵闪电背景 ========== */
+        .bg-option-14 {
+            background-color: #000000;
+            background-image:
+                /* 方案11的规则白点 - 间距更大，白点更少 */
+                radial-gradient(white 1.5px, transparent 1.5px),
+                radial-gradient(white 1.5px, transparent 1.5px),
+                /* 直线连接形成闪电 */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='250' viewBox='0 0 150 250'%3E%3Cpath d='M75 25 L45 75 L105 125 L75 175 L45 225' stroke='white' stroke-width='1.5' fill='none' stroke-opacity='0.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M75 25 L45 75 L105 125 L75 175 L45 225' stroke='white' stroke-width='4' fill='none' stroke-opacity='0.06' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),
+                /* 第二条闪电 */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='240' viewBox='0 0 140 240'%3E%3Cpath d='M70 30 L100 80 L40 130 L70 180 L40 230' stroke='white' stroke-width='1.2' fill='none' stroke-opacity='0.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-size: 65px 65px, 65px 65px, 150px 250px, 140px 240px;
+            background-position: 0 0, 32px 32px, 0 0, 75px 125px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 方案1：深色渐变网格背景 -->
+    <section class="demo-section bg-option-1">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 1 ⭐⭐⭐⭐⭐</h2>
+            <p>深色渐变网格背景 - 推荐</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案1的效果展示。细腻的网格线，深黑色底，科技感强。最接近您当前的背景图片效果，但使用纯CSS绘制，加载速度极快。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案2：点阵圆点背景 -->
+    <section class="demo-section bg-option-2">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 2 ⭐⭐⭐⭐</h2>
+            <p>点阵圆点背景</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案2的效果展示。整齐排列的小圆点，简洁现代。点状图案更加轻盈，适合极简风格的设计。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案3：深色斜线纹理 -->
+    <section class="demo-section bg-option-3">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 3 ⭐⭐⭐⭐</h2>
+            <p>深色斜线纹理</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案3的效果展示。45度斜线纹理，增加动感。斜线图案带来方向感和视觉层次，让页面更有活力。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案4：径向渐变光晕背景 -->
+    <section class="demo-section bg-option-4">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 4 ⭐⭐⭐⭐⭐</h2>
+            <p>径向渐变光晕背景 - 推荐</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案4的效果展示。中心有微妙的光晕，聚焦视线。径向渐变创造出优雅的光影效果，高端大气。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案5：多层几何网格背景 -->
+    <section class="demo-section bg-option-5">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 5 ⭐⭐⭐⭐⭐</h2>
+            <p>多层几何网格背景 - 推荐</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案5的效果展示。多层次网格，类似科技蓝图。多层叠加效果让视觉更加丰富，科技感最强。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案6：波浪纹理背景 -->
+    <section class="demo-section bg-option-6">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 6 ⭐⭐⭐⭐⭐</h2>
+            <p>波浪纹理背景 - 新创意</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案6的效果展示。上下渐变光晕营造波浪流动感，蓝紫色调优雅梦幻。简洁而不失高级感。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案7：发光粒子背景 -->
+    <section class="demo-section bg-option-7">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 7 ⭐⭐⭐⭐⭐</h2>
+            <p>发光粒子背景 - 新创意</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案7的效果展示。多彩发光粒子点缀夜空，营造梦幻氛围。蓝、紫、粉、青四色渐变光晕，视觉冲击力强。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案8：几何三角背景 -->
+    <section class="demo-section bg-option-8">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 8 ⭐⭐⭐⭐⭐</h2>
+            <p>几何三角背景 - 新创意</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案8的效果展示。菱形三角几何图案，现代感十足。规则排列的几何元素，科技与艺术完美结合。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案9：噪点质感背景 -->
+    <section class="demo-section bg-option-9">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 9 ⭐⭐⭐⭐</h2>
+            <p>噪点质感背景 - 新创意</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案9的效果展示。细微噪点纹理增加质感，类似胶片效果。低调优雅，不会分散注意力。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案10：极简线条背景 -->
+    <section class="demo-section bg-option-10">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 10 ⭐⭐⭐⭐⭐</h2>
+            <p>极简线条背景 - 新创意</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案10的效果展示。极简细线条，横竖交错营造秩序感。蓝紫双色线条，最简洁却最出彩。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案11：星空白点背景 -->
+    <section class="demo-section bg-option-11">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 11 ⭐⭐⭐⭐⭐</h2>
+            <p>星空白点背景 - 新创意</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案11的效果展示。纯黑背景配白色星点，多层叠加营造星空深度。最经典简洁的夜空效果。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案12：星空极光背景 -->
+    <section class="demo-section bg-option-12">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 12 ⭐⭐⭐⭐⭐</h2>
+            <p>星空极光背景 - 最终推荐</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案12的效果展示。星空+极光的完美结合。青色、紫色、绿色的轻微极光在夜空中流动，梦幻且震撼。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案13：闪电图案背景 -->
+    <section class="demo-section bg-option-13">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 13 ⭐⭐⭐⭐⭐</h2>
+            <p>闪电图案背景 - 重新设计</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案13的效果展示。深蓝夜空中的白色闪电划破天际，锐利的闪电线条配合柔和光晕，真实且震撼。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案14：点阵闪电背景 -->
+    <section class="demo-section bg-option-14">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 14 ⭐⭐⭐⭐⭐</h2>
+            <p>点阵闪电背景 - 点线结合</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案14的效果展示。在星空白点的基础上，用斜线连接特定点形成闪电折线。点+线=经典的闪电图标。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+</body>
+</html>

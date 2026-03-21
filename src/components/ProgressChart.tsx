@@ -66,9 +66,9 @@ export default function ProgressChart({ data, color, unit, title }: ProgressChar
 
   if (!chartData || chartData.recentData.length < 2) {
     return (
-      <div className="rounded-xl border-2 border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-6 dark:border-gray-700 dark:bg-gray-800">
         <h3 className="mb-4 text-lg font-semibold text-black">{title}</h3>
-        <div className="flex h-48 items-center justify-center text-gray-600">
+        <div className="flex h-48 items-center justify-center text-black">
           {data.length < 2 ? t.statsNeedMoreData : t.noData}
         </div>
       </div>
@@ -78,10 +78,10 @@ export default function ProgressChart({ data, color, unit, title }: ProgressChar
   const { points, pathD, areaPath, width, height, minValue, maxValue, recentData } = chartData;
 
   return (
-    <div className="rounded-xl border-2 border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-6 dark:border-gray-700 dark:bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-black">{title}</h3>
-        <div className="flex gap-4 text-sm text-gray-600">
+        <div className="flex gap-4 text-sm text-black">
           <span>
             {t.progressChartLowest}: <strong className="text-black">{minValue.toFixed(1)}</strong>
             {unit}
@@ -144,7 +144,7 @@ export default function ProgressChart({ data, color, unit, title }: ProgressChar
       </div>
 
       {/* X-axis labels */}
-      <div className="mt-2 flex justify-between text-xs text-gray-600">
+      <div className="mt-2 flex justify-between text-xs text-black">
         <span>{new Date(recentData[0].date).toLocaleDateString()}</span>
         <span>{new Date(recentData[recentData.length - 1].date).toLocaleDateString()}</span>
       </div>
