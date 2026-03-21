@@ -164,13 +164,13 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 pt-20 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950">
+    <div className="flex min-h-screen justify-center px-4 pt-20">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <h1 className="mb-2 text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-2 text-4xl font-bold text-white">
             {isLogin ? t.authLoginTitle : t.authRegisterTitle}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-white">
             {isLogin ? t.authLoginSubtitle : t.authRegisterSubtitle}
           </p>
         </div>
@@ -311,7 +311,7 @@ export default function AuthPage() {
                         ? 'border-red-500'
                         : confirmPassword && password === confirmPassword
                         ? 'border-green-500'
-                        : ''
+                        : 'border-gray-300'
                     }`}
                     placeholder={t.authConfirmPasswordPlaceholder}
                   />
@@ -337,7 +337,7 @@ export default function AuthPage() {
               </button>
             </div>
 
-            <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-center text-sm text-white">
               {isLogin ? t.authNoAccount : t.authHasAccount}
               <button
                 type="button"
@@ -346,7 +346,7 @@ export default function AuthPage() {
                   setError('');
                   setConfirmPassword('');
                 }}
-                className="ml-2 font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                className="ml-2 font-semibold text-primary-400 hover:text-primary-300"
               >
                 {isLogin ? t.authRegisterNow : t.authLoginNow}
               </button>
@@ -357,7 +357,7 @@ export default function AuthPage() {
         <div className="mt-4 text-center">
           <Link
             href="/"
-            className="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            className="inline-flex items-center text-sm font-semibold text-white hover:text-gray-200"
           >
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

@@ -29,15 +29,15 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
+            <h3 className="font-semibold mb-4 text-white">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="/leaderboard" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
+                <a href="/leaderboard" className="text-white hover:text-primary-400">
                   {t.navLeaderboard}
                 </a>
               </li>
               <li>
-                <a href="/stats" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
+                <a href="/stats" className="text-white hover:text-primary-400">
                   {t.navStats}
                 </a>
               </li>
@@ -46,20 +46,20 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
+            <h3 className="font-semibold mb-4 text-white">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="/privacy" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
+                <a href="/privacy" className="text-white hover:text-primary-400">
                   {t.footerPrivacy}
                 </a>
               </li>
               <li>
-                <a href="/terms" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
+                <a href="/terms" className="text-white hover:text-primary-400">
                   {t.footerTerms}
                 </a>
               </li>
               <li>
-                <a href="/contact" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
+                <a href="/contact" className="text-white hover:text-primary-400">
                   {t.footerContact}
                 </a>
               </li>
@@ -67,7 +67,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t pt-8 text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-8 border-t pt-8 text-center text-sm text-white">
           <p>&copy; {currentYear} ReflexX. {t.footerRights}</p>
         </div>
       </div>
