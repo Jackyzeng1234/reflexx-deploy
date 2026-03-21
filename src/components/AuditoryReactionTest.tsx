@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
+import { FAQItem } from '@/components/FAQItem';
 
 type TestState = 'idle' | 'waiting' | 'ready' | 'too-early' | 'finished';
 
@@ -228,52 +229,52 @@ export default function AuditoryReactionTest() {
           }`}
         >
           {testState === 'idle' && (
-            <div className="text-center text-white">
+            <div className="text-center text-black">
               <div className="mb-6 text-8xl">🔊</div>
-              <div className="text-4xl font-bold">{t.auditoryReactionTitle}</div>
-              <div className="mt-4 text-xl opacity-90">{t.auditoryReactionInstruction1}</div>
+              <div className="text-4xl font-bold text-black">{t.auditoryReactionTitle}</div>
+              <div className="mt-4 text-xl opacity-90 text-black">{t.auditoryReactionInstruction1}</div>
             </div>
           )}
 
           {testState === 'waiting' && (
-            <div className="text-center text-white">
+            <div className="text-center text-black">
               <div className="mb-6 text-8xl">👂</div>
-              <div className="text-4xl font-bold">
+              <div className="text-4xl font-bold text-black">
                 {t.auditoryReactionWait}
               </div>
-              <div className="mt-4 text-xl opacity-90">
+              <div className="mt-4 text-xl opacity-90 text-black">
                 {t.srtAverage} {currentRound + 1} / {totalRounds}
               </div>
             </div>
           )}
 
           {testState === 'ready' && (
-            <div className="text-center text-white">
+            <div className="text-center text-black">
               <div className="mb-6 text-9xl animate-pulse">🔊</div>
-              <div className="text-5xl font-bold">{t.auditoryReactionClickNow}</div>
+              <div className="text-5xl font-bold text-black">{t.auditoryReactionClickNow}</div>
             </div>
           )}
 
           {testState === 'too-early' && (
-            <div className="text-center text-white">
+            <div className="text-center text-black">
               <div className="mb-6 text-8xl">⚠️</div>
-              <div className="text-4xl font-bold">{t.auditoryReactionTooEarly}</div>
-              <div className="mt-4 text-xl">{t.srtTryAgain}</div>
+              <div className="text-4xl font-bold text-black">{t.auditoryReactionTooEarly}</div>
+              <div className="mt-4 text-xl text-black">{t.srtTryAgain}</div>
             </div>
           )}
 
           {testState === 'finished' && (
             <div className="w-full px-8 py-6">
-              <div className="mb-6 text-center text-gray-900 dark:text-white">
+              <div className="mb-6 text-center text-black">
                 <div className="mb-3 text-5xl">📊</div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.auditoryReactionResults}</h3>
+                <h3 className="text-2xl font-bold text-black">{t.auditoryReactionResults}</h3>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="text-center">
                   <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtAverage}</div>
-                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{averageTime}<span className="text-2xl">ms</span></div>
-                  <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-white ${
+                  <div className="text-4xl font-bold text-black">{averageTime}<span className="text-2xl">ms</span></div>
+                  <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${
                     averageTime < 300 ? 'bg-purple-500' :
                     averageTime < 400 ? 'bg-green-500' :
                     averageTime < 500 ? 'bg-blue-500' :
@@ -286,7 +287,7 @@ export default function AuditoryReactionTest() {
                 </div>
                 <div className="text-center">
                   <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtBest}</div>
-                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{bestTime}<span className="text-2xl">ms</span></div>
+                  <div className="text-4xl font-bold text-black">{bestTime}<span className="text-2xl">ms</span></div>
                 </div>
               </div>
 
@@ -302,28 +303,227 @@ export default function AuditoryReactionTest() {
           )}
         </div>
 
-        {/* Instructions, Benefits & Improvements - Three Columns */}
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {/* How to Play */}
-          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
-            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white text-center">📖 {t.howToPlay}</h3>
-            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <li>• {t.auditoryReactionWait}</li>
-              <li>• {t.auditoryReactionClickNow}</li>
-              <li>• {t.srtCompleteRounds}</li>
-            </ol>
-          </div>
+        {/* FAQ Section */}
+        <div className="mt-24 max-w-4xl mx-auto">
+          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Auditory Reaction Test</h2>
+          <div className="space-y-4">
+            <FAQItem
+              question="How does the auditory reaction test work?"
+              icon="📖"
+              answer={
+                <div className="space-y-3">
+                  <p>This auditory reaction test measures how quickly you respond to sound stimuli. It evaluates your auditory processing speed, neural transmission time, and motor response coordination - different from visual reaction tests.</p>
+                  <ol className="space-y-2 list-decimal list-inside text-gray-300">
+                    <li><strong>Wait for the sound</strong> - The test starts with a waiting period. A tone will play randomly after 2-5 seconds</li>
+                    <li><strong>Listen carefully</strong> - Keep your audio on and volume at a comfortable level. The tone is a 1000Hz beep</li>
+                    <li><strong>Click or press any key when you hear the sound</strong> - React as fast as possible when you hear the tone</li>
+                    <li><strong>Complete 5 rounds</strong> - The test measures 5 reaction attempts to calculate your average auditory reaction time</li>
+                  </ol>
+                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Auditory reaction times are typically 20-50ms slower than visual reaction times due to longer neural pathways. This is normal! For best results, take the test in a quiet environment with good audio quality.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="What is a good auditory reaction time? Average scores and benchmarks"
+              icon="⚡"
+              answer={
+                <div className="space-y-4">
+                  <p>A good auditory reaction time depends on your age, hearing ability, and focus. Here are the average auditory reaction time benchmarks:</p>
 
-          {/* What This Measures */}
-          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
-            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300 text-center">🧠 {t.testBenefitsTitle}</h3>
-            <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200" dangerouslySetInnerHTML={{ __html: t.artBenefits }} />
-          </div>
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Average auditory reaction times by age (in milliseconds):</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm">
+                      <li>🎵 <strong>18-24 years:</strong> ~250ms (men: ~240ms, women: ~260ms)</li>
+                      <li>👨 <strong>25-35 years:</strong> ~270ms (men: ~260ms, women: ~280ms)</li>
+                      <li>👴 <strong>36-45 years:</strong> ~290ms (men: ~280ms, women: ~300ms)</li>
+                      <li>👵 <strong>46-55 years:</strong> ~310ms (men: ~300ms, women: ~320ms)</li>
+                      <li>👴 <strong>56+ years:</strong> ~330ms+ (men: ~320ms+, women: ~340ms+)</li>
+                    </ul>
+                  </div>
 
-          {/* How To Improve */}
-          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
-            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300 text-center">📈 {t.testHowToImproveTitle}</h3>
-            <div className="text-sm leading-relaxed text-green-800 dark:text-green-200" dangerouslySetInnerHTML={{ __html: t.artImprovements }} />
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                      <p className="text-purple-300 font-semibold mb-1">🔥 Elite (Top 5%)</p>
+                      <p className="text-sm text-gray-300">Below 220ms - Exceptional auditory processing, professional musician or athlete level</p>
+                    </div>
+                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                      <p className="text-sm text-gray-300">220-280ms - Better than most, excellent auditory-motor coordination</p>
+                    </div>
+                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <p className="text-green-300 font-semibold mb-1">✅ Normal Average</p>
+                      <p className="text-sm text-gray-300">280-350ms - Typical auditory reaction time for healthy adults</p>
+                    </div>
+                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Below Average</p>
+                      <p className="text-sm text-gray-300">350-400ms - Slower than average, may need focus practice or hearing check</p>
+                    </div>
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
+                      <p className="text-sm text-gray-300">400ms+ - Significantly slower, could indicate hearing issues, fatigue, or need improvement</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-400 italic">Note: Auditory reactions are naturally 20-50ms slower than visual reactions due to longer neural pathways from ears to brain. Musicians and athletes often have faster auditory reaction times due to training.</p>
+                </div>
+              }
+            />
+            <FAQItem
+              question="What does auditory reaction time measure? Brain processing and hearing function"
+              icon="🧠"
+              answer={
+                <div className="space-y-4">
+                  <p>This auditory reaction test measures your <strong>auditory processing speed</strong>, <strong>neural transmission efficiency</strong>, and <strong>auditory-motor coordination</strong>. It evaluates how fast your brain processes sound information and initiates physical responses.</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Auditory processing speed</strong> - How fast your ears detect sound and your auditory cortex processes it</li>
+                      <li><strong>Neural pathway efficiency</strong> - Signal transmission from auditory nerve to brain and motor cortex</li>
+                      <li><strong>Sound recognition time</strong> - How quickly you identify and respond to auditory stimuli</li>
+                      <li><strong>Motor response coordination</strong> - Communication between auditory processing and motor execution centers</li>
+                      <li><strong>Attention and focus</strong> - Your ability to maintain alertness for auditory cues</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Difference from visual reaction time:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Longer neural pathway</strong> - Sound travels through more brain regions before reaching motor cortex (+20-50ms)</li>
+                      <li><strong>Auditory vs visual processing</strong> - Different brain areas process sound vs light, affecting speed</li>
+                      <li><strong>Practice effect</strong> - Musicians and athletes often train auditory reactions specifically</li>
+                      <li><strong>Hearing acuity</strong> - Better hearing can improve auditory reaction time by 10-20ms</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Factors affecting your auditory reaction score:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Age and hearing</strong> - Natural hearing decline slows auditory processing by 1-2ms per year</li>
+                      <li><strong>Audio quality and volume</strong> - Poor audio or low volume adds 20-40ms to reaction time</li>
+                      <li><strong>Fatigue and focus</strong> - Tiredness impairs auditory attention significantly</li>
+                      <li><strong>Background noise</strong> - Noisy environments can slow reactions by 30-50ms</li>
+                      <li><strong>Music training</strong> - Musicians typically have 15-25ms faster auditory reactions</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-sm text-blue-300"><strong>🎵 Musical Applications:</strong> Fast auditory reaction is crucial for musicians, especially rhythm sections, conductors, and performers. It's also valuable for athletes responding to starting guns, coaches' whistles, and game sounds. Professional musicians often have elite-level auditory reaction times.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="How to improve auditory reaction time? Training techniques and exercises"
+              icon="📈"
+              answer={
+                <div className="space-y-4">
+                  <p>Improving auditory reaction time requires specific training exercises that challenge your auditory processing speed and coordination. Here's a comprehensive guide:</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🎵 Musical and Rhythm Training</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Learn an instrument</strong> - Playing instruments improves auditory-motor coordination significantly</li>
+                      <li><strong>Rhythm games</strong> - Games like Guitar Hero, Beat Saber, or rhythm trainers improve sound reaction</li>
+                      <li><strong>Metronome practice</strong> - Clap or tap along with metronome at different speeds improves timing</li>
+                      <li><strong>Sight-reading music</strong> - Reading and playing music simultaneously trains auditory processing</li>
+                      <li><strong>Singing or vocal training</strong> - Pitch and rhythm exercises enhance auditory sensitivity</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🎯 Auditory Reaction Drills</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Daily sound reaction tests</strong> - Take this test 2-3 times per day to build consistency</li>
+                      <li><strong>Audio cue training</strong> - Have a friend make random sounds and react as fast as possible</li>
+                      <li><strong>Multiple sound identification</strong> - Practice identifying and reacting to different sounds quickly</li>
+                      <li><strong>Start signal practice</strong> - Use various audio cues (whistle, clap, beep) and respond instantly</li>
+                      <li><strong>Background noise training</strong> - Practice reacting to sounds in noisy environments</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🏃 Sports and Physical Training</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Sprint starts</strong> - Practice reacting to starting guns or whistle commands</li>
+                      <li><strong>Ball sports drills</strong> - React to audio cues while catching or hitting balls</li>
+                      <li><strong>Martial arts sparring</strong> - Respond to opponent sounds and教练 commands</li>
+                      <li><strong>Reaction ball exercises</strong> - Throw ball against wall and react to bounce sound</li>
+                      <li><strong>Interval training</strong> - Alternate between sprints on audio cue and rest periods</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🧠 Cognitive and Mental Exercises</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Auditory attention training</strong> - Focus exercises that enhance sound discrimination</li>
+                      <li><strong>Dichotic listening</strong> - Practice processing different sounds in each ear simultaneously</li>
+                      <li><strong>Sound localization</strong> - Identify where sounds come from to improve spatial auditory processing</li>
+                      <li><strong>Meditation and focus</strong> - Mindfulness improves overall attention and reaction speed</li>
+                      <li><strong>Brain training games</strong> - Apps that target auditory processing and working memory</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🔊 Environment and Equipment Optimization</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Quality headphones or speakers</strong> - Better audio quality improves sound detection speed</li>
+                      <li><strong>Optimal volume</strong> - Loud enough to hear clearly, not so loud it causes discomfort or delay</li>
+                      <li><strong>Quiet environment</strong> - Minimize background noise for pure auditory testing</li>
+                      <li><strong>Good hearing health</strong> - Regular hearing checks, protect ears from loud noises</li>
+                      <li><strong>Proper positioning</strong> - Sit comfortably, face audio source directly</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 3-4 weeks, most people improve auditory reaction time by 20-40ms (8-12% improvement). Musicians may see 30-50ms improvement. Professional athletes and musicians can achieve sub-220ms times with dedicated training.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="Why is my auditory reaction time slow? Common causes and solutions"
+              icon="🔍"
+              answer={
+                <div className="space-y-4">
+                  <p>If your auditory reaction time is above 400ms, there might be specific reasons. Here are common causes and solutions:</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Common reasons for slow auditory reaction time:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Poor audio quality</strong> - Low volume, distorted audio, or poor headphones add 30-50ms</li>
+                      <li><strong>Hearing issues</strong> - Even mild hearing loss can slow auditory processing significantly</li>
+                      <li><strong>Lack of focus</strong> - Not paying attention to sounds or being distracted adds 40-60ms</li>
+                      <li><strong>Fatigue and tiredness</strong> - Being exhausted impairs auditory processing and attention</li>
+                      <li><strong>Background noise</strong> - Noisy environment makes sound detection harder and slower</li>
+                      <li><strong>Age-related decline</strong> - Natural hearing and processing decline, especially for high frequencies</li>
+                      <li><strong>No musical training</strong> - Musicians typically have 15-25ms faster auditory reactions</li>
+                      <li><strong>Earwax or congestion</strong> - Physical blockage reduces hearing clarity and speed</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">How to improve slow auditory reaction time:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Get a hearing test</strong> - Rule out hearing loss or issues that could be affecting your performance</li>
+                      <li><strong>Improve audio setup</strong> - Use quality headphones, good volume, and quiet environment</li>
+                      <li><strong>Practice auditory focus</strong> - Active listening exercises and sound discrimination training</li>
+                      <li><strong>Learn music or rhythm</strong> - Even basic musical training improves auditory processing speed</li>
+                      <li><strong>Reduce background noise</strong> - Test in quiet room, use noise-cancelling headphones if available</li>
+                      <li><strong>Stay rested and alert</strong> - Fatigue severely impacts auditory attention and processing</li>
+                      <li><strong>Clean your ears</strong> - Safe ear cleaning improves hearing clarity</li>
+                      <li><strong>Daily practice</strong> - Take auditory reaction tests regularly to build neural pathways</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If your auditory reaction time is consistently over 450ms and you have concerns about your hearing, consider consulting an audiologist. Sudden changes in hearing or reaction time could indicate medical issues requiring professional evaluation.</p>
+                  </div>
+                </div>
+              }
+            />
           </div>
         </div>
       </div>

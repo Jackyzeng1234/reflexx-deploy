@@ -2,6 +2,7 @@
 
 import { useI18n } from '@/lib/i18n';
 import Link from 'next/link';
+import Head from 'next/head';
 import {
   SimpleReactionIcon,
   AuditoryReactionIcon,
@@ -122,7 +123,14 @@ export default function TestsPage() {
   ];
 
   return (
-    <div className="min-h-screen px-4 py-16">
+    <>
+      <Head>
+        <title>All Cognitive Tests - ReflexX</title>
+        <meta name="description" content="Explore our comprehensive collection of cognitive tests including reaction time, memory, typing speed, aim training, and more." />
+        <meta name="keywords" content="cognitive tests, reaction time test, memory test, aim trainer, typing test, brain training" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
+      <div className="min-h-screen px-4 py-16">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-12 text-center">
@@ -200,5 +208,6 @@ export default function TestsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

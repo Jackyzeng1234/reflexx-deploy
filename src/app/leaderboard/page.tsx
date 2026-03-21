@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import Link from 'next/link';
+import Head from 'next/head';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { getLeaderboard } from '@/lib/scores';
 
@@ -313,14 +314,21 @@ export default function LeaderboardPage() {
   const unit = currentTest?.unit || '';
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <>
+      <Head>
+        <title>Reaction Time Leaderboard - Compare Your Global Ranking | ReflexX</title>
+        <meta name="description" content="Check the global leaderboard and see how you rank against other players in reaction time and cognitive tests." />
+        <meta name="keywords" content="leaderboard, rankings, reaction time scores, cognitive test scores" />
+        <link rel="canonical" href="https://reflexx.uk/leaderboard" />
+      </Head>
+      <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-4 text-4xl font-bold text-white">
             {user ? t.leaderboardTitle : t.lbLocalScores}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-lg text-white">
             {user ? t.lbCompareScores : t.lbGuestMode}
           </p>
         </div>
@@ -349,10 +357,10 @@ export default function LeaderboardPage() {
           <div className="mb-8 rounded-2xl border-2 border-primary-200/50 bg-primary-50/80 backdrop-blur-sm p-6 dark:border-primary-800/50 dark:bg-primary-900/20">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">
+                <h3 className="mb-1 text-lg font-bold text-black">
                   {t.statsBestScore}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-black">
                   {currentTest?.title} - {userBest.score}{unit} {userBest.details && `(${userBest.details})`}
                 </p>
               </div>
@@ -370,7 +378,7 @@ export default function LeaderboardPage() {
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               {t.lbLoading || 'Loading...'}
             </h3>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-gray-300 dark:text-gray-300 dark:text-gray-300">
               {t.lbLoadingDesc || 'Fetching leaderboard data...'}
             </p>
           </div>
@@ -383,7 +391,7 @@ export default function LeaderboardPage() {
             <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
               {t.statsNoDataTitle}
             </h3>
-            <p className="mb-6 text-gray-600 dark:text-gray-300">
+            <p className="mb-6 text-black">
               {t.lbNoRecordsForTest.replace('{test}', currentTest?.title || '')}
             </p>
             <Link
@@ -443,10 +451,10 @@ export default function LeaderboardPage() {
                               entry.rank === 1
                                 ? 'bg-yellow-100 text-yellow-600'
                                 : entry.rank === 2
-                                ? 'bg-gray-200 text-gray-600'
+                                ? 'bg-gray-200 text-gray-300 dark:text-gray-300'
                                 : entry.rank === 3
                                 ? 'bg-orange-100 text-orange-600'
-                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                                : 'bg-gray-100 text-gray-300 dark:text-gray-300 dark:bg-gray-700 dark:text-gray-400'
                             }`}
                           >
                             {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : entry.rank}
@@ -471,10 +479,10 @@ export default function LeaderboardPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{formatDate(entry.timestamp)}</div>
+                        <div className="text-sm text-black">{formatDate(entry.timestamp)}</div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{entry.details || '-'}</div>
+                        <div className="text-sm text-black">{entry.details || '-'}</div>
                       </td>
                     </tr>
                   ))}
@@ -490,7 +498,7 @@ export default function LeaderboardPage() {
             <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
               {t.lbWantToBeOnLeaderboard}
             </h3>
-            <p className="mb-6 text-gray-600 dark:text-gray-300">
+            <p className="mb-6 text-black">
               {t.lbWantToBeOnLeaderboardDesc}
             </p>
             <Link
@@ -506,5 +514,6 @@ export default function LeaderboardPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

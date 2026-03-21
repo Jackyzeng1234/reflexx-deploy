@@ -273,7 +273,7 @@ export default function AuthPage() {
                   }}
                   required
                   minLength={6}
-                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700"
+                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   placeholder={t.authPasswordPlaceholder}
                 />
               </div>
@@ -306,7 +306,7 @@ export default function AuthPage() {
                     }}
                     required
                     minLength={6}
-                    className={`w-full rounded-lg border-2 px-4 py-2 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 ${
+                    className={`w-full rounded-lg border-2 px-4 py-2 text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 ${
                       confirmPassword && password !== confirmPassword
                         ? 'border-red-500'
                         : confirmPassword && password === confirmPassword

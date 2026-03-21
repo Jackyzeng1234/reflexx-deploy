@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export default function ContactPage() {
   const { t } = useI18n();
@@ -51,7 +52,14 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-16">
+    <>
+      <Head>
+        <title>Contact Us - Support & Feedback | ReflexX</title>
+        <meta name="description" content="Get in touch with the ReflexX team for support, feedback, or inquiries about our cognitive training platform." />
+        <meta name="keywords" content="contact, support, feedback, help" />
+        <link rel="canonical" href="https://reflexx.uk/contact" />
+      </Head>
+      <div className="min-h-screen px-4 py-16">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
@@ -213,5 +221,6 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

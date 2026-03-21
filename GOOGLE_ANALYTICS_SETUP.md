@@ -286,10 +286,10 @@ export const analyticsEvents = {
 import { analyticsEvents } from '@/lib/analytics';
 
 // 在测试开始时
-analyticsEvents.testStart('Simple Reaction Test');
+analyticsEvents.testStart('Reaction Time Test');
 
 // 在测试完成时
-analyticsEvents.testComplete('Simple Reaction Test', 250);
+analyticsEvents.testComplete('Reaction Time Test', 250);
 ```
 
 ---

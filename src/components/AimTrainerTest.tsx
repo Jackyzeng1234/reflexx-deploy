@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore, getBestScore } from '@/lib/scores';
+import { FAQItem } from '@/components/FAQItem';
 
 type TestState = 'idle' | 'playing' | 'finished';
 
@@ -220,10 +221,10 @@ export default function AimTrainerTest() {
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-4 text-4xl font-bold text-white">
             {t.aimTrainerTitle}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-lg text-white">
             {t.aimTrainerDesc}
           </p>
         </div>
@@ -234,19 +235,13 @@ export default function AimTrainerTest() {
           <div
             ref={gameAreaRef}
             onClick={handleClick}
-            className={`relative cursor-pointer overflow-hidden rounded-2xl border-2 shadow-xl ${
-              testState === 'idle'
-                ? 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900'
-                : testState === 'playing'
-                ? 'border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20'
-                : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
-            }`}
+            className="relative cursor-pointer overflow-hidden rounded-2xl border-2 border-white/40 bg-white/70 backdrop-blur-md shadow-xl"
             style={{ height: '500px' }}
           >
             {/* 游戏进行中的时间显示 */}
             {testState === 'playing' && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-                <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                <div className="text-4xl font-bold text-black">
                   {timeLeft}
                 </div>
               </div>
@@ -256,10 +251,10 @@ export default function AimTrainerTest() {
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                   <div className="mb-4 text-6xl">🎯</div>
-                  <div className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="mb-2 text-2xl font-bold text-black">
                     {t.aimTrainerTitle}
                   </div>
-                  <div className="mb-4 text-lg text-gray-600 dark:text-gray-300">
+                  <div className="mb-4 text-lg text-black">
                     {t.aimTrainerClickToStart}
                   </div>
                 </div>
@@ -325,7 +320,7 @@ export default function AimTrainerTest() {
               <div className="w-full px-8 py-6">
                 <div className="mb-6 text-center">
                   <div className="mb-3 text-5xl">📊</div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h3 className="text-2xl font-bold text-black">
                     {t.aimTrainerResults}
                   </h3>
                 </div>
@@ -333,21 +328,35 @@ export default function AimTrainerTest() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="text-center">
                     <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.aimTrainerAvgReaction || 'Average Reaction'}</div>
-                    <div className="text-4xl font-bold text-gray-900 dark:text-white">{avgReaction}<span className="text-2xl">ms</span></div>
-                    <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-white ${
-                      avgReaction < 200 ? 'bg-purple-500' :
-                      avgReaction < 250 ? 'bg-green-500' :
-                      avgReaction < 300 ? 'bg-blue-500' :
-                      avgReaction < 350 ? 'bg-yellow-500' :
-                      avgReaction < 400 ? 'bg-orange-500' :
-                      'bg-red-500'
-                    }`}>
-                      {getRating(avgReaction)}
+                    <div className="text-4xl font-bold text-black">
+                      {reactionTimes.length > 0 ? (
+                        <>{avgReaction}<span className="text-2xl">ms</span></>
+                      ) : (
+                        <span className="text-2xl">No hits</span>
+                      )}
                     </div>
+                    {reactionTimes.length > 0 && (
+                      <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${
+                        avgReaction < 200 ? 'bg-purple-500' :
+                        avgReaction < 250 ? 'bg-green-500' :
+                        avgReaction < 300 ? 'bg-blue-500' :
+                        avgReaction < 350 ? 'bg-yellow-500' :
+                        avgReaction < 400 ? 'bg-orange-500' :
+                        'bg-red-500'
+                      }`}>
+                        {getRating(avgReaction)}
+                      </div>
+                    )}
                   </div>
                   <div className="text-center">
                     <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtBest}</div>
-                    <div className="text-4xl font-bold text-gray-900 dark:text-white">{bestReaction}<span className="text-2xl">ms</span></div>
+                    <div className="text-4xl font-bold text-black">
+                      {reactionTimes.length > 0 ? (
+                        <>{bestReaction}<span className="text-2xl">ms</span></>
+                      ) : (
+                        <span className="text-2xl">--</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -364,40 +373,209 @@ export default function AimTrainerTest() {
           </div>
         </div>
 
-        {/* 说明、益处和提升方法 */}
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {/* 游戏说明 */}
-          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
-            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white text-center">
-              📖 {t.howToPlay}
-            </h3>
-            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <li>• {t.aimTrainerInstruction1}</li>
-              <li>• {t.aimTrainerInstruction2}</li>
-              <li>• {t.aimTrainerInstruction3}</li>
-              <li>• {t.aimTrainerInstruction4}</li>
-            </ol>
-          </div>
-
-          {/* 测量能力 */}
-          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
-            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300 text-center">
-              🧠 {t.testBenefitsTitle}
-            </h3>
-            <div
-              className="text-sm leading-relaxed text-blue-800 dark:text-blue-200"
-              dangerouslySetInnerHTML={{ __html: t.aimTrainerBenefits }}
+        {/* FAQ Section */}
+        <div className="mt-24 max-w-4xl mx-auto">
+          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Aim Trainer</h2>
+          <div className="space-y-4">
+            <FAQItem
+              question="How does the aim trainer test work?"
+              icon="📖"
+              answer={
+                <div className="space-y-3">
+                  <p>This aim trainer test measures your reaction time and accuracy when targeting visual objects. It evaluates hand-eye coordination, visual processing speed, and motor precision - skills essential for gaming and sports performance.</p>
+                  <ol className="space-y-2 list-decimal list-inside text-gray-300">
+                    <li><strong>Start the test</strong> - Click anywhere in the game area to begin a 20-second aiming session</li>
+                    <li><strong>Click the targets</strong> - Red and white bullseye targets will appear at random positions. Click them as fast as possible</li>
+                    <li><strong>Track your reaction time</strong> - Each target's lifetime is measured from appearance to your click. Faster clicks = better score</li>
+                    <li><strong>View your results</strong> - See your average reaction time, best click, and rating. Lower times are better!</li>
+                  </ol>
+                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Aim for the center of the target. The test measures reaction to target appearance, not just clicking accuracy. Focus on speed while maintaining reasonable accuracy - don't sacrifice speed for perfect precision.</p>
+                  </div>
+                </div>
+              }
             />
-          </div>
+            <FAQItem
+              question="What is a good aim trainer score? Average reaction times by skill level"
+              icon="⚡"
+              answer={
+                <div className="space-y-4">
+                  <p>A good aim trainer score depends on your experience, gaming background, and practice level. Here are average reaction time benchmarks for target acquisition:</p>
 
-          {/* 提升方法 */}
-          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
-            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300 text-center">
-              📈 {t.testHowToImproveTitle}
-            </h3>
-            <div
-              className="text-sm leading-relaxed text-green-800 dark:text-green-200"
-              dangerouslySetInnerHTML={{ __html: t.aimTrainerImprovements }}
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Average reaction times by experience level:</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm">
+                      <li>🎮 <strong>Professional gamers:</strong> 180-220ms - Elite level, years of competitive gaming experience</li>
+                      <li>👾 <strong>Regular gamers:</strong> 220-280ms - Above average, frequent gaming (10+ hours/week)</li>
+                      <li>🖱️ <strong>Casual gamers:</strong> 280-350ms - Moderate gaming experience, plays occasionally</li>
+                      <li>💼 <strong>Non-gamers:</strong> 350-450ms - Little gaming experience, relies on natural reflexes</li>
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Elite (Top 5%)</p>
+                      <p className="text-sm text-gray-300">Below 200ms - Professional esports level, exceptional aiming ability</p>
+                    </div>
+                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                      <p className="text-sm text-gray-300">200-250ms - Competitive gamer level, excellent hand-eye coordination</p>
+                    </div>
+                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <p className="text-green-300 font-semibold mb-1">✅ Normal Average</p>
+                      <p className="text-sm text-gray-300">250-350ms - Typical reaction time for healthy adults with some gaming experience</p>
+                    </div>
+                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Below Average</p>
+                      <p className="text-sm text-gray-300">350-400ms - Slower than average, may need practice or better focus</p>
+                    </div>
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
+                      <p className="text-sm text-gray-300">400ms+ - Significantly slower, could indicate fatigue, lack of practice, or need for improvement</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-400 italic">Note: Aim trainer scores typically improve 20-30% with consistent practice over 2-3 weeks. Professional players can reach sub-180ms consistently with intense training.</p>
+                </div>
+              }
+            />
+            <FAQItem
+              question="What does aim trainer measure? Hand-eye coordination and visual processing"
+              icon="🧠"
+              answer={
+                <div className="space-y-4">
+                  <p>The aim trainer test measures your <strong>visual-motor reaction time</strong>, <strong>spatial awareness</strong>, and <strong>target acquisition speed</strong>. It evaluates how quickly your brain processes visual information and coordinates precise motor responses.</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Visual processing speed</strong> - How fast you detect and recognize targets in your visual field</li>
+                      <li><strong>Peripheral vision awareness</strong> - Your ability to spot targets appearing anywhere on screen</li>
+                      <li><strong>Eye-hand coordination</strong> - The synchronization between visual detection and mouse movement</li>
+                      <li><strong>Motor precision</strong> - Your ability to accurately click on specific targets quickly</li>
+                      <li><strong>Reaction consistency</strong> - How stable your performance remains across multiple targets</li>
+                      <li><strong>Decision speed</strong> - Time between seeing a target and initiating movement</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Factors affecting your aim trainer score:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Gaming experience</strong> - FPS and MOBA players typically score 50-100ms faster than non-gamers</li>
+                      <li><strong>Mouse sensitivity and DPI</strong> - Proper settings improve precision and speed by 10-15%</li>
+                      <li><strong>Monitor refresh rate</strong> - 144Hz+ monitors can improve reaction time by 10-20ms vs 60Hz</li>
+                      <li><strong>Fatigue and focus</strong> - Tiredness can slow reactions by 30-50ms</li>
+                      <li><strong>Hand position and ergonomics</strong> - Comfortable setup improves consistency and reduces fatigue</li>
+                      <li><strong>Practice and training</strong> - Regular aim training can improve scores by 15-25% over time</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-sm text-blue-300"><strong>🎮 Gaming Applications:</strong> Aim trainer skills directly transfer to FPS games (CS:GO, Valorant, Overwatch), battle royales, and even sports performance. Professional esports teams use aim trainers daily as part of their training routine.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="How to improve aim trainer score? Training routines and optimization"
+              icon="📈"
+              answer={
+                <div className="space-y-4">
+                  <p>Improving your aim trainer score requires dedicated practice, proper setup optimization, and targeted training routines. Here's a comprehensive guide to boosting your aiming performance:</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🖱️ Hardware and Settings Optimization</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Use a gaming mouse</strong> - Sensors with lower latency and higher DPI (800-1600) improve precision</li>
+                      <li><strong>Optimize mouse sensitivity</strong> - Lower sensitivity (400-800 eDPI) allows for more precise aiming</li>
+                      <li><strong>High refresh rate monitor</strong> - 144Hz, 240Hz, or higher reduces input lag and improves target tracking</li>
+                      <li><strong>Adjust in-game sensitivity</strong> - Find your perfect sensitivity through experimentation and consistency</li>
+                      <li><strong>Reduce input lag</strong> - Use wired connections, disable V-Sync, enable game mode</li>
+                      <li><strong>Proper mousepad</strong> - Large, smooth pad provides consistent surface for arm aiming</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🎯 Training Routines and Drills</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Daily aim practice</strong> - 15-30 minutes of aim training builds consistency and muscle memory</li>
+                      <li><strong>Warm-up routine</strong> - 5-10 minutes before gaming sessions improves in-game performance</li>
+                      <li><strong>Vary target sizes</strong> - Practice with different target sizes to improve versatility</li>
+                      <li><strong>Focus mode</strong> - Practice tracking, flicking, and switching targets separately</li>
+                      <li><strong>Timed challenges</strong> - Set goals for reaction times (e.g., maintain sub-250ms for 20 targets)</li>
+                      <li><strong>Rest intervals</strong> - Take 1-2 minute breaks every 10-15 minutes to prevent fatigue</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">👆 Aiming Techniques to Master</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Flick shooting</strong> - Quick, sharp movements to snap onto targets. Essential for fast-paced games</li>
+                      <li><strong>Tracking</strong> - Smoothly following moving targets. Important for projectile weapons and tracking enemies</li>
+                      <li><strong>Target switching</strong> - Rapidly moving between multiple targets. Improves reaction flexibility</li>
+                      <li><strong>Click timing</strong> - Developing rhythm and consistency in click execution</li>
+                      <li><strong>Peripheral awareness</strong> - Using entire screen, not just center focus point</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🏃 Physical and Mental Preparation</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Proper posture</strong> - Sit upright, monitor at eye level, arm at 90-degree angle</li>
+                      <li><strong>Arm vs wrist aiming</strong> - Find your style: arm for precision, wrist for speed, hybrid for balance</li>
+                      <li><strong>Hand exercises</strong> - Stretch and strengthen fingers, wrists, and forearms</li>
+                      <li><strong>Stay hydrated and rested</strong> - Dehydration and fatigue significantly impair reaction time</li>
+                      <li><strong>Minimize distractions</strong> - Quiet environment improves focus and consistency</li>
+                      <li><strong>Mental warm-up</strong> - Start with slower targets and progressively increase difficulty</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With 15-20 minutes of daily practice, most people improve by 30-50ms (10-15% improvement) in 2-3 weeks. Consistent practice over 2-3 months can yield 50-80ms improvement, moving you from average to above-average performance levels.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="Why is my aim trainer score low? Common causes and how to improve"
+              icon="🔍"
+              answer={
+                <div className="space-y-4">
+                  <p>If your aim trainer score is above 350ms, there might be specific reasons affecting your performance. Here are common causes and solutions:</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Common reasons for low aim trainer scores:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Lack of gaming experience</strong> - Non-gamers typically score 50-100ms slower than regular gamers</li>
+                      <li><strong>Improper mouse settings</strong> - Sensitivity too high or low affects precision and reaction speed</li>
+                      <li><strong>Slow monitor refresh rate</strong> - 60Hz monitors add 10-20ms of input delay compared to 144Hz+</li>
+                      <li><strong>Poor ergonomics</strong> - Awkward hand position, bad posture, or uncomfortable setup reduces efficiency</li>
+                      <li><strong>Fatigue and tiredness</strong> - Being exhausted slows visual processing and motor responses significantly</li>
+                      <li><strong>Lack of focus</strong> - Distractions, multitasking, or not taking the test seriously adds 30-50ms</li>
+                      <li><strong>Physical limitations</strong> - Age, vision problems, or medical conditions can affect performance</li>
+                      <li><strong>Wrong technique</strong> - Using whole arm movements instead of wrist, or vice versa, can slow reactions</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">How to improve your aim trainer score:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Practice daily</strong> - Consistent 15-20 minute sessions build muscle memory faster than occasional marathon sessions</li>
+                      <li><strong>Optimize your setup</strong> - Adjust mouse DPI, get a 144Hz+ monitor, use proper gaming mouse and mousepad</li>
+                      <li><strong>Experiment with sensitivity</strong> - Try different settings to find what allows both speed and precision</li>
+                      <li><strong>Improve ergonomics</strong> - Position monitor at eye level, keep arm comfortable, maintain good posture</li>
+                      <li><strong>Learn proper technique</strong> - Watch pro players and aim training tutorials for best practices</li>
+                      <li><strong>Warm up properly</strong> - Start with easier targets and gradually increase difficulty</li>
+                      <li><strong>Stay rested and focused</strong> - Practice when alert, take breaks when fatigued</li>
+                      <li><strong>Use structured training</strong> - Follow specific aim training routines rather than random practice</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                    <p className="text-sm text-yellow-300"><strong>⚠️ Important Note:</strong> Aim trainer scores improve significantly with practice but have natural limits. Don't obsess over achieving pro-level times if you're a casual gamer. Focus on gradual improvement and consistency rather than comparing to elite players. Most importantly, have fun while training!</p>
+                  </div>
+                </div>
+              }
             />
           </div>
         </div>

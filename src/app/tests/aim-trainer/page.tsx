@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     description: 'Free online aim trainer to improve your mouse accuracy and hand-eye coordination. 60-second challenge with detailed stats.',
     type: 'website',
   },
+  alternates: {
+    canonical: 'https://reflexx.uk/tests/aim-trainer',
+  },
 };
 
 // 结构化数据 - 用于SEO优化

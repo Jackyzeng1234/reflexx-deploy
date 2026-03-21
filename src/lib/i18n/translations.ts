@@ -10,12 +10,12 @@ export const translations = {
     navLogout: 'Logout',
 
     // Home Page
-    heroTitle: 'ReflexX - Test Your Limits',
+    heroTitle: 'Improve Your Reaction Time',
     heroSubtitle: 'Professional reaction time testing to measure your cognitive abilities',
     heroCTA: 'Start Testing',
 
     // Test Cards
-    simpleReaction: 'Simple Reaction Test',
+    simpleReaction: 'Reaction Time Test',
     simpleReactionDesc: 'Test your basic reaction speed to visual stimuli',
     clickSpeed: 'Click Speed Test',
     clickSpeedDesc: 'Measure how fast you can click in different time durations',
@@ -54,7 +54,7 @@ export const translations = {
     aimTrainerImprovements: '• <strong>Practice regularly</strong> - Daily training builds muscle memory<br>• <strong>Adjust sensitivity</strong> - Find your optimal mouse DPI settings<br>• <strong>Improve posture</strong> - Maintain proper arm and wrist position<br>• <strong>Use arm aim</strong> - For large movements, use your arm instead of wrist<br>• <strong>Stay relaxed</strong> - Tension reduces precision and speed',
 
     // Simple Reaction Test
-    srtTitle: 'Simple Reaction Test',
+    srtTitle: 'Reaction Time Test',
     srtInstruction: 'Click as fast as you can when the box turns green',
     srtWait: 'Wait for green...',
     srtClick: 'CLICK NOW!',
@@ -258,7 +258,7 @@ export const translations = {
     statsAimTrainerTitle: 'Aim Trainer',
     statsStroopTitle: 'Stroop Test',
     statsNumberMemoryTitle: 'Number Memory',
-    statsRecentSimpleReactionTests: 'Recent Simple Reaction Tests',
+    statsRecentSimpleReactionTests: 'Recent Reaction Time Tests',
     statsRecentClickSpeedTests: 'Recent Click Speed Tests',
     statsRecentAuditoryReactionTests: 'Recent Auditory Reaction Tests',
     statsRecentSequenceMemoryTests: 'Recent Sequence Memory Tests',
@@ -280,7 +280,7 @@ export const translations = {
     statsScore: 'Score',
     statsKeepImproving: 'Keep Improving!',
     statsKeepImprovingDesc: 'Regular practice can help improve your reaction time and cognitive skills',
-    statsSimpleReactionTest: 'Simple Reaction Test',
+    statsSimpleReactionTest: 'Reaction Time Test',
     statsClickSpeedTest: 'Click Speed Test',
 
     // Auditory Reaction Test
@@ -402,7 +402,7 @@ export const translations = {
 
     // Progress Chart
     progressChartTitle: 'Progress Trends',
-    simpleReactionTrend: 'Simple Reaction Test Trend (Last 30 tests)',
+    simpleReactionTrend: 'Reaction Time Test Trend (Last 30 tests)',
     clickSpeedTrend: 'Click Speed Test Trend (Last 30 tests)',
     progressChartLowest: 'Lowest',
     progressChartHighest: 'Highest',

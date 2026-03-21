@@ -7,7 +7,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full border-t bg-gray-50 dark:bg-gray-900 dark:border-gray-800">
+    <footer className="w-full border-t border-white/10 bg-black/30 backdrop-blur-md">
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-8 md:grid-cols-3">
           {/* Brand */}
@@ -19,10 +19,10 @@ export default function Footer() {
                 </svg>
               </div>
               <span className="font-bold text-lg">
-                <span className="text-gray-700 dark:text-gray-300">REFLEX</span><span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">X</span>
+                <span className="text-gray-200">REFLEX</span><span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">X</span>
               </span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               {t.professionalGrade}
             </p>
           </div>
@@ -31,11 +31,6 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <a href="/tests" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
-                  {t.navTests}
-                </a>
-              </li>
               <li>
                 <a href="/leaderboard" className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">
                   {t.navLeaderboard}

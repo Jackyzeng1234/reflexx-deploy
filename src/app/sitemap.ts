@@ -17,7 +17,107 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
 
-    // 测试列表页
+    // ===== 博客页面 =====
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+
+    // 博客文章列表
+    {
+      url: `${BASE_URL}/blog/reaction-time-test-what-is-and-why-it-matters`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/average-reaction-time-by-age-global-data-study`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/how-to-improve-aim-accuracy-fps-games-guide`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/chimp-test-working-memory-brain-training`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/number-memory-test-techniques-brain-training`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/sequence-memory-test-brain-plasticity-neuroscience`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/stroop-test-cognitive-flexibility-inhibitory-control`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/click-speed-test-cps-mouse-dpi-settings`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/typing-speed-test-wpm-accuracy-improvement-guide`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/choice-reaction-time-test-decision-making-speed`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/auditory-vs-visual-reaction-time-comparison`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/reaction-time-training-30-day-improvement-program`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/esports-pro-vs-casual-gamer-reaction-time-study`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/factors-affecting-reaction-time-age-genetics-caffeine`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/brain-training-games-effective-or-waste-time`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+
+    // 测试列表页（已隐藏，但保留在sitemap中）
     {
       url: `${BASE_URL}/tests`,
       lastModified: currentDate,
@@ -115,10 +215,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
 
     {
+      url: `${BASE_URL}/contact`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+
+    {
       url: `${BASE_URL}/profile`,
       lastModified: currentDate,
       changeFrequency: 'weekly',
       priority: 0.5,
+    },
+
+    {
+      url: `${BASE_URL}/privacy`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+
+    {
+      url: `${BASE_URL}/terms`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.3,
     },
 
     {

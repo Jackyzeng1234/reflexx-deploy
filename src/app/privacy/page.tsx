@@ -2,12 +2,20 @@
 
 import { useI18n } from '@/lib/i18n';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export default function PrivacyPage() {
   const { t } = useI18n();
 
   return (
-    <div className="min-h-screen px-4 py-16">
+    <>
+      <Head>
+        <title>Privacy Policy - ReflexX</title>
+        <meta name="description" content="Privacy policy for ReflexX cognitive training platform. Learn how we collect, use, and protect your personal data." />
+        <meta name="keywords" content="privacy policy, data protection, GDPR, user data" />
+        <link rel="canonical" href="https://reflexx.uk/privacy" />
+      </Head>
+      <div className="min-h-screen px-4 py-16">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
@@ -112,5 +120,6 @@ export default function PrivacyPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

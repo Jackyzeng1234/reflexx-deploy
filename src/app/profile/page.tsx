@@ -240,7 +240,7 @@ export default function ProfilePage() {
                 {t.profileNoScoresDesc}
               </p>
               <Link
-                href="/tests"
+                href="/tests/simple-reaction"
                 className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
               >
                 {t.getStarted}
@@ -297,7 +297,7 @@ export default function ProfilePage() {
             </p>
             <div className="flex justify-center space-x-4">
               <Link
-                href="/tests"
+                href="/tests/simple-reaction"
                 className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
               >
                 {t.profileContinueTesting}

@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
+import { FAQItem } from '@/components/FAQItem';
 
 type TestState = 'idle' | 'typing' | 'finished';
 
@@ -431,10 +432,10 @@ export default function TypingTest() {
                 >
                   <div className="text-center">
                     <div className="mb-4 text-6xl">⌨️</div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <div className="text-2xl font-bold text-black">
                       {t.typingClickToStart}
                     </div>
-                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    <div className="mt-2 text-sm text-black">
                       {t.typingOrStartTyping}
                     </div>
                   </div>
@@ -462,21 +463,21 @@ export default function TypingTest() {
             <div className="w-full px-8 py-6">
               <div className="mb-6 text-center">
                 <div className="mb-3 text-5xl">📊</div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.typingTestComplete}</h3>
+                <h3 className="text-2xl font-bold text-black">{t.typingTestComplete}</h3>
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="text-center">
                   <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.typingTestTypingSpeed}</div>
-                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{rawWpm}<span className="text-2xl">WPM</span></div>
+                  <div className="text-4xl font-bold text-black">{rawWpm}<span className="text-2xl">WPM</span></div>
                 </div>
                 <div className="text-center">
                   <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.typingAccuracy}</div>
-                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{accuracy.toFixed(1)}<span className="text-2xl">%</span></div>
+                  <div className="text-4xl font-bold text-black">{accuracy.toFixed(1)}<span className="text-2xl">%</span></div>
                 </div>
                 <div className="text-center">
                   <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.netWPM}</div>
-                  <div className="text-4xl font-bold text-gray-900 dark:text-white">{wpm}</div>
+                  <div className="text-4xl font-bold text-black">{wpm}</div>
                 </div>
               </div>
 
@@ -492,29 +493,247 @@ export default function TypingTest() {
           )}
         </div>
 
-        {/* Instructions, Benefits & Improvements - Three Columns */}
-        <div className="grid gap-4 lg:grid-cols-3">
-          {/* How to Play */}
-          <div className="rounded-2xl border-2 border-gray-200/50 bg-white/60 backdrop-blur-md p-5 dark:border-gray-700/50 dark:bg-gray-800/60">
-            <h3 className="mb-3 text-lg font-bold text-gray-900 dark:text-white text-center">📖 {t.howToPlay}</h3>
-            <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-300 text-left">
-              <li>• {t.typingTestInstruction1}</li>
-              <li>• {t.typingTestInstruction2}</li>
-              <li>• {t.typingTestInstruction3}</li>
-              <li>• {t.typingTestAverage} {t.typingSpeed}约为 40 WPM</li>
-            </ol>
-          </div>
+        {/* FAQ Section */}
+        <div className="mt-24 max-w-4xl mx-auto">
+          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Typing Test</h2>
+          <div className="space-y-4">
+            <FAQItem
+              question="How does the typing test work?"
+              icon="📖"
+              answer={
+                <div className="space-y-3">
+                  <p>This typing test measures your typing speed (WPM - Words Per Minute) and accuracy. It evaluates both how fast you can type and how precisely, providing a Net WPM score that accounts for errors.</p>
+                  <ol className="space-y-3 list-decimal list-inside text-gray-300">
+                    <li><strong>Start typing</strong> - Click to start, then begin typing the displayed text in the input field.</li>
+                    <li><strong>Type the complete text</strong> - The test tracks your speed and accuracy in real-time as you type.</li>
+                    <li><strong>View your results</strong> - See your Raw WPM, Net WPM (adjusted for accuracy), and accuracy percentage.</li>
+                    <li><strong>Net WPM calculation</strong> - Your final score is Raw WPM × (Accuracy/100), rewarding both speed and precision.</li>
+                  </ol>
+                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Focus on accuracy first, then speed. Professional typists aim for 95%+ accuracy. Net WPM is calculated as Raw WPM multiplied by accuracy percentage, so errors significantly reduce your final score. The average person types 40 WPM; professional typists achieve 65-95 WPM.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="What is a good typing speed? Average WPM by profession"
+              icon="⚡"
+              answer={
+                <div className="space-y-4">
+                  <p>A good typing speed depends on your profession and experience. The average person types 40 WPM. Professional typists, programmers, and writers typically achieve 65-95 WPM with 95%+ accuracy.</p>
 
-          {/* What This Measures */}
-          <div className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/60 backdrop-blur-md p-5 dark:border-blue-800/50 dark:bg-blue-900/20">
-            <h3 className="mb-3 text-lg font-bold text-blue-900 dark:text-blue-300 text-center">🧠 {t.testBenefitsTitle}</h3>
-            <div className="text-sm leading-relaxed text-blue-800 dark:text-blue-200 text-left" dangerouslySetInnerHTML={{ __html: t.typingBenefits }} />
-          </div>
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Average typing speeds by profession and experience:</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm">
+                      <li>⌨️ <strong>Beginner:</strong> 20-35 WPM (learning hunt-and-peck method)</li>
+                      <li>👨‍💼 <strong>Average office worker:</strong> 40 WPM (touch typing not required)</li>
+                      <li>💻 <strong>Programmer/developer:</strong> 50-70 WPM (focus on accuracy over speed)</li>
+                      <li>✍️ <strong>Professional writer:</strong> 70-90 WPM (efficient typing essential)</li>
+                      <li>🎯 <strong>Professional typist:</strong> 80-120 WPM (specialized training)</li>
+                      <li>🏆 <strong>Elite typist/competition:</strong> 120-200+ WPM (top 1%)</li>
+                    </ul>
+                  </div>
 
-          {/* How To Improve */}
-          <div className="rounded-2xl border-2 border-green-200/50 bg-green-50/60 backdrop-blur-md p-5 dark:border-green-800/50 dark:bg-green-900/20">
-            <h3 className="mb-3 text-lg font-bold text-green-900 dark:text-green-300 text-center">📈 {t.testHowToImproveTitle}</h3>
-            <div className="text-sm leading-relaxed text-green-800 dark:text-green-200 text-left" dangerouslySetInnerHTML={{ __html: t.typingImprovements }} />
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Typing speed by age (average):</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm">
+                      <li>🎮 <strong>18-24 years:</strong> ~45 WPM (gamers: 60-80 WPM)</li>
+                      <li>👨 <strong>25-35 years:</strong> ~40-50 WPM</li>
+                      <li>👴 <strong>36-45 years:</strong> ~35-45 WPM</li>
+                      <li>👵 <strong>46-55 years:</strong> ~30-40 WPM</li>
+                      <li>👴 <strong>56+ years:</strong> ~25-35 WPM</li>
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
+                      <p className="text-sm text-gray-300">100+ WPM, 98%+ accuracy - Professional/competition level; elite typing ability</p>
+                    </div>
+                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                      <p className="text-sm text-gray-300">70-99 WPM, 95%+ accuracy - Fast, efficient typing; excellent for most professions</p>
+                    </div>
+                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <p className="text-green-300 font-semibold mb-1">✅ Good (Normal Range)</p>
+                      <p className="text-sm text-gray-300">50-69 WPM, 90%+ accuracy - Comfortable typing speed; adequate for most office work</p>
+                    </div>
+                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Average</p>
+                      <p className="text-sm text-gray-300">35-49 WPM, 85%+ accuracy - Functional but could benefit from touch typing practice</p>
+                    </div>
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <p className="text-red-300 font-semibold mb-1">❌ Below Average</p>
+                      <p className="text-sm text-gray-300">&lt;35 WPM - Hunt-and-peck method; significant room for improvement</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-400 italic">Note: Accuracy is equally important! A fast typist with poor accuracy will have a lower Net WPM than a slightly slower but more accurate typist. Focus on 95%+ accuracy first, then increase speed gradually.</p>
+                </div>
+              }
+            />
+            <FAQItem
+              question="What does the typing test measure? Skills and abilities assessed"
+              icon="🧠"
+              answer={
+                <div className="space-y-4">
+                  <p>The typing test measures your <strong>typing speed (WPM)</strong> and <strong>accuracy</strong>, evaluating both fine motor skills and cognitive processing. It assesses how efficiently you can transfer thoughts to text.</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Typing speed (WPM)</strong> - Words typed per minute (5 characters = 1 word)</li>
+                      <li><strong>Accuracy percentage</strong> - Ratio of correct keystrokes to total keystrokes</li>
+                      <li><strong>Net WPM</strong> - Speed adjusted for accuracy (WPM × accuracy%)</li>
+                      <li><strong>Fine motor control</strong> - Finger dexterity and keyboard familiarity</li>
+                      <li><strong>Hand-eye coordination</strong> - Visual-to-motor response efficiency</li>
+                      <li><strong>Focus and concentration</strong> - Sustained attention during typing</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Typing method</strong> - Touch typing vs hunt-and-peck (huge difference)</li>
+                      <li><strong>Keyboard familiarity</strong> - Regular computer users type significantly faster</li>
+                      <li><strong>Practice and training</strong> - Typing lessons can improve speed by 20-40 WPM</li>
+                      <li><strong>Age</strong> - Speed peaks at ~25-35, gradually declines after</li>
+                      <li><strong>Fatigue and stress</strong> - Reduce typing performance noticeably</li>
+                      <li><strong>Text difficulty</strong> - Technical terms, numbers, and symbols slow typing</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Why typing speed matters:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li>Essential for many professions (writers, programmers, admins, data entry)</li>
+                      <li>Dramatically increases productivity and efficiency at work</li>
+                      <li>Reduces physical strain and fatigue from typing</li>
+                      <li>Important for coding, writing, and content creation</li>
+                      <li>Improves with proper training and consistent practice</li>
+                    </ul>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="How to improve typing speed? Training methods and practice tips"
+              icon="📈"
+              answer={
+                <div className="space-y-4">
+                  <p>Typing speed can be dramatically improved through proper technique, structured practice, and training programs. Here's what works best:</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">⌨️ Learn Proper Typing Technique</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Learn touch typing</strong> - Master home row position (ASDF JKL;) without looking</li>
+                      <li><strong>Use online typing tutors</strong> - Keybr, Typing.com, Monkeytype, Ratatype</li>
+                      <li><strong>Practice daily</strong> - 20-30 minutes daily for 4-6 weeks to see 20-40 WPM improvement</li>
+                      <li><strong>Focus on accuracy first</strong> - 95%+ accuracy before trying to increase speed</li>
+                      <li><strong>Use all fingers</strong> - Each finger should cover specific keys (no hunt-and-peck)</li>
+                      <li><strong>Keep proper posture</strong> - Straight wrists, elbows at 90°, screen at eye level</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">🎯 Structured Practice Approach</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Start with basics</strong> - Home row, then top row, then bottom row</li>
+                      <li><strong>Practice common words</strong> - Focus on frequently used letter combinations</li>
+                      <li><strong>Use typing games</strong> - Make practice fun and engaging (ZType, TypeRacer)</li>
+                      <li><strong>Take timed tests</strong> - Regularly measure your progress with this test</li>
+                      <li><strong>Practice real text</strong> - Type articles, emails, or documents you encounter</li>
+                      <li><strong>Gradually increase difficulty</strong> - Move to longer texts with complex words</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">💻 Ergonomic Optimization</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Get a good keyboard</strong> - Mechanical or low-profile keyboards improve typing feel</li>
+                      <li><strong>Proper desk setup</strong> - Keyboard at elbow height, screen 20-28 inches away</li>
+                      <li><strong>Take regular breaks</strong> - 5-minute break every 30 minutes prevents fatigue</li>
+                      <li><strong>Stretch your hands</strong> - Prevent carpal tunnel and repetitive strain injury</li>
+                      <li><strong>Use ergonomic keyboard</strong> - Split or curved keyboards reduce strain</li>
+                      <li><strong>Adjust keyboard tilt</strong> - Slight negative tilt (front higher) is best for wrists</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-3">📚 Training Resources and Tools</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Monkeytype</strong> - Clean, minimal typing test with detailed statistics</li>
+                      <li><strong>Keybr</strong> - Generates custom lessons based on your weak keys</li>
+                      <li><strong>Typing.com</strong> - Comprehensive typing curriculum for all levels</li>
+                      <li><strong>10FastFingers</strong> - Competitive typing tests and games</li>
+                      <li><strong>TypeRacer</strong> - Real-time typing races against others</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With daily practice (20-30 min) for 4-6 weeks, most people improve by 15-30 WPM (30-50% increase). Hunt-and-peck typists can reach 50-60 WPM. With continued practice, 70-80 WPM is achievable for most people within 3-6 months. Professional typists reach 100+ WPM with years of practice.</p>
+                  </div>
+                </div>
+              }
+            />
+            <FAQItem
+              question="Why is my typing speed slow? Common causes and how to fix them"
+              icon="🔍"
+              answer={
+                <div className="space-y-4">
+                  <p>If you're typing below 35 WPM or have low accuracy, there might be specific reasons. Here are common causes and solutions:</p>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Common reasons for slow typing speed:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Hunt-and-peck method</strong> - Using 1-2 fingers instead of all 10</li>
+                      <li><strong>Looking at the keyboard</strong> - Visual search slows typing dramatically</li>
+                      <li><strong>Poor finger placement</strong> - Not using proper home row position</li>
+                      <li><strong>Lack of practice</strong> - Infrequent computer use keeps speed low</li>
+                      <li><strong>Bad ergonomics</strong> - Uncomfortable setup slows typing and causes fatigue</li>
+                      <li><strong>Focus on speed over accuracy</strong> - Constant backspacing reduces overall WPM</li>
+                      <li><strong>Physical issues</strong> - Hand pain, vision problems, or arthritis</li>
+                      <li><strong>Old/awkward keyboard</strong> - Poor keyboard can significantly slow typing</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">How to improve slow typing speed:</h4>
+                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                      <li><strong>Learn touch typing</strong> - #1 way to improve; learn home row position</li>
+                      <li><strong>Use typing tutor software</strong> - Structured lessons teach proper technique</li>
+                      <li><strong>Practice daily</strong> - 20-30 minutes consistent practice beats occasional long sessions</li>
+                      <li><strong>Don't look at keyboard</strong> - Cover keys or use blank keyboard if needed</li>
+                      <li><strong>Focus on accuracy</strong> - Speed comes naturally with accurate practice</li>
+                      <li><strong>Get better equipment</strong> - Mechanical keyboard improves feedback and speed</li>
+                      <li><strong>Fix ergonomic issues</strong> - Proper posture prevents fatigue and strain</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Quick improvements to try today:</h4>
+                    <li><strong>Learn home row</strong> - Start with ASDF JKL; position, practice daily</li>
+                    <li><strong>Use typing practice sites</strong> - Keybr.com or Monkeytype for free lessons</li>
+                    <li><strong>Take typing lessons</strong> - Typing.com offers free comprehensive courses</li>
+                    <li><strong>Don't rush</strong> - Focus on accuracy, speed will follow naturally</li>
+                    <li><strong>Practice common words</strong> - The, and, is, of, to, in make up 25% of English text</li>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Progress expectations by time invested:</h4>
+                    <li><strong>Week 1-2</strong> - Learn home row, reach 20-30 WPM (if starting from hunt-and-peck)</li>
+                    <li><strong>Week 3-4</strong> - Master all keys, reach 35-45 WPM</li>
+                    <li><strong>Month 2-3</strong> - Build speed, reach 50-60 WPM</li>
+                    <li><strong>Month 4-6</strong> - Refine technique, reach 65-75 WPM</li>
+                    <li><strong>Year 1</strong> - Consistent practice, reach 80-100+ WPM</li>
+                  </div>
+
+                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                    <p className="text-sm text-yellow-300"><strong>⚠️ Health Note:</strong> If typing causes pain in your wrists, hands, or fingers, stop immediately and evaluate your ergonomics. Carpal tunnel syndrome and repetitive strain injuries are serious. Consider seeing a doctor if pain persists. Proper ergonomics and regular breaks are essential for healthy typing.</p>
+                  </div>
+                </div>
+              }
+            />
           </div>
         </div>
       </div>

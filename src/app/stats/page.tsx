@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import Link from 'next/link';
+import Head from 'next/head';
 import ProgressChart from '@/components/ProgressChart';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { supabase } from '@/lib/supabase/client';
@@ -327,14 +328,21 @@ export default function StatsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <>
+      <Head>
+        <title>Your Statistics - Track Progress & Performance | ReflexX</title>
+        <meta name="description" content="View your cognitive test performance statistics, track your progress over time, and analyze your reaction time improvements." />
+        <meta name="keywords" content="statistics, performance tracking, progress charts, reaction time stats" />
+        <link rel="canonical" href="https://reflexx.uk/stats" />
+      </Head>
+      <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-4 text-4xl font-bold text-white">
             {t.statsTitle}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-lg text-white">
             {t.statsTrackProgress}
           </p>
         </div>
@@ -343,8 +351,8 @@ export default function StatsPage() {
         {loading && (
           <div className="mb-8 rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">📊</div>
-            <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{t.loading}</h3>
-            <p className="text-gray-600 dark:text-gray-300">{t.statsLoadingData}</p>
+            <h3 className="mb-2 text-2xl font-bold text-black">{t.loading}</h3>
+            <p className="text-black">{t.statsLoadingData}</p>
           </div>
         )}
 
@@ -352,10 +360,10 @@ export default function StatsPage() {
         {!loading && !hasAnyData && (
           <div className="mb-8 rounded-2xl border-2 border-dashed border-gray-300/50 bg-gray-50/80 backdrop-blur-sm p-12 text-center dark:border-gray-700/50 dark:bg-gray-800/80">
             <div className="mb-4 text-6xl">📊</div>
-            <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{t.statsNoDataTitle}</h3>
-            <p className="mb-6 text-gray-600 dark:text-gray-300">{t.statsNoData}</p>
+            <h3 className="mb-2 text-2xl font-bold text-black">{t.statsNoDataTitle}</h3>
+            <p className="mb-6 text-black">{t.statsNoData}</p>
             <Link
-              href="/tests"
+              href="/tests/simple-reaction"
               className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
             >
               {t.statsStartTesting}
@@ -383,16 +391,16 @@ export default function StatsPage() {
                 return (
                   <div
                     key={testType}
-                    className={`rounded-2xl border-2 bg-${config.color}-50 p-6 dark:border-${config.color}-800 dark:bg-${config.color}-900/20`}
-                    style={{ borderColor: config.color === 'blue' ? '#3b82f6' : config.color === 'green' ? '#22c55e' : config.color === 'purple' ? '#a855f7' : config.color === 'pink' ? '#ec4899' : config.color === 'indigo' ? '#6366f1' : config.color === 'orange' ? '#f97316' : config.color === 'cyan' ? '#06b6d4' : config.color === 'red' ? '#ef4444' : config.color === 'yellow' ? '#eab308' : '#14b8a6' }}
+                    className="rounded-2xl border-2 border-blue-200/50 bg-blue-50/80 backdrop-blur-sm p-6 dark:border-blue-800/50 dark:bg-blue-900/20"
+                    style={{ borderColor: '#3b82f6' }}
                   >
                     <div className="mb-4 flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-gray-900 dark:text-white">{config.title}</h2>
+                      <h2 className="text-lg font-bold text-black">{config.title}</h2>
                       <span className="text-3xl">{config.icon}</span>
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="mb-1 text-sm text-gray-600">
                           {t.statsTotalTests}
                         </div>
                         <div className="text-2xl font-bold" style={{ color: config.color === 'blue' ? '#2563eb' : config.color === 'green' ? '#16a34a' : config.color === 'purple' ? '#9333ea' : config.color === 'pink' ? '#db2777' : config.color === 'indigo' ? '#4f46e5' : config.color === 'orange' ? '#ea580c' : config.color === 'cyan' ? '#0891b2' : config.color === 'red' ? '#dc2626' : config.color === 'yellow' ? '#ca8a04' : '#0d9488' }}>
@@ -401,7 +409,7 @@ export default function StatsPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <div className="mb-1 text-xs text-gray-600 dark:text-gray-400">
+                          <div className="mb-1 text-xs text-gray-600">
                             {t.statsAverageScore}
                           </div>
                           <div className="text-lg font-bold" style={{ color: config.color === 'blue' ? '#2563eb' : config.color === 'green' ? '#16a34a' : config.color === 'purple' ? '#9333ea' : config.color === 'pink' ? '#db2777' : config.color === 'indigo' ? '#4f46e5' : config.color === 'orange' ? '#ea580c' : config.color === 'cyan' ? '#0891b2' : config.color === 'red' ? '#dc2626' : config.color === 'yellow' ? '#ca8a04' : '#0d9488' }}>
@@ -409,7 +417,7 @@ export default function StatsPage() {
                           </div>
                         </div>
                         <div>
-                          <div className="mb-1 text-xs text-gray-600 dark:text-gray-400">
+                          <div className="mb-1 text-xs text-gray-600">
                             {t.statsBestScore}
                           </div>
                           <div className="text-lg font-bold text-green-600 dark:text-green-400">
@@ -425,7 +433,7 @@ export default function StatsPage() {
 
             {/* Progress Charts */}
             <div className="mb-8 space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.progressChartTitle}</h2>
+              <h2 className="text-2xl font-bold text-white">{t.progressChartTitle}</h2>
               {TEST_ORDER
                 .filter((testType) => allResults[testType])
                 .map((testType) => {
@@ -463,7 +471,7 @@ export default function StatsPage() {
 
                 return (
                   <div key={testType} className="rounded-2xl border-2 border-gray-200/50 bg-white/80 backdrop-blur-sm p-6 dark:border-gray-700/50 dark:bg-gray-800/80">
-                    <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="mb-4 text-xl font-bold text-black">
                       {config.title} - {t.statsRecentSimpleReactionTests.split('Simple')[1] || t.statsRecentSimpleReactionTests}
                     </h2>
                     <div className="space-y-3">
@@ -477,15 +485,15 @@ export default function StatsPage() {
                             <div className="flex items-center gap-4">
                               <div className="text-2xl">{config.icon}</div>
                               <div>
-                                <div className="font-semibold text-gray-900 dark:text-white">
+                                <div className="font-semibold text-black">
                                   {display.label}
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-gray-600">
                                   {new Date(result.timestamp).toLocaleString()}
                                 </div>
                               </div>
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-600">
                               {display.value}
                             </div>
                           </div>
@@ -499,14 +507,14 @@ export default function StatsPage() {
 
             {/* Continue Testing CTA */}
             <div className="rounded-2xl border-2 border-primary-200 bg-primary-50 p-8 text-center dark:border-primary-800 dark:bg-primary-900/20">
-              <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+              <h3 className="mb-4 text-2xl font-bold text-black">
                 {t.statsKeepImproving}
               </h3>
-              <p className="mb-6 text-gray-600 dark:text-gray-300">
+              <p className="mb-6 text-black">
                 {t.statsKeepImprovingDesc}
               </p>
               <Link
-                href="/tests"
+                href="/tests/simple-reaction"
                 className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl"
               >
                 {t.statsStartTesting}
@@ -519,5 +527,6 @@ export default function StatsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
