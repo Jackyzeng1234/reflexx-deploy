@@ -18,10 +18,10 @@ export default function TermsPage() {
       <div className="min-h-screen px-4 py-16">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-4 text-4xl font-bold text-white">
             {t.footerTerms}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-lg text-white">
             Last updated: {new Date().toLocaleDateString()}
           </p>
         </div>
