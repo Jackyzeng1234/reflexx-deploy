@@ -9,7 +9,7 @@ export default function Footer() {
   return (
     <footer className="w-full border-t border-white/10 bg-black/30 backdrop-blur-md">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
@@ -39,6 +39,18 @@ export default function Footer() {
               <li>
                 <a href="/stats" className="text-white hover:text-primary-400">
                   {t.navStats}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Friends */}
+          <div>
+            <h3 className="font-semibold mb-4 text-white">Friends</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href="/friends" className="text-primary-400 hover:text-primary-300 font-medium">
+                  View Partners →
                 </a>
               </li>
             </ul>

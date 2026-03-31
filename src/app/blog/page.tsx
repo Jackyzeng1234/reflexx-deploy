@@ -19,6 +19,26 @@ interface BlogPost {
 // 博客文章列表 - 全英文
 const blogPosts: BlogPost[] = [
   {
+    slug: 'teenager-reaction-time-training-cognitive-development',
+    title: 'Teenager Reaction Time Training: Cognitive Development for Ages 13-18',
+    excerpt: 'Advanced cognitive training strategies for teenagers. Whether you\'re aiming for esports, sports excellence, or academic achievement, discover how ReflexX helps teens build faster reactions, sharper focus, and competitive advantages during the critical brain development window.',
+    category: 'Teen Development',
+    readTime: '15 min read',
+    date: 'January 15, 2025',
+    image: '/blog/teenager-training.jpg',
+    author: 'Dr. Sarah Chen'
+  },
+  {
+    slug: 'reaction-time-test-for-kids-safe-cognitive-training',
+    title: 'Reaction Time Test for Kids: Safe Cognitive Training for Ages 6-12',
+    excerpt: 'Discover safe and fun reaction time tests for children ages 6-12. Parent-approved cognitive training games that improve reflexes, memory, and focus. Complete guide with age-appropriate exercises, safety tips, and real results from families.',
+    category: 'Child Development',
+    readTime: '12 min read',
+    date: 'January 15, 2025',
+    image: '/blog/kids-training.jpg',
+    author: 'Dr. Emily Watson'
+  },
+  {
     slug: 'reaction-time-test-what-is-and-why-it-matters',
     title: 'What Is Reaction Time and Why It Matters for Gaming and Daily Life',
     excerpt: 'Understand the science behind reaction time, how it affects your gaming performance, athletic ability, and daily life. Explore factors influencing reaction speed and scientific training methods.',
@@ -172,6 +192,8 @@ const blogPosts: BlogPost[] = [
 
 const categories = [
   'All',
+  'Child Development',
+  'Teen Development',
   'Reaction Time',
   'Data Analysis',
   'Gaming Training',
@@ -281,6 +303,9 @@ export default function BlogPage() {
                     <p className="mb-4 text-sm text-gray-300 line-clamp-3">
                       {post.excerpt}
                     </p>
+                    <div className="flex items-center text-xs text-gray-400">
+                      <span>{post.readTime}</span>
+                    </div>
                   </div>
                 </Link>
               ))}

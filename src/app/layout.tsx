@@ -79,6 +79,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <StructuredData data={websiteStructuredData} />
+        <script src="https://code.market/widget.min.js" async></script>
       </head>
       <body className={inter.className}>
         <GoogleAnalytics />

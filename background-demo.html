@@ -320,6 +320,20 @@
             background-size: 65px 65px, 65px 65px, 150px 250px, 140px 240px;
             background-position: 0 0, 32px 32px, 0 0, 75px 125px;
         }
+
+        /* ========== 方案15：不规则彩色点背景 ========== */
+        .bg-option-15 {
+            background-color: #000000;
+            background-image:
+                /* 多层不规则彩色点 */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Ccircle cx='45' cy='38' r='2.5' fill='%233b82f6' fill-opacity='0.75'/%3E%3Ccircle cx='123' cy='67' r='1.8' fill='%23ec4899' fill-opacity='0.7'/%3E%3Ccircle cx='234' cy='45' r='2.2' fill='%2322d3ee' fill-opacity='0.7'/%3E%3Ccircle cx='67' cy='156' r='1.5' fill='%23a855f7' fill-opacity='0.65'/%3E%3Ccircle cx='178' cy='123' r='2.8' fill='%23f97316' fill-opacity='0.7'/%3E%3Ccircle cx='256' cy='189' r='2' fill='%2314b8a6' fill-opacity='0.75'/%3E%3Ccircle cx='89' cy='234' r='2.3' fill='%23eab308' fill-opacity='0.7'/%3E%3Ccircle cx='189' cy='267' r='1.7' fill='%238b5cf6' fill-opacity='0.7'/%3E%3Ccircle cx='23' cy='289' r='2.1' fill='%23ef4444' fill-opacity='0.7'/%3E%3Ccircle cx='145' cy='189' r='1.9' fill='%2306b6d4' fill-opacity='0.75'/%3E%3Ccircle cx='267' cy='89' r='2.4' fill='%23ec4899' fill-opacity='0.65'/%3E%3Ccircle cx='34' cy='112' r='2' fill='%238b5cf6' fill-opacity='0.7'/%3E%3Ccircle cx='212' cy='34' r='1.6' fill='%23f59e0b' fill-opacity='0.7'/%3E%3C/svg%3E"),
+                /* 第二层彩色点 */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280' viewBox='0 0 280 280'%3E%3Ccircle cx='56' cy='45' r='2' fill='%23a855f7' fill-opacity='0.7'/%3E%3Ccircle cx='145' cy='78' r='2.5' fill='%2306b6d4' fill-opacity='0.7'/%3E%3Ccircle cx='234' cy='56' r='1.8' fill='%23f97316' fill-opacity='0.7'/%3E%3Ccircle cx='78' cy='167' r='2.2' fill='%233b82f6' fill-opacity='0.75'/%3E%3Ccircle cx='167' cy='145' r='1.9' fill='%23eab308' fill-opacity='0.65'/%3E%3Ccircle cx='245' cy='178' r='2.3' fill='%23ec4899' fill-opacity='0.7'/%3E%3Ccircle cx='89' cy='234' r='1.7' fill='%2314b8a6' fill-opacity='0.7'/%3E%3Ccircle cx='178' cy='256' r='2.1' fill='%23ef4444' fill-opacity='0.7'/%3E%3Ccircle cx='34' cy='267' r='2.4' fill='%238b5cf6' fill-opacity='0.65'/%3E%3Ccircle cx='134' cy='167' r='1.8' fill='%23f59e0b' fill-opacity='0.7'/%3E%3Ccircle cx='245' cy='78' r='2' fill='%2306b6d4' fill-opacity='0.7'/%3E%3C/svg%3E"),
+                /* 第三层小点 */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250' viewBox='0 0 250 250'%3E%3Ccircle cx='34' cy='45' r='1.2' fill='white' fill-opacity='0.45'/%3E%3Ccircle cx='123' cy='67' r='1' fill='white' fill-opacity='0.4'/%3E%3Ccircle cx='189' cy='34' r='1.3' fill='white' fill-opacity='0.5'/%3E%3Ccircle cx='45' cy='145' r='1.1' fill='white' fill-opacity='0.45'/%3E%3Ccircle cx='156' cy='123' r='1.4' fill='white' fill-opacity='0.4'/%3E%3Ccircle cx='234' cy='167' r='1.2' fill='white' fill-opacity='0.45'/%3E%3Ccircle cx='67' cy='212' r='1' fill='white' fill-opacity='0.5'/%3E%3Ccircle cx='145' cy='234' r='1.3' fill='white' fill-opacity='0.45'/%3E%3Ccircle cx='212' cy='212' r='1.1' fill='white' fill-opacity='0.4'/%3E%3C/svg%3E");
+            background-size: 300px 300px, 280px 280px, 250px 250px;
+            background-position: 0 0, 150px 150px, 75px 75px;
+        }
     </style>
 </head>
 <body>
@@ -516,6 +530,20 @@
         <div class="content-card" style="position: relative; z-index: 1;">
             <h3>ReflexX - 测试标题</h3>
             <p>这是方案14的效果展示。在星空白点的基础上，用斜线连接特定点形成闪电折线。点+线=经典的闪电图标。</p>
+            <button>开始测试</button>
+        </div>
+    </section>
+
+    <!-- 方案15：不规则彩色点背景 -->
+    <section class="demo-section bg-option-15">
+        <div class="overlay"></div>
+        <div class="demo-label">
+            <h2>方案 15 ⭐⭐⭐⭐⭐</h2>
+            <p>不规则彩色点背景 - 多彩梦幻</p>
+        </div>
+        <div class="content-card" style="position: relative; z-index: 1;">
+            <h3>ReflexX - 测试标题</h3>
+            <p>这是方案15的效果展示。黑色背景中散布着不规则的彩色小点，包括蓝色、粉色、紫色、橙色、青色、黄色、红色等多种颜色，营造梦幻星空效果。</p>
             <button>开始测试</button>
         </div>
     </section>
