@@ -22,6 +22,18 @@ const partners = [
     href: 'https://twelve.tools',
     imgSrc: 'https://twelve.tools/badge0-white.svg',
     alt: 'Featured on Twelve Tools'
+  },
+  {
+    name: 'Wired Business',
+    href: 'https://wired.business',
+    imgSrc: 'https://wired.business/badge0-white.svg',
+    alt: 'Featured on Wired Business'
+  },
+  {
+    name: 'Startup Fast',
+    href: 'https://startupfa.st',
+    imgSrc: 'https://startupfa.st/images/badges/powered-by-light.svg',
+    alt: 'Powered by Startup Fast'
   }
 ];
 
@@ -59,40 +71,45 @@ export default function HomePage() {
       {/* Partners Section */}
       <section className="px-4 pb-8">
         <div className="mx-auto max-w-4xl">
-          <div className="flex items-center justify-center gap-4">
-            {partners.map((partner) => (
-              <a
-                key={partner.name}
-                href={partner.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity"
-              >
-                {partner.name === 'CodeMarket' ? (
-                  <div
-                    data-codemarket-widget="reflexx-free-reaction-memory-tests"
-                    data-theme-bg="#1a1a2e"
-                    data-theme-text="slate-300"
-                    data-layout="grid"
-                    data-show-branding="false"
-                  >
+          <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+            <h3 className="text-sm font-semibold text-gray-400 mb-4">Partners & Friends</h3>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {partners.map((partner) => (
+                <a
+                  key={partner.name}
+                  href={partner.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity"
+                  style={{ height: '24px', width: partner.name === 'CodeMarket' ? '100px' : 'auto' }}
+                  title={partner.alt}
+                >
+                  {partner.name === 'CodeMarket' ? (
+                    <div
+                      data-codemarket-widget="reflexx-free-reaction-memory-tests"
+                      data-theme-bg="#1a1a2e"
+                      data-theme-text="slate-300"
+                      data-layout="grid"
+                      data-show-branding="false"
+                      className="flex items-center justify-center h-full"
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      <img
+                        src={partner.imgSrc}
+                        alt={partner.alt}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
                     <img
                       src={partner.imgSrc}
                       alt={partner.alt}
-                      className="h-6"
+                      className="max-h-full max-w-full"
                     />
-                  </div>
-                ) : (
-                  <img
-                    src={partner.imgSrc}
-                    alt={partner.alt}
-                    width={partner.name === 'ShowMeBestAI' ? 120 : 100}
-                    height={30}
-                    className="h-6"
-                  />
-                )}
-              </a>
-            ))}
+                  )}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>
