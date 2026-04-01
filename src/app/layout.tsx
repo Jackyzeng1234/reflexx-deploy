@@ -44,6 +44,7 @@ export const metadata: Metadata = {
   },
   other: {
     'msvalidate.01': 'BA889168A79214B6442EE82A4F80695E',
+    'saashub-verification': 'ucrh29dvtve2',
   },
 };
 
