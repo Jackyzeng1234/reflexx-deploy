@@ -4,6 +4,27 @@ import { useI18n } from '@/lib/i18n';
 import SimpleReactionTest from '@/components/SimpleReactionTest';
 import Head from 'next/head';
 
+const partners = [
+  {
+    name: 'CodeMarket',
+    href: 'https://code.market?code.market=verified',
+    imgSrc: 'https://code.market/assets/manage-product/featured-logo-bright.svg',
+    alt: 'ai tools code.market'
+  },
+  {
+    name: 'ShowMeBestAI',
+    href: 'https://showmebest.ai',
+    imgSrc: 'https://showmebest.ai/badge/feature-badge-white.webp',
+    alt: 'Featured on ShowMeBestAI'
+  },
+  {
+    name: 'Twelve Tools',
+    href: 'https://twelve.tools',
+    imgSrc: 'https://twelve.tools/badge0-white.svg',
+    alt: 'Featured on Twelve Tools'
+  }
+];
+
 export default function HomePage() {
   const { t } = useI18n();
 
@@ -32,6 +53,47 @@ export default function HomePage() {
       <section className="px-4 pb-16">
         <div className="mx-auto max-w-4xl">
           <SimpleReactionTest />
+        </div>
+      </section>
+
+      {/* Partners Section */}
+      <section className="px-4 pb-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="flex items-center justify-center gap-4">
+            {partners.map((partner) => (
+              <a
+                key={partner.name}
+                href={partner.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity"
+              >
+                {partner.name === 'CodeMarket' ? (
+                  <div
+                    data-codemarket-widget="reflexx-free-reaction-memory-tests"
+                    data-theme-bg="#1a1a2e"
+                    data-theme-text="slate-300"
+                    data-layout="grid"
+                    data-show-branding="false"
+                  >
+                    <img
+                      src={partner.imgSrc}
+                      alt={partner.alt}
+                      className="h-6"
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src={partner.imgSrc}
+                    alt={partner.alt}
+                    width={partner.name === 'ShowMeBestAI' ? 120 : 100}
+                    height={30}
+                    className="h-6"
+                  />
+                )}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
     </div>
