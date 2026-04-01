@@ -31,8 +31,8 @@ export default function FriendsPage() {
 
         {/* CodeMarket Widget */}
         <div className="container mx-auto px-4 pb-16">
-          <div className="mx-auto max-w-4xl">
-            <div className="grid gap-6 md:grid-cols-2">
+          <div className="mx-auto max-w-5xl">
+            <div className="grid gap-6 md:grid-cols-3">
               {/* CodeMarket Badge */}
               <div
                 data-codemarket-widget="reflexx-free-reaction-memory-tests"
@@ -55,6 +55,19 @@ export default function FriendsPage() {
                     alt="Featured on ShowMeBestAI"
                     width="220"
                     height="60"
+                    className="hover:scale-105 transition-transform"
+                  />
+                </a>
+              </div>
+
+              {/* Twelve Tools Badge */}
+              <div className="rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur-sm p-6 flex items-center justify-center">
+                <a href="https://twelve.tools" target="_blank" rel="noopener noreferrer">
+                  <img
+                    src="https://twelve.tools/badge0-white.svg"
+                    alt="Featured on Twelve Tools"
+                    width="200"
+                    height="54"
                     className="hover:scale-105 transition-transform"
                   />
                 </a>
