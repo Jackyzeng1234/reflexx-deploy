@@ -34,6 +34,12 @@ const partners = [
     href: 'https://startupfa.st',
     imgSrc: 'https://startupfa.st/images/badges/powered-by-light.svg',
     alt: 'Powered by Startup Fast'
+  },
+  {
+    name: 'Toolpilot',
+    href: 'https://www.toolpilot.ai',
+    imgSrc: 'https://www.toolpilot.ai/cdn/shop/files/f-w_690x151_crop_center.png',
+    alt: 'Listed on Toolpilot.ai'
   }
 ];
 

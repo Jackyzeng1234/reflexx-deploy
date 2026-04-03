@@ -6,6 +6,19 @@
   "env": {
     "NEXT_PUBLIC_SITE_URL": "https://reflexx.uk"
   },
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.reflexx.uk"
+        }
+      ],
+      "destination": "https://reflexx.uk/:path*",
+      "statusCode": 301
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
