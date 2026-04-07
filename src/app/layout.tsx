@@ -34,14 +34,6 @@ export const metadata: Metadata = {
     title: 'ReflexX - Free Reaction & Memory Tests',
     description: 'Test your reaction time, memory, and cognitive abilities with 9+ free online tests. Global leaderboard, no signup.',
   },
-  alternates: {
-    canonical: 'https://reflexx.uk',
-    languages: {
-      'en': 'https://reflexx.uk/en',
-      'zh': 'https://reflexx.uk/zh',
-      'es': 'https://reflexx.uk/es',
-    },
-  },
   other: {
     'msvalidate.01': 'BA889168A79214B6442EE82A4F80695E',
     'saashub-verification': 'ucrh29dvtve2',
