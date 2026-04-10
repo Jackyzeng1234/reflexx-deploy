@@ -199,6 +199,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
 
+    {
+      url: `${BASE_URL}/tests/sbti`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+
     // ===== 功能页面 =====
     {
       url: `${BASE_URL}/leaderboard`,
