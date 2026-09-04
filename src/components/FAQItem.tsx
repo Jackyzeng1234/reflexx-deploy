@@ -15,7 +15,7 @@ export function FAQItem({ question, answer, icon = '❓' }: FAQItemProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors"
       >
-        <span className="flex items-center gap-3 text-lg font-semibold text-white">
+        <span className="flex items-center gap-3 text-lg font-semibold text-gray-100">
           <span>{icon}</span>
           <span>{question}</span>
         </span>

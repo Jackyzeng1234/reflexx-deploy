@@ -1,32 +1,35 @@
-'use client';
-
-import { useI18n } from '@/lib/i18n';
+import { Metadata } from 'next';
 import StroopTest from '@/components/StroopTest';
-import Head from 'next/head';
+import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
+
+export const metadata: Metadata = {
+  title: 'Stroop Test - Cognitive Flexibility | ReflexX',
+  description: 'Test your cognitive flexibility and inhibition control. Free online stroop test. Compare globally. Try now!',
+  keywords: ['stroop test', 'cognitive flexibility', 'inhibition control', 'attention test', 'cognitive test'],
+  openGraph: {
+    title: 'Stroop Test - Cognitive Flexibility | ReflexX',
+    description: 'Test your cognitive flexibility and inhibition control. Free online stroop test.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://reflexx.uk/tests/stroop-test',
+  },
+};
+
+// 结构化数据 - 用于SEO优化（搜索引擎可见，用户不可见）
+const structuredData = createTestAppStructuredData({
+  name: 'Stroop Test',
+  description: 'Test your cognitive flexibility and inhibition control with the classic Stroop effect. Name the color of the word, not the word itself. Professional-grade tool for measuring attention and cognitive control.',
+  url: 'https://reflexx.uk/tests/stroop-test',
+  rating: 4.8,
+  ratingCount: 760,
+});
 
 export default function StroopTestPage() {
-  const { t } = useI18n();
-
   return (
     <>
-      <Head>
-        <title>Stroop Test - Cognitive Flexibility | ReflexX</title>
-        <meta name="description" content="Test your cognitive flexibility and inhibitory control with the Stroop test." />
-        <meta name="keywords" content="stroop test, cognitive flexibility, inhibitory control" />
-        <link rel="canonical" href="https://reflexx.uk/tests/stroop-test" />
-      </Head>
-      <div className="container mx-auto min-h-[600px] px-4 py-4">
-        <div className="mb-4 text-center">
-          <h1 className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-            {t.stroopTestTitle}
-          </h1>
-          <p className="text-lg text-white">
-            {t.stroopTestDesc}
-          </p>
-        </div>
-
-        <StroopTest />
-      </div>
+      <StructuredData data={structuredData} />
+      <StroopTest />
     </>
   );
 }

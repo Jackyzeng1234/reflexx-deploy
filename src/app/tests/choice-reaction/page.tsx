@@ -1,32 +1,35 @@
-'use client';
-
-import { useI18n } from '@/lib/i18n';
+import { Metadata } from 'next';
 import ChoiceReactionTest from '@/components/ChoiceReactionTest';
-import Head from 'next/head';
+import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
+
+export const metadata: Metadata = {
+  title: 'Choice Reaction Test - Decision Speed | ReflexX',
+  description: 'Test your decision-making reaction speed with multiple options. Free online choice reaction test. Compare globally. Try now!',
+  keywords: ['choice reaction test', 'reaction time test', 'decision speed test', 'reflex test', 'choice reaction time'],
+  openGraph: {
+    title: 'Choice Reaction Test - Decision Speed | ReflexX',
+    description: 'Test your decision-making reaction speed with multiple options. Free online choice reaction test.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://reflexx.uk/tests/choice-reaction',
+  },
+};
+
+// 结构化数据 - 用于SEO优化（搜索引擎可见，用户不可见）
+const structuredData = createTestAppStructuredData({
+  name: 'Choice Reaction Test',
+  description: 'Test your decision-making reaction speed with multiple options. Wait for a target arrow to appear and press the corresponding arrow key as fast as you can. Professional-grade tool for measuring choice reaction time.',
+  url: 'https://reflexx.uk/tests/choice-reaction',
+  rating: 4.8,
+  ratingCount: 1040,
+});
 
 export default function ChoiceReactionPage() {
-  const { t } = useI18n();
-
   return (
     <>
-      <Head>
-        <title>Choice Reaction Time - Decision Speed Test | ReflexX</title>
-        <meta name="description" content="Test your choice reaction time and decision-making speed. Measure cognitive processing speed." />
-        <meta name="keywords" content="choice reaction, decision making, cognitive speed" />
-        <link rel="canonical" href="https://reflexx.uk/tests/choice-reaction" />
-      </Head>
-      <div className="container mx-auto min-h-[600px] px-4 py-4">
-        <div className="mb-4 text-center">
-          <h1 className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-            {t.choiceReaction}
-          </h1>
-          <p className="text-lg text-white">
-            {t.choiceReactionDesc}
-          </p>
-        </div>
-
-        <ChoiceReactionTest />
-      </div>
+      <StructuredData data={structuredData} />
+      <ChoiceReactionTest />
     </>
   );
 }

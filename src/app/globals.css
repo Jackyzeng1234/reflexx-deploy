@@ -1,41 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  /* Bento Grid 风格配色 - 深色主题 */
-  --color-bg: #09090b;
-  --color-bg-secondary: rgba(255, 255, 255, 0.05);
-  --color-text: #fafafa;
-  --color-text-secondary: #a1a1aa;
-  --color-text-tertiary: #71717a;
-  --color-accent: #3b82f6;
-  --color-border: rgba(255, 255, 255, 0.1);
+  /* ===== 青绿 / 电竞 深色主题 · 品牌 token ===== */
+  --color-bg: #0a0e17;
+  --color-surface: #121826;
+  --color-surface-hover: #1a2130;
+  --color-border: rgba(148, 163, 184, 0.12);
+  --color-text: #e6edf7;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
 
-  /* 保留原有的 Tailwind 颜色以兼容现有代码 */
-  /* Primary Colors */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* 品牌主色 cyan → emerald */
+  --color-brand: #22d3ee;
+  --color-brand-2: #34d399;
+  /* 兼容旧引用:accent = brand */
+  --color-accent: #22d3ee;
 
-  /* Success Colors */
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-200: #bbf7d0;
-  --color-success-300: #86efac;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success-800: #166534;
-  --color-success-900: #14532d;
+  /* Primary = 青绿 (cyan) 色阶,兼容现有 primary-* 类名 */
+  --color-primary-50: #ecfeff;
+  --color-primary-100: #cffafe;
+  --color-primary-200: #a5f3fc;
+  --color-primary-300: #67e8f9;
+  --color-primary-400: #22d3ee;
+  --color-primary-500: #06b6d4;
+  --color-primary-600: #0891b2;
+  --color-primary-700: #0e7490;
+  --color-primary-800: #155e75;
+  --color-primary-900: #164e63;
 
-  /* Warning Colors */
+  /* Success = emerald 绿 */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+
+  /* Warning = amber 琥珀 */
   --color-warning-50: #fffbeb;
   --color-warning-100: #fef3c7;
   --color-warning-200: #fde68a;
@@ -47,7 +52,7 @@
   --color-warning-800: #92400e;
   --color-warning-900: #78350f;
 
-  /* Danger Colors */
+  /* Danger = red 红 */
   --color-danger-50: #fef2f2;
   --color-danger-100: #fee2e2;
   --color-danger-200: #fecaca;
@@ -66,40 +71,39 @@
   }
 
   body {
-    background-color: #09090b;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.35) 0%, transparent 35%),
-      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.30) 0%, transparent 35%),
-      radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.25) 0%, transparent 40%),
-      radial-gradient(circle at 30% 80%, rgba(34, 211, 238, 0.28) 0%, transparent 30%);
+    background-color: var(--color-bg);
+    /* 分层背景:顶部青 + 右下翠绿双柔光,叠一层青色微网格水印 */
+    background-image: radial-gradient(
+        circle at 50% -12%,
+        rgba(34, 211, 238, 0.16) 0%,
+        transparent 48%
+      ),
+      radial-gradient(
+        circle at 100% 112%,
+        rgba(52, 211, 153, 0.11) 0%,
+        transparent 46%
+      ),
+      linear-gradient(to right, rgba(34, 211, 238, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34, 211, 238, 0.035) 1px, transparent 1px);
+    background-size: auto, auto, 44px 44px, 44px 44px;
     background-attachment: fixed;
     color: var(--color-text);
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     position: relative;
   }
 
-  /* 深色遮罩层 */
-  body::before {
-    display: none;
-  }
-
   .dark body {
-    background-color: #09090b;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.35) 0%, transparent 35%),
-      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.30) 0%, transparent 35%),
-      radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.25) 0%, transparent 40%),
-      radial-gradient(circle at 30% 80%, rgba(34, 211, 238, 0.28) 0%, transparent 30%);
-    background-attachment: fixed;
-    color: #fafafa;
+    background-color: var(--color-bg);
+    color: var(--color-text);
   }
 
   .dark * {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-border);
   }
 }
 
@@ -108,35 +112,56 @@
     text-wrap: balance;
   }
 
-  /* Bento Grid 实用类 */
+  /* 等宽数字:分数 / 时间 / 排名不跳动 */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 青色微网格背景 */
   .bg-grid-pattern {
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-image: linear-gradient(
+        to right,
+        rgba(34, 211, 238, 0.04) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(34, 211, 238, 0.04) 1px,
+        transparent 1px
+      );
     background-size: 40px 40px;
   }
 
   .dark .bg-grid-pattern {
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-image: linear-gradient(
+        to right,
+        rgba(34, 211, 238, 0.04) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(34, 211, 238, 0.04) 1px,
+        transparent 1px
+      );
   }
 
-  /* Bento 卡片样式 */
+  /* 电竞卡片:深色表面 + 青绿描边 */
   .bento-card {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(18, 24, 38, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 20px;
+    border-radius: 12px;
     padding: 32px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--color-border);
   }
 
   .bento-card:hover {
-    transform: scale(1.02);
-    background: rgba(0, 0, 0, 0.7);
+    transform: translateY(-2px);
+    background: rgba(26, 33, 48, 0.8);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(34, 211, 238, 0.3);
   }
 
   /* 规则网格布局 */
@@ -156,6 +181,238 @@
   @media (max-width: 640px) {
     .bento-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  /* ===== 编辑排版 utilities ===== */
+
+  /* 小标签:大写、宽字距,用于 hero / section 顶部 */
+  .kicker {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+
+  /* 超大标题:紧行高 + 负字距,标题可换行 */
+  .display-title {
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    color: var(--color-text);
+  }
+
+  /* 编号索引列表:替代卡片网格的编辑索引 */
+  .index-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+    transition: border-color 0.2s ease, padding-left 0.25s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .index-item:first-child {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .index-item:hover {
+    padding-left: 0.5rem;
+    border-color: rgba(34, 211, 238, 0.4);
+  }
+
+  .index-num {
+    flex: 0 0 2.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-tertiary);
+    padding-top: 0.25rem;
+    transition: color 0.2s ease;
+  }
+
+  .index-item:hover .index-num {
+    color: var(--color-brand);
+  }
+
+  .index-arrow {
+    align-self: center;
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease;
+  }
+
+  .index-item:hover .index-arrow {
+    color: var(--color-brand);
+    transform: translateX(4px);
+  }
+
+  /* ===== display 变体:游戏区(圆形靶 + 结果即主角) ===== */
+  .game-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+    column-gap: 40px;
+    align-items: center;
+  }
+
+  @media (max-width: 720px) {
+    .game-shell {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      row-gap: 32px;
+    }
+  }
+
+  .game-surface {
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    align-self: center;
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    outline: none;
+    user-select: none;
+    transition: none; /* 颜色瞬时翻转,保证测量准确 */
+  }
+
+  .game-surface:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  /* 状态色块(与原始测试区一致:等待=琥珀 / 就绪=绿 / 过早=红) */
+  .game-surface[data-state='waiting'] {
+    background: rgba(251, 191, 36, 0.9);
+    color: #111827;
+  }
+
+  .game-surface[data-state='ready'] {
+    background: linear-gradient(135deg, #22d3ee, #34d399);
+    color: #111827;
+    box-shadow: 0 0 60px rgba(52, 211, 153, 0.35);
+  }
+
+  .game-surface[data-state='too-early'] {
+    background: rgba(239, 68, 68, 0.9);
+    color: #ffffff;
+  }
+
+  .game-label {
+    font-size: clamp(22px, 3.5vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-align: center;
+    max-width: 80%;
+    color: inherit;
+  }
+
+  /* 游戏区表面容器:网格/宽幅游戏复用(非按钮、无固定纵横比) */
+  .game-panel {
+    width: 100%;
+    min-width: 0;
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 24px;
+    user-select: none;
+  }
+
+  .game-num {
+    font-size: clamp(56px, 9vw, 96px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .game-num .unit {
+    font-size: clamp(18px, 2.4vw, 22px);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-left: 8px;
+    letter-spacing: 0;
+  }
+
+  .game-num .dim {
+    color: var(--color-text-tertiary);
+    opacity: 0.5;
+  }
+
+  .game-verdict {
+    font-size: 20px;
+    font-weight: 700;
+    min-height: 26px;
+    margin-top: 6px;
+  }
+
+  .game-stats {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums;
+    margin-top: 4px;
+  }
+
+  /* ===== 按钮(display 变体复用) ===== */
+  .btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .btn:hover {
+    border-color: rgba(34, 211, 238, 0.4);
+    background: var(--color-surface-hover);
+  }
+
+  .btn:active {
+    transform: scale(0.96);
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-brand), var(--color-brand-2));
+    color: #0a0e17;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #2ee0f7, #45e0a5);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .index-item {
+      transition: border-color 0.2s ease, padding-left 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
   }
 }

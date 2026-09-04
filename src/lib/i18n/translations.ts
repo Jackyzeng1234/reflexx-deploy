@@ -9,10 +9,17 @@ export const translations = {
     navLogin: 'Login',
     navLogout: 'Logout',
 
+    // Test categories
+    catReaction: 'Reaction',
+    catSpeed: 'Speed',
+    catMemory: 'Memory',
+    catCognitive: 'Focus',
+
     // Home Page
     heroTitle: 'Improve Your Reaction Time',
     heroSubtitle: 'Professional reaction time testing to measure your cognitive abilities',
     heroCTA: 'Start Testing',
+    heroKicker: 'Free · No signup · 10 tests',
 
     // Test Cards
     simpleReaction: 'Reaction Time Test',
@@ -200,6 +207,8 @@ export const translations = {
     orPressAnyKeyToStart: 'or press any key to start',
 
     // Footer
+    footerQuickLinks: 'Quick Links',
+    footerLegal: 'Legal',
     footerRights: 'All rights reserved',
     footerPrivacy: 'Privacy Policy',
     footerTerms: 'Terms of Service',
@@ -226,6 +235,7 @@ export const translations = {
     millisecondAccuracy: 'Millisecond Accuracy',
     allTests: 'All Tests',
     viewAllTests: 'View All Tests',
+    viewFullTest: 'View Full Test',
     compareScores: 'Compare your scores with players worldwide',
     aboutTests: 'About Our Tests',
     aboutTestsDesc1: 'Our tests are designed to measure various aspects of your cognitive abilities, including reaction time, decision-making speed, and motor skills.',
@@ -408,6 +418,8 @@ export const translations = {
     progressChartHighest: 'Highest',
     statsNeedMoreData: 'Need at least 2 test records to display trend chart',
     noData: 'No data',
+    chartLowerBetter: 'lower is better',
+    chartHigherBetter: 'higher is better',
 
     // Authentication
     authLogin: 'Login',
@@ -514,10 +526,17 @@ export const translations = {
     navLogin: '登录',
     navLogout: '登出',
 
+    // Test categories
+    catReaction: '反应',
+    catSpeed: '速度',
+    catMemory: '记忆',
+    catCognitive: '专注',
+
     // Home Page
     heroTitle: 'ReflexX - 挑战你的极限',
     heroSubtitle: '专业反应时间测试，测量你的认知能力',
     heroCTA: '开始测试',
+    heroKicker: '免费 · 无需注册 · 10 项测试',
 
     // Test Cards
     simpleReaction: '简单反应测试',
@@ -706,6 +725,8 @@ export const translations = {
     orPressAnyKeyToStart: '或按任意键开始',
 
     // Footer
+    footerQuickLinks: '快速链接',
+    footerLegal: '法律',
     footerRights: '版权所有',
     footerPrivacy: '隐私政策',
     footerTerms: '服务条款',
@@ -732,6 +753,7 @@ export const translations = {
     millisecondAccuracy: '毫秒精度',
     allTests: '所有测试',
     viewAllTests: '查看所有测试',
+    viewFullTest: '查看完整测试',
     compareScores: '与全球玩家比较你的分数',
     aboutTests: '关于我们的测试',
     aboutTestsDesc1: '我们的测试旨在测量你认知能力的各个方面，包括反应时间、决策速度和运动技能。',
@@ -914,6 +936,8 @@ export const translations = {
     progressChartHighest: '最高',
     statsNeedMoreData: '需要至少2次测试记录才能显示趋势图',
     noData: '暂无数据',
+    chartLowerBetter: '越低越快',
+    chartHigherBetter: '越高越好',
 
     // Authentication
     authLogin: '登录',
@@ -1020,10 +1044,17 @@ export const translations = {
     navLogin: 'Iniciar Sesión',
     navLogout: 'Cerrar Sesión',
 
+    // Test categories
+    catReaction: 'Reacción',
+    catSpeed: 'Velocidad',
+    catMemory: 'Memoria',
+    catCognitive: 'Concentración',
+
     // Home Page
     heroTitle: 'ReflexX - Desafía Tus Límites',
     heroSubtitle: 'Pruebas profesionales de tiempo de reacción para medir tus capacidades cognitivas',
     heroCTA: 'Comenzar',
+    heroKicker: 'Gratis · Sin registro · 10 pruebas',
 
     // Test Cards
     simpleReaction: 'Prueba de Reacción Simple',
@@ -1211,6 +1242,8 @@ export const translations = {
     orPressAnyKeyToStart: 'o presiona cualquier tecla para comenzar',
 
     // Footer
+    footerQuickLinks: 'Enlaces Rápidos',
+    footerLegal: 'Legal',
     footerRights: 'Todos los derechos reservados',
     footerPrivacy: 'Política de Privacidad',
     footerTerms: 'Términos de Servicio',
@@ -1237,6 +1270,7 @@ export const translations = {
     millisecondAccuracy: 'Precisión de Milisegundos',
     allTests: 'Todas las Pruebas',
     viewAllTests: 'Ver Todas las Pruebas',
+    viewFullTest: 'Ver Prueba Completa',
     compareScores: 'Compara tus puntuaciones con jugadores de todo el mundo',
     aboutTests: 'Acerca de Nuestras Pruebas',
     aboutTestsDesc1: 'Nuestras pruebas están diseñadas para medir varios aspectos de tus habilidades cognitivas, incluyendo el tiempo de reacción, velocidad de toma de decisiones y habilidades motoras.',
@@ -1419,6 +1453,8 @@ export const translations = {
     progressChartHighest: 'Más alto',
     statsNeedMoreData: 'Necesitas al menos 2 registros de prueba para mostrar el gráfico de tendencias',
     noData: 'Sin datos',
+    chartLowerBetter: 'más bajo es mejor',
+    chartHigherBetter: 'más alto es mejor',
 
     // Authentication
     authLogin: 'Iniciar Sesión',

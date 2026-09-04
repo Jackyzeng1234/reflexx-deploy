@@ -5,6 +5,8 @@ import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Keyboard } from 'lucide-react';
 
 type TestState = 'idle' | 'typing' | 'finished';
 
@@ -99,6 +101,21 @@ const sampleTexts = [
   "Our noise-canceling headphones deliver studio-quality audio in a comfortable, lightweight design. With up to 30 hours of battery life and rapid charging, you're never without your music. The smart ambient mode automatically adjusts noise cancellation based on your environment. Experience sound the way artists intended.",
 ];
 
+const HISTORY_KEY = 'typing-results';
+
+/** 读取本机历史成绩(net WPM),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => r.wpm)
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
+
 export default function TypingTest() {
   const { t } = useI18n();
   const { setTimeout: timeout } = useTimeout();
@@ -119,6 +136,7 @@ export default function TypingTest() {
   const isGameStartedRef = useRef(false); // 同步跟踪游戏是否已开始
   const userInputRef = useRef(''); // 同步跟踪用户输入
   const timerRef = useRef<NodeJS.Timeout | null>(null); // 用于更新已用时间显示
+  const [history, setHistory] = useState<number[]>([]);
 
   const startTest = useCallback(() => {
     // Select a new random text that's different from the current one
@@ -240,6 +258,16 @@ export default function TypingTest() {
     // 设置 finished 状态
     setTestState('finished');
 
+    // 始终写入本机历史(进度曲线),登录用户也保留
+    try {
+      const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      raw.push({ wpm: netWpm, accuracy, timestamp: Date.now() });
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+      setHistory(readLocalHistory());
+    } catch (e) {
+      console.error(e);
+    }
+
     // Submit score
     submitScore({
       test_type: 'typing',
@@ -248,16 +276,6 @@ export default function TypingTest() {
         wpm: finalWpm,
         accuracy: accuracy,
       },
-    }).then((submittedToDb) => {
-      if (!submittedToDb) {
-        const savedResults = JSON.parse(localStorage.getItem('typing-results') || '[]');
-        savedResults.push({
-          wpm: netWpm,  // 保存 net WPM (已考虑准确率)
-          accuracy: accuracy,
-          timestamp: Date.now(),
-        });
-        localStorage.setItem('typing-results', JSON.stringify(savedResults.slice(-100)));
-      }
     }).catch(console.error);
   }, [testState, accuracy, elapsedTime]);
 
@@ -272,6 +290,11 @@ export default function TypingTest() {
         clearInterval(timerRef.current);
       }
     };
+  }, []);
+
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -356,14 +379,23 @@ export default function TypingTest() {
     return t.ratingNeedsPractice;
   };
 
+  const getVerdictColor = (wpm: number) => {
+    if (wpm >= 70) return 'var(--color-success-400)';
+    if (wpm >= 55) return 'var(--color-success-300)';
+    if (wpm >= 40) return 'var(--color-brand)';
+    if (wpm >= 25) return 'var(--color-warning-400)';
+    if (wpm >= 15) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
+  };
+
   const renderText = () => {
     return currentText.split('').map((char, index) => {
-      let className = 'text-gray-400 dark:text-gray-600';
+      let className = 'text-gray-500';
 
       if (index < userInput.length) {
-        className = userInput[index] === char ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
+        className = userInput[index] === char ? 'text-emerald-400' : 'text-red-400 bg-red-500/20';
       } else if (index === userInput.length) {
-        className = 'bg-primary-500 text-white animate-pulse';
+        className = 'bg-cyan-400/30 text-gray-100 animate-pulse';
       }
 
       return (
@@ -382,120 +414,133 @@ export default function TypingTest() {
   };
 
   return (
-    <div className="flex min-h-[600px] items-center justify-center py-8">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Main Test Area - Always visible */}
-        <div className="rounded-3xl border-2 border-gray-200/60 bg-white/80 backdrop-blur-xl p-8 shadow-2xl dark:border-gray-700/60 dark:bg-gray-800/80">
-          {/* Stats Bar */}
-          <div className="mb-6 gap-2 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-4 shadow-lg dark:from-gray-700/50 dark:to-gray-700/50 sm:flex sm:gap-4">
-            <div className="flex-1 text-center">
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">{t.typingSpeed}</div>
-              <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 sm:text-3xl">
-                {testState === 'finished' ? wpm : calculateLiveWpm()} <span className="text-sm sm:text-lg">WPM</span>
-              </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.typingTitle}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右打字区 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {testState === 'finished' ? wpm : <span className="dim">0</span>}
+              <span className="unit">wpm</span>
             </div>
-            <div className="flex-1 text-center border-l border-r border-gray-200 dark:border-gray-600">
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">{t.typingElapsedTime}</div>
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 sm:text-3xl">
-                {testState === 'finished' ? `${elapsedTime}s` : `${elapsedTime}s`}
-              </div>
+            <div
+              className="game-verdict"
+              style={{ color: testState === 'finished' ? getVerdictColor(wpm) : 'transparent' }}
+            >
+              {testState === 'finished' ? getRating(wpm, 100) : ''}
             </div>
-            <div className="flex-1 text-center border-l border-r border-gray-200 dark:border-gray-600">
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">{t.typingAccuracy}</div>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400 sm:text-3xl">
-                {accuracy.toFixed(1)}<span className="text-sm sm:text-lg">%</span>
-              </div>
+            <div className="game-stats">
+              {testState === 'finished'
+                ? `${t.typingTestTypingSpeed} ${rawWpm} WPM · ${accuracy.toFixed(1)}%`
+                : testState === 'typing'
+                ? `${t.typingAccuracy} ${accuracy.toFixed(1)}%`
+                : ''}
             </div>
-            <div className="flex-1 text-center">
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">{t.typingErrors}</div>
-              <div className="text-2xl font-bold text-red-600 dark:text-red-400 sm:text-3xl">
-                {errors}
+            {testState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={restartGame}>
+                  ↻ {t.srtTryAgain}
+                </button>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Text Display */}
-          <div className="mb-6 overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-blue-50/30 p-6 font-mono text-lg leading-relaxed shadow-inner dark:border-gray-700 dark:from-gray-900 dark:to-blue-900/20">
-            <div className="select-none whitespace-pre-wrap break-words">
-              {currentText ? renderText() : t.loading}
+          <div className="game-panel relative p-4 sm:p-6">
+            {/* 实时统计 */}
+            <div className="mb-4 flex w-full items-center justify-between gap-3 text-sm">
+              <span className="tabular-nums font-semibold text-text">
+                {testState === 'finished' ? wpm : calculateLiveWpm()} WPM
+              </span>
+              <span className="tabular-nums text-text-tertiary">{elapsedTime}s</span>
+              <span className="tabular-nums text-text">{accuracy.toFixed(1)}%</span>
             </div>
-          </div>
 
-          {/* Input Area - Modern Style */}
-          {testState !== 'finished' && (
-            <div className="relative">
-              {/* Click to Start Overlay */}
-              {overlayVisible && (
-                <div
-                  className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center rounded-2xl bg-black/5 backdrop-blur-sm transition-all hover:scale-[1.02] hover:bg-black/10 dark:bg-black/40"
-                  onClick={startGame}
-                >
-                  <div className="text-center">
-                    <div className="mb-4 text-6xl">⌨️</div>
-                    <div className="text-2xl font-bold text-black">
-                      {t.typingClickToStart}
-                    </div>
-                    <div className="mt-2 text-sm text-black">
-                      {t.typingOrStartTyping}
-                    </div>
-                  </div>
-                </div>
-              )}
+            {/* 文本显示 */}
+            <div className="mb-4 w-full rounded-xl border border-border bg-surface-hover/40 p-4 font-mono text-base leading-relaxed">
+              <div className="select-none whitespace-pre-wrap break-words">
+                {currentText ? renderText() : t.loading}
+              </div>
+            </div>
 
-              <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 opacity-30 blur-sm transition-opacity focus-within:opacity-75"></div>
+            {/* 输入区 */}
+            {testState !== 'finished' ? (
               <textarea
                 ref={textareaRef}
                 value={userInput}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                className="relative w-full rounded-2xl border-2 border-gray-200 bg-white/90 p-5 font-mono text-lg shadow-xl backdrop-blur-sm transition-all duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-900/90 dark:focus:ring-primary-400/20"
-                rows={6}
+                className="w-full rounded-xl border border-border bg-surface-hover/40 p-3 font-mono text-base text-text focus:border-brand/50 focus:outline-none"
+                rows={5}
                 placeholder={isStarted ? t.typingTypeHere : t.typingClickToStartTyping}
                 autoComplete="off"
                 autoCapitalize="off"
                 spellCheck={false}
               />
+            ) : (
+              <span className="game-label text-text-tertiary">{t.typingTestComplete}</span>
+            )}
+
+            {/* 点击开始悬浮层 */}
+            {overlayVisible && testState !== 'finished' && (
+              <div
+                className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm"
+                onClick={startGame}
+              >
+                <div className="text-center">
+                  <div className="mb-3 flex justify-center"><Keyboard className="h-12 w-12 text-cyan-300" /></div>
+                  <div className="text-xl font-bold text-text">{t.typingClickToStart}</div>
+                  <div className="mt-2 text-sm text-text-secondary">{t.typingOrStartTyping}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} unit="wpm" caption={t.chartHigherBetter} />
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Finished State */}
-          {testState === 'finished' && (
-            <div className="w-full px-8 py-6">
-              <div className="mb-6 text-center">
-                <div className="mb-3 text-5xl">📊</div>
-                <h3 className="text-2xl font-bold text-black">{t.typingTestComplete}</h3>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="text-center">
-                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.typingTestTypingSpeed}</div>
-                  <div className="text-4xl font-bold text-black">{rawWpm}<span className="text-2xl">WPM</span></div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.typingAccuracy}</div>
-                  <div className="text-4xl font-bold text-black">{accuracy.toFixed(1)}<span className="text-2xl">%</span></div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.netWPM}</div>
-                  <div className="text-4xl font-bold text-black">{wpm}</div>
-                </div>
-              </div>
-
-              <div className="mt-6 text-center">
-                <button
-                  onClick={restartGame}
-                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
-                </button>
-              </div>
-            </div>
-          )}
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.typingBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.typingImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Typing Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Typing Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the typing test work?"
@@ -509,8 +554,8 @@ export default function TypingTest() {
                     <li><strong>View your results</strong> - See your Raw WPM, Net WPM (adjusted for accuracy), and accuracy percentage.</li>
                     <li><strong>Net WPM calculation</strong> - Your final score is Raw WPM × (Accuracy/100), rewarding both speed and precision.</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Focus on accuracy first, then speed. Professional typists aim for 95%+ accuracy. Net WPM is calculated as Raw WPM multiplied by accuracy percentage, so errors significantly reduce your final score. The average person types 40 WPM; professional typists achieve 65-95 WPM.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Focus on accuracy first, then speed. Professional typists aim for 95%+ accuracy. Net WPM is calculated as Raw WPM multiplied by accuracy percentage, so errors significantly reduce your final score. The average person types 40 WPM; professional typists achieve 65-95 WPM.</p>
                   </div>
                 </div>
               }
@@ -523,7 +568,7 @@ export default function TypingTest() {
                   <p>A good typing speed depends on your profession and experience. The average person types 40 WPM. Professional typists, programmers, and writers typically achieve 65-95 WPM with 95%+ accuracy.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average typing speeds by profession and experience:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average typing speeds by profession and experience:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>⌨️ <strong>Beginner:</strong> 20-35 WPM (learning hunt-and-peck method)</li>
                       <li>👨‍💼 <strong>Average office worker:</strong> 40 WPM (touch typing not required)</li>
@@ -535,7 +580,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Typing speed by age (average):</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Typing speed by age (average):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>18-24 years:</strong> ~45 WPM (gamers: 60-80 WPM)</li>
                       <li>👨 <strong>25-35 years:</strong> ~40-50 WPM</li>
@@ -550,16 +595,16 @@ export default function TypingTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
                       <p className="text-sm text-gray-300">100+ WPM, 98%+ accuracy - Professional/competition level; elite typing ability</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
                       <p className="text-sm text-gray-300">70-99 WPM, 95%+ accuracy - Fast, efficient typing; excellent for most professions</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Good (Normal Range)</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
                       <p className="text-sm text-gray-300">50-69 WPM, 90%+ accuracy - Comfortable typing speed; adequate for most office work</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
                       <p className="text-sm text-gray-300">35-49 WPM, 85%+ accuracy - Functional but could benefit from touch typing practice</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -580,7 +625,7 @@ export default function TypingTest() {
                   <p>The typing test measures your <strong>typing speed (WPM)</strong> and <strong>accuracy</strong>, evaluating both fine motor skills and cognitive processing. It assesses how efficiently you can transfer thoughts to text.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Typing speed (WPM)</strong> - Words typed per minute (5 characters = 1 word)</li>
                       <li><strong>Accuracy percentage</strong> - Ratio of correct keystrokes to total keystrokes</li>
@@ -592,7 +637,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Typing method</strong> - Touch typing vs hunt-and-peck (huge difference)</li>
                       <li><strong>Keyboard familiarity</strong> - Regular computer users type significantly faster</li>
@@ -604,7 +649,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Why typing speed matters:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Why typing speed matters:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li>Essential for many professions (writers, programmers, admins, data entry)</li>
                       <li>Dramatically increases productivity and efficiency at work</li>
@@ -624,7 +669,7 @@ export default function TypingTest() {
                   <p>Typing speed can be dramatically improved through proper technique, structured practice, and training programs. Here's what works best:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">⌨️ Learn Proper Typing Technique</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">⌨️ Learn Proper Typing Technique</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Learn touch typing</strong> - Master home row position (ASDF JKL;) without looking</li>
                       <li><strong>Use online typing tutors</strong> - Keybr, Typing.com, Monkeytype, Ratatype</li>
@@ -636,7 +681,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Structured Practice Approach</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Structured Practice Approach</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Start with basics</strong> - Home row, then top row, then bottom row</li>
                       <li><strong>Practice common words</strong> - Focus on frequently used letter combinations</li>
@@ -648,7 +693,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">💻 Ergonomic Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">💻 Ergonomic Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Get a good keyboard</strong> - Mechanical or low-profile keyboards improve typing feel</li>
                       <li><strong>Proper desk setup</strong> - Keyboard at elbow height, screen 20-28 inches away</li>
@@ -660,7 +705,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">📚 Training Resources and Tools</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">📚 Training Resources and Tools</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Monkeytype</strong> - Clean, minimal typing test with detailed statistics</li>
                       <li><strong>Keybr</strong> - Generates custom lessons based on your weak keys</li>
@@ -670,8 +715,8 @@ export default function TypingTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With daily practice (20-30 min) for 4-6 weeks, most people improve by 15-30 WPM (30-50% increase). Hunt-and-peck typists can reach 50-60 WPM. With continued practice, 70-80 WPM is achievable for most people within 3-6 months. Professional typists reach 100+ WPM with years of practice.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With daily practice (20-30 min) for 4-6 weeks, most people improve by 15-30 WPM (30-50% increase). Hunt-and-peck typists can reach 50-60 WPM. With continued practice, 70-80 WPM is achievable for most people within 3-6 months. Professional typists reach 100+ WPM with years of practice.</p>
                   </div>
                 </div>
               }
@@ -684,7 +729,7 @@ export default function TypingTest() {
                   <p>If you're typing below 35 WPM or have low accuracy, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for slow typing speed:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for slow typing speed:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Hunt-and-peck method</strong> - Using 1-2 fingers instead of all 10</li>
                       <li><strong>Looking at the keyboard</strong> - Visual search slows typing dramatically</li>
@@ -698,7 +743,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve slow typing speed:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve slow typing speed:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Learn touch typing</strong> - #1 way to improve; learn home row position</li>
                       <li><strong>Use typing tutor software</strong> - Structured lessons teach proper technique</li>
@@ -711,7 +756,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Quick improvements to try today:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Quick improvements to try today:</h4>
                     <li><strong>Learn home row</strong> - Start with ASDF JKL; position, practice daily</li>
                     <li><strong>Use typing practice sites</strong> - Keybr.com or Monkeytype for free lessons</li>
                     <li><strong>Take typing lessons</strong> - Typing.com offers free comprehensive courses</li>
@@ -720,7 +765,7 @@ export default function TypingTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Progress expectations by time invested:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Progress expectations by time invested:</h4>
                     <li><strong>Week 1-2</strong> - Learn home row, reach 20-30 WPM (if starting from hunt-and-peck)</li>
                     <li><strong>Week 3-4</strong> - Master all keys, reach 35-45 WPM</li>
                     <li><strong>Month 2-3</strong> - Build speed, reach 50-60 WPM</li>
@@ -728,8 +773,8 @@ export default function TypingTest() {
                     <li><strong>Year 1</strong> - Consistent practice, reach 80-100+ WPM</li>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Health Note:</strong> If typing causes pain in your wrists, hands, or fingers, stop immediately and evaluate your ergonomics. Carpal tunnel syndrome and repetitive strain injuries are serious. Consider seeing a doctor if pain persists. Proper ergonomics and regular breaks are essential for healthy typing.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Health Note:</strong> If typing causes pain in your wrists, hands, or fingers, stop immediately and evaluate your ergonomics. Carpal tunnel syndrome and repetitive strain injuries are serious. Consider seeing a doctor if pain persists. Proper ergonomics and regular breaks are essential for healthy typing.</p>
                   </div>
                 </div>
               }

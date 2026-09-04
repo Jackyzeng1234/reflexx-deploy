@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReflexX — Reaction UI · 3 variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0e17; --surface:#121826; --surface-hover:#1a2130;
+    --border:rgba(148,163,184,0.16);
+    --text:#e6edf7; --text-2:#94a3b8;
+    --cyan:#22d3ee; --emerald:#34d399; --red:#f87171; --amber:#fbbf24;
+    --ease:cubic-bezier(0.2,0,0,1);
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    font-feature-settings:"rlig" 1,"calt" 1;
+    padding:60px 16px 40px; position:relative; overflow-x:hidden;
+  }
+  body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:linear-gradient(to right, rgba(34,211,238,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34,211,238,0.04) 1px, transparent 1px); background-size:40px 40px; }
+  body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(circle at 50% -10%, rgba(34,211,238,0.16), transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(52,211,153,0.10), transparent 50%); }
+
+  /* 切换器 —— 刻意用中性样式，明确不属于设计系统 */
+  #picker { position:fixed; top:12px; right:12px; z-index:99; display:flex; gap:2px;
+    background:#1c1f2a; border:1px solid #3a3f4d; border-radius:8px; padding:4px;
+    font-family:ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; }
+  #picker a { color:#8b93a5; text-decoration:none; padding:5px 10px; border-radius:6px; }
+  #picker a[data-active="1"] { color:#e6edf7; background:#2a2f3d; }
+  #picker .pt { color:#5b6270; padding:5px 6px; }
+
+  .variant { display:none; }
+  body[data-variant="focus"]   #v-focus   { display:block; }
+  body[data-variant="console"] #v-console { display:block; }
+  body[data-variant="display"] #v-display { display:block; }
+
+  .dim { color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .ms  { font-weight:600; color:var(--text-2); margin-left:6px; letter-spacing:0; }
+  .sym { line-height:1; user-select:none; }
+  .lab { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; color:var(--text-2); user-select:none; }
+
+  /* 通用状态色（仅文字/符号层，避免靠颜色单独表义） */
+  [data-surface][data-state="waiting"] .lab { color:var(--red); }
+  [data-surface][data-state="ready"]   .lab { color:var(--emerald); }
+  [data-surface][data-state="early"]   .lab { color:var(--amber); }
+
+  /* ============ 变体 1 · FOCUS（目标即全部） ============ */
+  #v-focus { max-width:900px; margin:0 auto; position:relative; z-index:1; }
+  .focus-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .focus-title { font-size:18px; font-weight:700; letter-spacing:-0.02em; }
+  .focus-badge { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-2); border:1px solid var(--border); border-radius:999px; padding:4px 11px; }
+  .focus-surface {
+    width:100%; height:min(68vh,520px); min-height:340px; border-radius:16px;
+    border:1px solid var(--border); background:rgba(18,24,38,0.7);
+    box-shadow:0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+    cursor:pointer; position:relative; display:flex; align-items:center; justify-content:center;
+    outline:none; transition:none;
+  }
+  .focus-surface:focus-visible { box-shadow:0 0 0 2px var(--cyan),0 4px 16px rgba(0,0,0,0.4); }
+  .focus-surface[data-state="waiting"] { background:linear-gradient(180deg, rgba(248,113,113,0.10), rgba(18,24,38,0.72)); border-color:rgba(248,113,113,0.30); }
+  .focus-surface[data-state="ready"]   { background:linear-gradient(180deg, rgba(52,211,153,0.16), rgba(18,24,38,0.72)); border-color:rgba(52,211,153,0.55); }
+  .focus-surface[data-state="early"]   { background:linear-gradient(180deg, rgba(251,191,36,0.12), rgba(18,24,38,0.72)); border-color:rgba(251,191,36,0.42); }
+  .focus-target { width:210px; height:210px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    border:1px solid rgba(34,211,238,0.35); background:rgba(34,211,238,0.08); transition:transform 0.15s var(--ease); }
+  .focus-target .sym { font-size:46px; }
+  .focus-surface:active .focus-target { transform:scale(0.96); }
+  .focus-surface[data-state="waiting"] .focus-target { background:rgba(248,113,113,0.12); border-color:rgba(248,113,113,0.5); }
+  .focus-surface[data-state="ready"]   .focus-target { background:rgba(52,211,153,0.20); border-color:rgba(52,211,153,0.8); box-shadow:0 0 60px rgba(52,211,153,0.35); }
+  .focus-surface[data-state="early"]   .focus-target { background:rgba(251,191,36,0.12); border-color:rgba(251,191,36,0.55); }
+  .focus-result { position:absolute; bottom:22px; left:0; right:0; text-align:center; font-size:44px; font-weight:800; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .focus-verdict { position:absolute; bottom:6px; left:0; right:0; text-align:center; font-size:13px; font-weight:600; }
+  .focus-foot { display:flex; justify-content:space-between; align-items:center; margin-top:14px; }
+  .focus-foot [data-stats] { font-size:13px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .focus-actions { display:flex; gap:8px; }
+  .fbtn { font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:9px; cursor:pointer;
+    color:var(--text); background:transparent; border:1px solid var(--border); transition:transform 0.15s var(--ease),border-color 0.15s var(--ease); }
+  .fbtn:hover { border-color:rgba(34,211,238,0.4); }
+  .fbtn:active { transform:scale(0.96); }
+
+  /* ============ 变体 2 · CONSOLE（仪表盘/数据流） ============ */
+  #v-console { max-width:980px; margin:0 auto; position:relative; z-index:1; }
+  .console-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
+  .console-title { font-size:18px; font-weight:700; letter-spacing:-0.02em; }
+  .console-session { font-size:12px; color:var(--text-2); font-variant-numeric:tabular-nums; text-transform:uppercase; letter-spacing:0.06em; }
+  .console-grid { display:grid; grid-template-columns:1.5fr 1fr; gap:16px; }
+  @media (max-width:640px){ .console-grid { grid-template-columns:1fr; } }
+  .console-surface {
+    min-height:380px; border-radius:16px; border:1px solid var(--border); background:rgba(18,24,38,0.7);
+    box-shadow:0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+    cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; outline:none; transition:none;
+  }
+  .console-surface:focus-visible { box-shadow:0 0 0 2px var(--cyan),0 4px 16px rgba(0,0,0,0.4); }
+  .console-surface[data-state="waiting"] { background:linear-gradient(180deg, rgba(248,113,113,0.10), rgba(18,24,38,0.72)); border-color:rgba(248,113,113,0.30); }
+  .console-surface[data-state="ready"]   { background:linear-gradient(180deg, rgba(52,211,153,0.16), rgba(18,24,38,0.72)); border-color:rgba(52,211,153,0.55); }
+  .console-surface[data-state="early"]   { background:linear-gradient(180deg, rgba(251,191,36,0.12), rgba(18,24,38,0.72)); border-color:rgba(251,191,36,0.42); }
+  .console-surface .sym { font-size:40px; }
+  .console-surface[data-state="ready"] { box-shadow:0 0 40px rgba(52,211,153,0.25); }
+  .console-readout { border-radius:16px; border:1px solid var(--border); background:rgba(18,24,38,0.55); padding:22px; display:flex; flex-direction:column; }
+  .ro-label { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-2); }
+  .ro-big { font-size:52px; font-weight:800; letter-spacing:-0.02em; line-height:1.1; margin-top:8px; font-variant-numeric:tabular-nums; }
+  .ro-verdict { font-size:13px; font-weight:600; margin-top:4px; min-height:18px; }
+  .ro-stats { font-size:13px; color:var(--text-2); margin-top:6px; font-variant-numeric:tabular-nums; }
+  .ro-history-label { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-2); margin-top:22px; }
+  .ro-history { margin-top:8px; height:64px; display:flex; align-items:flex-end; gap:5px; }
+  .hbar { flex:1; min-width:4px; border-radius:3px 3px 0 0; opacity:0.85; }
+  .console-actions { display:flex; gap:12px; justify-content:flex-end; margin-top:16px; }
+  .btn { font-family:inherit; font-size:14px; font-weight:600; padding:11px 20px; border-radius:10px; cursor:pointer;
+    color:var(--text); background:transparent; border:1px solid var(--border); transition:transform 0.15s var(--ease),border-color 0.15s var(--ease),background 0.15s var(--ease); }
+  .btn:hover { border-color:rgba(34,211,238,0.4); background:var(--surface-hover); }
+  .btn:active { transform:scale(0.96); }
+  .btn:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
+  .btn.primary { background:linear-gradient(135deg,var(--cyan),var(--emerald)); color:#0a0e17; border:none; }
+  .btn.primary:hover { background:linear-gradient(135deg,#2ee0f7,#45e0a5); }
+
+  /* ============ 变体 3 · DISPLAY（大字号/结果即主角） ============ */
+  #v-display { max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+  .display-shell { display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto auto; column-gap:48px; row-gap:28px; align-items:end; }
+  @media (max-width:720px){ .display-shell { grid-template-columns:1fr; } }
+  .display-head { grid-column:1; }
+  .display-kicker { font-size:12px; text-transform:uppercase; letter-spacing:0.14em; color:var(--text-2); }
+  .display-title { font-size:clamp(44px,8vw,84px); font-weight:900; letter-spacing:-0.04em; line-height:0.95; margin:6px 0 0; }
+  .display-surface {
+    grid-column:2; grid-row:1 / span 2; width:200px; height:200px; border-radius:50%;
+    border:1px solid rgba(34,211,238,0.35); background:rgba(34,211,238,0.08);
+    cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; outline:none; transition:none;
+    align-self:center;
+  }
+  @media (max-width:720px){ .display-surface { grid-column:1; grid-row:auto; width:160px; height:160px; justify-self:center; } }
+  .display-surface:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
+  .display-surface[data-state="waiting"] { background:rgba(248,113,113,0.12); border-color:rgba(248,113,113,0.5); }
+  .display-surface[data-state="ready"]   { background:rgba(52,211,153,0.20); border-color:rgba(52,211,153,0.8); box-shadow:0 0 60px rgba(52,211,153,0.35); }
+  .display-surface[data-state="early"]   { background:rgba(251,191,36,0.12); border-color:rgba(251,191,36,0.55); }
+  .display-surface .sym { font-size:42px; }
+  .display-result { grid-column:1; }
+  .display-num { font-size:clamp(72px,16vw,150px); font-weight:900; letter-spacing:-0.04em; line-height:0.9; font-variant-numeric:tabular-nums; }
+  .display-num .ms { font-size:clamp(20px,3vw,28px); font-weight:600; }
+  .display-verdict { font-size:20px; font-weight:700; margin-top:6px; min-height:26px; }
+  .display-stats { font-size:14px; color:var(--text-2); margin-top:6px; font-variant-numeric:tabular-nums; }
+  .display-actions { grid-column:1; display:flex; gap:12px; }
+</style>
+</head>
+<body data-variant="focus">
+
+  <nav id="picker">
+    <span class="pt">variant</span>
+    <a href="?variant=focus" data-k="focus">focus</a>
+    <a href="?variant=console" data-k="console">console</a>
+    <a href="?variant=display" data-k="display">display</a>
+  </nav>
+
+  <!-- 变体 1 · FOCUS -->
+  <section class="variant" id="v-focus">
+    <div class="focus-top">
+      <span class="focus-title">Simple Reaction</span>
+      <span class="focus-badge">easy</span>
+    </div>
+    <button class="focus-surface" data-surface data-state="idle" aria-label="Click anywhere to start">
+      <span class="focus-target">
+        <span class="sym" data-symbol>▶</span>
+        <span class="lab" data-label>Click anywhere to start</span>
+      </span>
+      <span class="focus-result" data-result><span class="dim">—</span><span class="ms">ms</span></span>
+      <span class="focus-verdict" data-verdict></span>
+    </button>
+    <div class="focus-foot">
+      <span data-stats></span>
+      <span class="focus-actions">
+        <button class="fbtn" data-retry>↻</button>
+        <button class="fbtn" data-save>Save</button>
+      </span>
+    </div>
+  </section>
+
+  <!-- 变体 2 · CONSOLE -->
+  <section class="variant" id="v-console">
+    <div class="console-head">
+      <span class="console-title">Simple Reaction</span>
+      <span class="console-session">Session · <span data-count>0</span> runs</span>
+    </div>
+    <div class="console-grid">
+      <button class="console-surface" data-surface data-state="idle" aria-label="Click anywhere to start">
+        <span class="sym" data-symbol>▶</span>
+        <span class="lab" data-label>Click anywhere to start</span>
+      </button>
+      <aside class="console-readout">
+        <div class="ro-label">Reaction time</div>
+        <div class="ro-big" data-result><span class="dim">—</span><span class="ms">ms</span></div>
+        <div class="ro-verdict" data-verdict></div>
+        <div class="ro-stats" data-stats></div>
+        <div class="ro-history-label">History</div>
+        <div class="ro-history" data-history></div>
+      </aside>
+    </div>
+    <div class="console-actions">
+      <button class="btn primary" data-retry>↻ Try again</button>
+      <button class="btn" data-save>Save score</button>
+    </div>
+  </section>
+
+  <!-- 变体 3 · DISPLAY -->
+  <section class="variant" id="v-display">
+    <div class="display-shell">
+      <div class="display-head">
+        <span class="display-kicker">Reaction Test</span>
+        <h1 class="display-title">Simple<br>Reaction</h1>
+      </div>
+      <button class="display-surface" data-surface data-state="idle" aria-label="Click anywhere to start">
+        <span class="sym" data-symbol>▶</span>
+        <span class="lab" data-label>Click anywhere to start</span>
+      </button>
+      <div class="display-result">
+        <div class="display-num" data-result><span class="dim">—</span><span class="ms">ms</span></div>
+        <div class="display-verdict" data-verdict></div>
+        <div class="display-stats" data-stats></div>
+      </div>
+      <div class="display-actions">
+        <button class="btn" data-retry>↻ Retry</button>
+        <button class="btn" data-save>Save score</button>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const symbols = { idle:'▶', waiting:'⏳', ready:'👆', early:'⚠', finished:'🎯' };
+  const labels = {
+    idle:'Click anywhere to start', waiting:'Wait for green…', ready:'Click now!',
+    early:'Too early — wait for green', finished:'Tap to try again'
+  };
+  function verdictFor(ms){ if(ms<200) return {word:'Fast',color:'var(--emerald)'}; if(ms<=320) return {word:'Average',color:'var(--cyan)'}; return {word:'Slow',color:'var(--amber)'}; }
+
+  const Engine = {
+    state:'idle', scores:[], armedAt:0, timer:null, earlyTimer:null, onState:null, onResult:null,
+    setState(s){ this.state=s; if(this.onState) this.onState(s); },
+    arm(){ this.setState('waiting'); this.timer=setTimeout(()=>{ this.setState('ready'); this.armedAt=performance.now(); }, 1000+Math.random()*3000); },
+    react(){
+      if(this.state==='idle'){ this.arm(); return; }
+      if(this.state==='waiting'){ clearTimeout(this.timer); this.setState('early'); this.earlyTimer=setTimeout(()=>this.arm(),900); return; }
+      if(this.state==='ready'){ this.finish(performance.now()-this.armedAt); return; }
+      if(this.state==='early'){ return; }
+      if(this.state==='finished'){ this.arm(); return; }
+    },
+    finish(ms){
+      const r=Math.round(ms); this.scores.push(r); this.setState('finished');
+      const v=verdictFor(r), best=Math.min.apply(null,this.scores), avg=Math.round(this.scores.reduce((a,b)=>a+b,0)/this.scores.length);
+      if(this.onResult) this.onResult(r,v,best,avg);
+    },
+    reset(){ clearTimeout(this.timer); clearTimeout(this.earlyTimer); this.setState('idle'); }
+  };
+
+  function bind(section){
+    const surface=section.querySelector('[data-surface]');
+    const symbol=section.querySelector('[data-symbol]');
+    const label=section.querySelector('[data-label]');
+    const result=section.querySelector('[data-result]');
+    const verdict=section.querySelector('[data-verdict]');
+    const stats=section.querySelector('[data-stats]');
+    const history=section.querySelector('[data-history]');
+    const count=section.querySelector('[data-count]');
+    const retry=section.querySelector('[data-retry]');
+    const save=section.querySelector('[data-save]');
+
+    Engine.onState=(s)=>{
+      surface.dataset.state=s;
+      if(symbol) symbol.textContent=symbols[s];
+      if(label) label.textContent=labels[s];
+      surface.setAttribute('aria-label',labels[s]);
+      if(s==='idle'||s==='waiting'){
+        if(result) result.innerHTML='<span class="dim">—</span><span class="ms">ms</span>';
+        if(verdict){ verdict.textContent=''; verdict.style.color=''; }
+      }
+      if(s==='idle'){ if(stats) stats.textContent=''; if(history) history.innerHTML=''; if(count) count.textContent='0'; }
+    };
+    Engine.onResult=(ms,v,best,avg)=>{
+      if(result) result.innerHTML=ms+'<span class="ms">ms</span>';
+      if(verdict){ verdict.textContent=v.word; verdict.style.color=v.color; }
+      if(stats) stats.textContent=Engine.scores.length>1?('Best '+best+' ms · Avg '+avg+' ms'):('Best '+best+' ms');
+      if(count) count.textContent=Engine.scores.length;
+      if(history){ const b=document.createElement('div'); b.className='hbar'; b.title=ms+' ms';
+        b.style.height=Math.max(8,Math.min(100,ms/4))+'%'; b.style.background=v.color; history.appendChild(b);
+        while(history.children.length>12) history.removeChild(history.firstChild); }
+    };
+    surface.addEventListener('pointerdown',(e)=>{ e.preventDefault(); Engine.react(); });
+    if(retry) retry.addEventListener('click',()=>Engine.reset());
+    if(save) save.addEventListener('click',()=>{ const t=save.textContent; save.textContent='Saved ✓'; setTimeout(()=>save.textContent=t,1200); });
+    Engine.setState('idle');
+  }
+
+  document.addEventListener('keydown',(e)=>{
+    if(e.code!=='Space'&&e.code!=='Enter') return;
+    const t=e.target;
+    if(t&&t.closest&&t.closest('[data-retry],[data-save],#picker,a')) return;
+    e.preventDefault(); Engine.react();
+  });
+
+  const variant=new URLSearchParams(location.search).get('variant')||'focus';
+  document.body.dataset.variant=['focus','console','display'].includes(variant)?variant:'focus';
+  document.querySelectorAll('#picker a').forEach(a=>{ a.dataset.active=a.dataset.k===document.body.dataset.variant?'1':'0'; });
+  const active=document.querySelector('body[data-variant="focus"] #v-focus, body[data-variant="console"] #v-console, body[data-variant="display"] #v-display');
+  bind(active);
+</script>
+</body>
+</html>

@@ -4456,17 +4456,18 @@ export default function BlogPostPage() {
         continue;
       }
 
-      // Headers
+      // Headers (downgraded one level — the page already renders its own H1 above,
+      // so markdown `#` becomes H2 to avoid duplicate H1)
       if (line.startsWith('# ')) {
-        html += `<h1 class="text-4xl font-bold text-white mb-4 mt-8">${line.slice(2)}</h1>\n`;
+        html += `<h2 class="text-4xl font-bold text-white mb-4 mt-8">${line.slice(2)}</h2>\n`;
         continue;
       }
       if (line.startsWith('## ')) {
-        html += `<h2 class="text-3xl font-bold text-white mb-3 mt-6">${line.slice(3)}</h2>\n`;
+        html += `<h3 class="text-3xl font-bold text-white mb-3 mt-6">${line.slice(3)}</h3>\n`;
         continue;
       }
       if (line.startsWith('### ')) {
-        html += `<h3 class="text-2xl font-bold text-white mb-2 mt-4">${line.slice(4)}</h3>\n`;
+        html += `<h4 class="text-2xl font-bold text-white mb-2 mt-4">${line.slice(4)}</h4>\n`;
         continue;
       }
 

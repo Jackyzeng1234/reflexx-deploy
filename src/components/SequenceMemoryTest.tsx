@@ -5,12 +5,29 @@ import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Music, BarChart3 } from 'lucide-react';
 
 type GameState = 'idle' | 'showing' | 'input' | 'finished';
 
 interface Tile {
   id: number;
   isActive: boolean;
+}
+
+const HISTORY_KEY = 'sequence-memory-results';
+
+/** 读取本机历史成绩(通关关卡),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => r.level)
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
 }
 
 export default function SequenceMemoryTest() {
@@ -24,6 +41,7 @@ export default function SequenceMemoryTest() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const hasSavedRef = useRef(false);
   const isShowingSequenceRef = useRef(false); // 追踪是否正在展示序列
+  const [history, setHistory] = useState<number[]>([]);
 
   const tiles: Tile[] = [
     { id: 0, isActive: false },
@@ -215,23 +233,22 @@ export default function SequenceMemoryTest() {
       }
       hasSavedRef.current = true;
 
-      // Submit to Supabase and check if user is logged in
+      // 始终写入本机历史(进度曲线),登录用户也保留
+      try {
+        const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        raw.push({ level: currentLevel, timestamp: Date.now() });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+        setHistory(readLocalHistory());
+      } catch (e) {
+        console.error(e);
+      }
+
       submitScore({
         test_type: 'sequence-memory',
         score: currentLevel,
         details: {
           tiles: sequence.length,
         },
-      }).then((submittedToDb) => {
-        // Only save to localStorage if NOT logged in (submission failed)
-        if (!submittedToDb) {
-          const savedResults = JSON.parse(localStorage.getItem('sequence-memory-results') || '[]');
-          savedResults.push({
-            level: currentLevel,
-            timestamp: Date.now(),
-          });
-          localStorage.setItem('sequence-memory-results', JSON.stringify(savedResults.slice(-100)));
-        }
       }).catch(console.error);
 
       return;
@@ -251,6 +268,11 @@ export default function SequenceMemoryTest() {
     }
   }, [gameState, playerInput, sequence, currentLevel, playTone, playErrorSound, setTimeout]);
 
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
+  }, []);
+
   const getRating = (level: number) => {
     if (level >= 15) return t.ratingSuper;
     if (level >= 12) return t.ratingExcellent;
@@ -258,6 +280,15 @@ export default function SequenceMemoryTest() {
     if (level >= 6) return t.ratingGood;
     if (level >= 4) return t.ratingAverage;
     return t.ratingNeedsPractice;
+  };
+
+  const getVerdictColor = (level: number) => {
+    if (level >= 15) return 'var(--color-success-400)';
+    if (level >= 12) return 'var(--color-success-300)';
+    if (level >= 9) return 'var(--color-brand)';
+    if (level >= 6) return 'var(--color-warning-400)';
+    if (level >= 4) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
   };
 
   // Cleanup audio context on unmount
@@ -270,125 +301,128 @@ export default function SequenceMemoryTest() {
   }, []);
 
   return (
-    <div className="flex min-h-[500px] items-center justify-center py-8">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Main Game Area */}
-        <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 shadow-2xl relative overflow-hidden">
-          {gameState === 'finished' ? (
-            /* Finished State - Display in game area */
-            <div className="min-h-[450px] flex items-center justify-center">
-              <div className="text-center">
-                <div className="mb-4 text-6xl">📊</div>
-                <h3 className="mb-6 text-2xl font-bold text-black">
-                  {t.sequenceMemoryGameOver}
-                </h3>
-
-                <div className="mb-8 grid gap-4 md:grid-cols-2">
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600">
-                      {t.sequenceMemoryLevel}
-                    </div>
-                    <div className="text-4xl font-bold text-primary-600">
-                      {currentLevel}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="mb-1 text-sm text-gray-600">
-                      {t.rating}
-                    </div>
-                    <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${
-                      currentLevel >= 15 ? 'bg-purple-500' :
-                      currentLevel >= 12 ? 'bg-green-500' :
-                      currentLevel >= 9 ? 'bg-blue-500' :
-                      currentLevel >= 6 ? 'bg-yellow-500' :
-                      currentLevel >= 4 ? 'bg-orange-500' :
-                      'bg-red-500'
-                    }`}>
-                      {getRating(currentLevel)}
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.sequenceMemoryTitle}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右 3×3 色块 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {gameState === 'finished' ? currentLevel : <span className="dim">0</span>}
+            </div>
+            <div
+              className="game-verdict"
+              style={{ color: gameState === 'finished' ? getVerdictColor(currentLevel) : 'transparent' }}
+            >
+              {gameState === 'finished' ? getRating(currentLevel) : ''}
+            </div>
+            <div className="game-stats">
+              {gameState === 'finished'
+                ? `${t.sequenceMemoryLevel} ${currentLevel}`
+                : gameState === 'input'
+                ? `${t.sequenceMemoryRepeat} (${playerInput.length}${t.sequenceMemoryOf}${sequence.length})`
+                : ''}
+            </div>
+            {gameState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startGame}>
+                  ↻ {t.srtTryAgain}
                 </button>
               </div>
-            </div>
-          ) : (
-            /* Game State */
-            <>
-              <div
-                onClick={() => {
-                  if (gameState === 'idle') {
-                    startGame();
-                  }
-                }}
-              >
-                {/* Game Content - Fixed height container */}
-                <div className={`min-h-[450px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
-                  {/* Level Display */}
-                  <div className="mb-6 text-center">
-                    <div className="text-5xl font-bold text-primary-600">
-                      {t.sequenceMemoryLevel} {currentLevel}
-                    </div>
-                    {gameState === 'showing' && (
-                      <div className="mt-2 text-lg text-gray-600">
-                        {t.sequenceMemoryWatching}
-                      </div>
-                    )}
-                    {gameState === 'input' && (
-                      <div className="mt-2 text-lg text-gray-600">
-                        {t.sequenceMemoryRepeat} ({playerInput.length}{t.sequenceMemoryOf}{sequence.length})
-                      </div>
-                    )}
-                  </div>
+            )}
+          </div>
 
-                  {/* Tiles Grid */}
-                  <div className="relative max-w-md mx-auto">
-                    <div className="grid grid-cols-3 gap-5">
-                      {tiles.map((tile) => (
-                        <button
-                          key={tile.id}
-                          onClick={() => handleTileClick(tile.id)}
-                          disabled={gameState !== 'input'}
-                          className={`aspect-square rounded-xl border-4 transition-all ${
-                            activeTile === tile.id
-                              ? `${colors[tile.id]} scale-110 border-white shadow-2xl`
-                              : gameState === 'input'
-                              ? `${colors[tile.id]} opacity-40 hover:opacity-100 active:scale-95`
-                              : `${colors[tile.id]} opacity-40`
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Idle State - Click to Start Overlay */}
-                {gameState === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02]">
-                    <div className="text-center">
-                      <div className="mb-4 text-6xl">🎵</div>
-                      <div className="text-2xl font-bold text-black">
-                        {t.clickToStart}
-                      </div>
-                      <div className="mt-2 text-sm text-black">
-                        {t.orPressAnyKeyToStart}
-                      </div>
-                    </div>
-                  </div>
-                )}
+          <div className="game-panel relative">
+            <div className="mb-5 text-center">
+              <div className="text-2xl font-bold text-text">
+                {t.sequenceMemoryLevel} {currentLevel}
               </div>
-            </>
-          )}
+              {gameState === 'showing' && (
+                <div className="mt-1 text-sm text-text-secondary">{t.sequenceMemoryWatching}</div>
+              )}
+              {gameState === 'input' && (
+                <div className="mt-1 text-sm text-text-secondary">
+                  {t.sequenceMemoryRepeat} ({playerInput.length}{t.sequenceMemoryOf}{sequence.length})
+                </div>
+              )}
+            </div>
+
+            <div className="grid w-full max-w-sm grid-cols-3 gap-3">
+              {tiles.map((tile) => (
+                <button
+                  key={tile.id}
+                  onClick={() => handleTileClick(tile.id)}
+                  disabled={gameState !== 'input'}
+                  className={`aspect-square rounded-xl border-4 transition-all ${
+                    activeTile === tile.id
+                      ? `${colors[tile.id]} scale-110 border-white shadow-2xl`
+                      : gameState === 'input'
+                      ? `${colors[tile.id]} opacity-40 hover:opacity-100 active:scale-95`
+                      : `${colors[tile.id]} opacity-40`
+                  }`}
+                />
+              ))}
+            </div>
+
+            {gameState === 'idle' && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button className="btn btn-primary" onClick={startGame}>
+                  {t.clickToStart}
+                </button>
+              </div>
+            )}
+            {gameState === 'finished' && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="game-label text-text-tertiary">{t.sequenceMemoryGameOver}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} unit="level" caption={t.chartHigherBetter} />
+            </div>
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.smBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.smImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Sequence Memory Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Sequence Memory Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the sequence memory test work?"
@@ -402,8 +436,8 @@ export default function SequenceMemoryTest() {
                     <li><strong>Repeat the sequence</strong> - Click the tiles in the exact same order they were shown. Each tile plays a tone to help with recall.</li>
                     <li><strong>Progress through levels</strong> - Successfully repeat the sequence to advance. Make one mistake and the game ends.</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Use both visual and auditory memory! The musical tones create a multi-sensory memory trace. Try humming the tones or creating a story connecting the tiles. Level represents the sequence length you successfully completed.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Use both visual and auditory memory! The musical tones create a multi-sensory memory trace. Try humming the tones or creating a story connecting the tiles. Level represents the sequence length you successfully completed.</p>
                   </div>
                 </div>
               }
@@ -416,7 +450,7 @@ export default function SequenceMemoryTest() {
                   <p>Sequence memory scores vary significantly based on age, practice, and natural memory ability. The average person can remember 5-7 items in sequence (Miller's Law: 7±2).</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average sequence memory levels by age:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average sequence memory levels by age:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>18-24 years:</strong> ~8-10 levels (gamers: 12-15, practiced: 15-20)</li>
                       <li>👨 <strong>25-35 years:</strong> ~7-9 levels (musicians: 10-12, practiced: 12-16)</li>
@@ -431,16 +465,16 @@ export default function SequenceMemoryTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
                       <p className="text-sm text-gray-300">Level 15+ - Near-savant memory ability; often musicians, gamers, or those with extensive memory training</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
                       <p className="text-sm text-gray-300">Level 10-14 - Above average memory; likely uses memory techniques or has natural ability</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Good (Normal Range)</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
                       <p className="text-sm text-gray-300">Level 6-9 - Healthy working memory; typical for well-rested, focused adults</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
                       <p className="text-sm text-gray-300">Level 4-5 - Within normal range; may improve with practice and better sleep</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -461,7 +495,7 @@ export default function SequenceMemoryTest() {
                   <p>The sequence memory test measures your <strong>spatial working memory</strong> and <strong>auditory memory</strong> - the ability to hold and manipulate information in short-term memory. It evaluates how well you can remember sequences of information.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Spatial memory</strong> - Ability to remember locations and spatial relationships (which tiles were activated)</li>
                       <li><strong>Auditory memory</strong> - Capacity to recall sequences of sounds and musical tones</li>
@@ -473,7 +507,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sleep quality</strong> - Memory consolidation occurs during sleep; poor sleep severely impacts recall</li>
                       <li><strong>Stress and anxiety</strong> - High cortisol interferes with memory formation and retrieval</li>
@@ -485,7 +519,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Why sequence memory matters:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Why sequence memory matters:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li>Predicts academic and professional performance (math, programming, learning skills)</li>
                       <li>Important for daily tasks (remembering instructions, phone numbers, passwords)</li>
@@ -505,7 +539,7 @@ export default function SequenceMemoryTest() {
                   <p>Sequence memory can be significantly improved through targeted training, memory techniques, and lifestyle optimization. Here are proven strategies:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🧠 Memory Training Techniques</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🧠 Memory Training Techniques</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Practice this test daily</strong> - 10-15 minutes daily for 2-3 weeks can improve memory span by 2-4 levels</li>
                       <li><strong>Use chunking strategy</strong> - Group tiles into smaller chunks (2-3 items) instead of individual tiles</li>
@@ -517,7 +551,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎵 Auditory and Musical Training</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎵 Auditory and Musical Training</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Learn musical instrument</strong> - Piano, guitar, or violin dramatically improve sequential memory</li>
                       <li><strong>Singing lessons</strong> - Train your ear to remember melodies and tone sequences</li>
@@ -527,7 +561,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">💪 Physical and Lifestyle Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">💪 Physical and Lifestyle Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Get quality sleep</strong> - 7-9 hours is essential; memory consolidation happens during deep sleep</li>
                       <li><strong>Aerobic exercise</strong> - Cardio increases hippocampus size and improves memory by 20-30%</li>
@@ -539,7 +573,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Practice Tips for Better Scores</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Practice Tips for Better Scores</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Test when alert</strong> - Morning or early afternoon when focus is highest</li>
                       <li><strong>Minimize distractions</strong> - Quiet room, silence phone, close other tabs</li>
@@ -549,8 +583,8 @@ export default function SequenceMemoryTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve sequence memory by 3-5 levels (40-60%). Musicians and memory athletes can reach levels 20-30+. The key is using memory techniques (chunking, mnemonics) rather than just rote repetition.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve sequence memory by 3-5 levels (40-60%). Musicians and memory athletes can reach levels 20-30+. The key is using memory techniques (chunking, mnemonics) rather than just rote repetition.</p>
                   </div>
                 </div>
               }
@@ -563,7 +597,7 @@ export default function SequenceMemoryTest() {
                   <p>If you're struggling to remember sequences beyond 3-4 levels, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for poor sequence memory:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for poor sequence memory:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sleep deprivation</strong> - #1 cause of poor memory; even one night of bad sleep hurts recall</li>
                       <li><strong>High stress and anxiety</strong> - Cortisol blocks memory formation and retrieval</li>
@@ -577,7 +611,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve poor sequence memory:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve poor sequence memory:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Prioritize sleep</strong> - Get 7-9 hours quality sleep; it's critical for memory consolidation</li>
                       <li><strong>Reduce stress</strong> - Meditation, deep breathing, and relaxation improve memory function</li>
@@ -590,7 +624,7 @@ export default function SequenceMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Quick fixes for immediate improvement:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Quick fixes for immediate improvement:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Get 8 hours sleep tonight</strong> - Test again tomorrow morning</li>
                       <li><strong>Do 10 minutes of meditation</strong> - Reduces stress and improves focus</li>
@@ -600,8 +634,8 @@ export default function SequenceMemoryTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If you consistently score below level 3 despite good sleep and practice, consider consulting a healthcare provider. Persistent working memory problems can indicate ADHD, depression, sleep disorders, or other conditions that are treatable.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Medical Note:</strong> If you consistently score below level 3 despite good sleep and practice, consider consulting a healthcare provider. Persistent working memory problems can indicate ADHD, depression, sleep disorders, or other conditions that are treatable.</p>
                   </div>
                 </div>
               }

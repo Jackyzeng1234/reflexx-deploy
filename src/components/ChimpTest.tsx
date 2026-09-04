@@ -5,6 +5,8 @@ import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Puzzle, BarChart3 } from 'lucide-react';
 
 type GameState = 'idle' | 'memorize' | 'recall' | 'finished';
 
@@ -15,6 +17,21 @@ interface NumberTile {
   y: number;
 }
 
+const HISTORY_KEY = 'chimp-results';
+
+/** 读取本机历史成绩(通关关卡),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => r.level)
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
+
 export default function ChimpTest() {
   const { t } = useI18n();
   const { setTimeout } = useTimeout();
@@ -23,6 +40,7 @@ export default function ChimpTest() {
   const [nextNumber, setNextNumber] = useState(1);
   const [currentLevel, setCurrentLevel] = useState(1);
   const hasSavedRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const generateTiles = useCallback((count: number) => {
     const newTiles: NumberTile[] = [];
@@ -109,24 +127,22 @@ export default function ChimpTest() {
       }
       hasSavedRef.current = true;
 
-      // Submit to Supabase and check if user is logged in
+      // 始终写入本机历史(进度曲线),登录用户也保留
+      try {
+        const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        raw.push({ level: currentLevel, numbers: tiles.length - 1, timestamp: Date.now() });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+        setHistory(readLocalHistory());
+      } catch (e) {
+        console.error(e);
+      }
+
       submitScore({
         test_type: 'chimp',
         score: tiles.length - 1,
         details: {
           level: currentLevel,
         },
-      }).then((submittedToDb) => {
-        // Only save to localStorage if NOT logged in (submission failed)
-        if (!submittedToDb) {
-          const savedResults = JSON.parse(localStorage.getItem('chimp-results') || '[]');
-          savedResults.push({
-            level: currentLevel,
-            numbers: tiles.length - 1,
-            timestamp: Date.now(),
-          });
-          localStorage.setItem('chimp-results', JSON.stringify(savedResults.slice(-100)));
-        }
       }).catch(console.error);
 
       return;
@@ -156,6 +172,11 @@ export default function ChimpTest() {
     }
   }, [gameState, nextNumber, tiles.length, currentLevel, generateTiles, setTimeout]);
 
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
+  }, []);
+
   const getRating = (level: number) => {
     if (level >= 10) return t.ratingSuper;
     if (level >= 8) return t.ratingExcellent;
@@ -165,123 +186,144 @@ export default function ChimpTest() {
     return t.ratingNeedsPractice;
   };
 
+  const getVerdictColor = (level: number) => {
+    if (level >= 10) return 'var(--color-success-400)';
+    if (level >= 8) return 'var(--color-success-300)';
+    if (level >= 6) return 'var(--color-brand)';
+    if (level >= 4) return 'var(--color-warning-400)';
+    if (level >= 3) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
+  };
+
   return (
-    <div className="flex min-h-[500px] items-center justify-center py-8">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Main Game Area */}
-        <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 shadow-2xl relative overflow-hidden">
-          {gameState === 'finished' ? (
-            /* Finished State - Display in game area */
-            <div className="min-h-[500px] flex items-center justify-center">
-              <div className="text-center">
-                <div className="mb-4 text-6xl">📊</div>
-                <h3 className="mb-6 text-2xl font-bold text-black">
-                  {t.chimpTestGameOver}
-                </h3>
-
-                <div className="mb-8 grid gap-4 md:grid-cols-2">
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
-                      {t.chimpTestReached}
-                    </div>
-                    <div className="text-4xl font-bold text-primary-600">
-                      Level {currentLevel}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
-                      {t.chimpTestNumbers}
-                    </div>
-                    <div className="text-4xl font-bold text-green-600">
-                      {tiles.length - 1}
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.chimpTestTitle}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右数字板 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {gameState === 'finished' ? currentLevel : <span className="dim">0</span>}
+            </div>
+            <div
+              className="game-verdict"
+              style={{ color: gameState === 'finished' ? getVerdictColor(currentLevel) : 'transparent' }}
+            >
+              {gameState === 'finished' ? getRating(currentLevel) : ''}
+            </div>
+            <div className="game-stats">
+              {gameState === 'finished'
+                ? `${t.chimpTestNumbers} ${tiles.length - 1}`
+                : gameState !== 'idle'
+                ? `Level ${currentLevel}`
+                : ''}
+            </div>
+            {gameState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startGame}>
+                  ↻ {t.srtTryAgain}
                 </button>
               </div>
-            </div>
-          ) : (
-            /* Game State */
-            <>
-              <div
-                onClick={() => {
-                  if (gameState === 'idle') {
-                    startGame();
-                  }
-                }}
-              >
-                {/* Game Content - Fixed height container */}
-                <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
-                  {/* Header */}
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="text-xl font-bold text-black">
-                      Level {currentLevel}
-                    </div>
-                    <div className="text-lg text-gray-600 dark:text-gray-400">
-                      {gameState === 'memorize' && t.chimpTestMemorize}
-                      {gameState === 'recall' && `${t.chimpTestClickNumber} ${nextNumber}`}
-                    </div>
-                    <div className="text-lg text-gray-600 dark:text-gray-400">
-                      {tiles.length} {t.chimpTestNumbers}
-                    </div>
-                  </div>
+            )}
+          </div>
 
-                  {/* Game Board */}
-                  <div className="relative h-96 rounded-xl border-2 border-dashed border-white/60 bg-transparent">
-                    {tiles.map((tile) => (
-                      <button
-                        key={tile.value}
-                        onClick={() => handleTileClick(tile)}
-                        disabled={tile.isClicked || gameState !== 'recall'}
-                        className={`absolute transform -translate-x-1/2 -translate-y-1/2 rounded-lg border-2 font-bold transition-all ${
-                          tile.isClicked
-                            ? 'border-green-500 bg-green-500 text-white opacity-50'
-                            : gameState === 'recall'
-                            ? 'border-primary-500 bg-white text-gray-900 hover:scale-110 active:scale-95 dark:bg-gray-800 dark:text-white'
-                            : 'border-primary-500 bg-primary-500 text-white'
-                        }`}
-                        style={{
-                          left: `${tile.x}%`,
-                          top: `${tile.y}%`,
-                          width: '60px',
-                          height: '60px',
-                          fontSize: '24px',
-                        }}
-                      >
-                        {gameState === 'memorize' || tile.isClicked ? tile.value : '?'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Idle State - Click to Start Overlay */}
-                {gameState === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02]">
-                    <div className="text-center">
-                      <div className="mb-4 text-6xl">📊</div>
-                      <div className="text-2xl font-bold text-black">
-                        {t.clickToStart}
-                      </div>
-                      <div className="mt-2 text-sm text-black">
-                        {t.orPressAnyKeyToStart}
-                      </div>
-                    </div>
-                  </div>
-                )}
+          <div className="game-panel relative">
+            <div className="mb-4 flex w-full items-center justify-between">
+              <div className="text-lg font-bold text-text">Level {currentLevel}</div>
+              <div className="text-sm text-text-secondary">
+                {gameState === 'memorize' && t.chimpTestMemorize}
+                {gameState === 'recall' && `${t.chimpTestClickNumber} ${nextNumber}`}
               </div>
-            </>
-          )}
+              <div className="text-sm text-text-secondary">
+                {tiles.length} {t.chimpTestNumbers}
+              </div>
+            </div>
+
+            <div className="relative h-80 w-full rounded-xl border-2 border-dashed border-white/20">
+              {tiles.map((tile) => (
+                <button
+                  key={tile.value}
+                  onClick={() => handleTileClick(tile)}
+                  disabled={tile.isClicked || gameState !== 'recall'}
+                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 rounded-lg border-2 font-bold transition-all ${
+                    tile.isClicked
+                      ? 'border-emerald-400 bg-emerald-500 text-white opacity-50'
+                      : gameState === 'recall'
+                      ? 'border-cyan-400/60 bg-surface-hover text-gray-100 hover:scale-110 active:scale-95'
+                      : 'border-cyan-400 bg-cyan-500 text-gray-900'
+                  }`}
+                  style={{
+                    left: `${tile.x}%`,
+                    top: `${tile.y}%`,
+                    width: '60px',
+                    height: '60px',
+                    fontSize: '24px',
+                  }}
+                >
+                  {gameState === 'memorize' || tile.isClicked ? tile.value : '?'}
+                </button>
+              ))}
+            </div>
+
+            {gameState === 'idle' && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button className="btn btn-primary" onClick={startGame}>
+                  {t.clickToStart}
+                </button>
+              </div>
+            )}
+            {gameState === 'finished' && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="game-label text-text-tertiary">{t.chimpTestGameOver}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} unit="level" caption={t.chartHigherBetter} />
+            </div>
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.chimpBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.chimpImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Chimp Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Chimp Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the chimp test work?"
@@ -295,8 +337,8 @@ export default function ChimpTest() {
                     <li><strong>Click in ascending order</strong> - Click the squares in numerical order (1, 2, 3, 4...).</li>
                     <li><strong>Progressive difficulty</strong> - Each successful level adds one more number to remember.</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Use spatial grouping! Instead of memorizing individual numbers, group them by location (e.g., "top row: 1-3, bottom row: 4-6"). This leverages your brain's natural ability to remember spatial patterns. The average human can remember 5-9 items (working memory span).</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Use spatial grouping! Instead of memorizing individual numbers, group them by location (e.g., "top row: 1-3, bottom row: 4-6"). This leverages your brain's natural ability to remember spatial patterns. The average human can remember 5-9 items (working memory span).</p>
                   </div>
                 </div>
               }
@@ -309,7 +351,7 @@ export default function ChimpTest() {
                   <p>The original Japanese study found young chimpanzees outperformed humans in this task! Average humans can remember 5-9 numbers in sequence. Your score depends on working memory capacity, age, and practice.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average chimp test levels by age:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average chimp test levels by age:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>18-24 years:</strong> ~7-9 numbers (gamers: 10-12, memory athletes: 14-18)</li>
                       <li>👨 <strong>25-35 years:</strong> ~6-8 numbers (with practice: 9-12)</li>
@@ -324,16 +366,16 @@ export default function ChimpTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
                       <p className="text-sm text-gray-300">Level 12+ - Superior working memory; comparable to trained chimps and memory experts</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
                       <p className="text-sm text-gray-300">Level 9-11 - Above average memory; excellent spatial working memory capacity</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Good (Normal Range)</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
                       <p className="text-sm text-gray-300">Level 6-8 - Healthy working memory; typical for focused adults</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
                       <p className="text-sm text-gray-300">Level 4-5 - Within normal range; may improve with memory techniques</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -354,7 +396,7 @@ export default function ChimpTest() {
                   <p>The Chimp Test measures your <strong>visuospatial working memory</strong> - the ability to temporarily store and manipulate visual and spatial information. It evaluates the brain's working memory capacity, similar to a computer's RAM.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Visuospatial working memory</strong> - Ability to remember object locations and spatial relationships</li>
                       <li><strong>Working memory capacity</strong> - How many items you can hold in conscious awareness (Miller's Law: 7±2)</li>
@@ -366,7 +408,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Age</strong> - Working memory peaks at ~25 years, declines ~5% per decade after</li>
                       <li><strong>Sleep quality</strong> - Poor sleep severely impacts working memory capacity</li>
@@ -378,7 +420,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Why working memory matters:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Why working memory matters:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li>Predicts academic performance (math, reading comprehension, problem-solving)</li>
                       <li>Important for everyday tasks (mental math, following instructions, planning)</li>
@@ -398,7 +440,7 @@ export default function ChimpTest() {
                   <p>Working memory can be significantly improved through targeted training, memory techniques, and lifestyle changes. Here are proven strategies:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🧠 Memory Techniques and Strategies</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🧠 Memory Techniques and Strategies</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Chunking method</strong> - Group numbers into smaller chunks (e.g., quadrants: top-left, top-right, bottom-left, bottom-right)</li>
                       <li><strong>Spatial patterns</strong> - Notice geometric patterns or shapes the numbers form</li>
@@ -410,7 +452,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">💪 Physical and Lifestyle Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">💪 Physical and Lifestyle Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Aerobic exercise</strong> - Cardio 3-5x weekly increases prefrontal cortex activity by 20-30%</li>
                       <li><strong>Get quality sleep</strong> - 7-9 hours; working memory consolidation happens during sleep</li>
@@ -422,7 +464,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Practice Tips for Better Scores</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Practice Tips for Better Scores</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Test when alert</strong> - Morning or early afternoon when focus is highest</li>
                       <li><strong>Minimize distractions</strong> - Quiet room, silence phone, close other browser tabs</li>
@@ -434,7 +476,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎮 Cognitive Training Exercises</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎮 Cognitive Training Exercises</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Dual N-Back training</strong> - Proven to increase working memory by 30-40%</li>
                       <li><strong>Brain training apps</strong> - Lumosity, Peak, Elevate offer working memory exercises</li>
@@ -443,8 +485,8 @@ export default function ChimpTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve by 2-4 numbers (30-50% increase). Memory athletes can reach 15-20+ numbers using advanced techniques. The key is practicing working memory tasks regularly, not just this test.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve by 2-4 numbers (30-50% increase). Memory athletes can reach 15-20+ numbers using advanced techniques. The key is practicing working memory tasks regularly, not just this test.</p>
                   </div>
                 </div>
               }
@@ -457,7 +499,7 @@ export default function ChimpTest() {
                   <p>If you're scoring below 4 numbers, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for low chimp test scores:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for low chimp test scores:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sleep deprivation</strong> - #1 cause; poor sleep reduces working memory by 30-50%</li>
                       <li><strong>High stress and anxiety</strong> - Cortisol impairs prefrontal cortex function</li>
@@ -471,7 +513,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve low scores:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve low scores:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Prioritize sleep</strong> - Get 7-9 hours quality sleep; test after good rest</li>
                       <li><strong>Reduce stress</strong> - Meditation, deep breathing, and relaxation techniques</li>
@@ -484,7 +526,7 @@ export default function ChimpTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Quick improvements to try today:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Quick improvements to try today:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sleep well tonight</strong> - Get 8+ hours and retest tomorrow morning</li>
                       <li><strong>Try chunking</strong> - Group numbers into 2-3 smaller, manageable chunks</li>
@@ -494,8 +536,8 @@ export default function ChimpTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If you consistently score below 3 despite good sleep and practice, consider consulting a healthcare provider. Persistent working memory deficits can indicate ADHD, depression, anxiety disorders, sleep apnea, or other treatable conditions.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Medical Note:</strong> If you consistently score below 3 despite good sleep and practice, consider consulting a healthcare provider. Persistent working memory deficits can indicate ADHD, depression, anxiety disorders, sleep apnea, or other treatable conditions.</p>
                   </div>
                 </div>
               }

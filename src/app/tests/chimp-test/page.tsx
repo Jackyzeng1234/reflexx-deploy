@@ -1,32 +1,35 @@
-'use client';
-
-import { useI18n } from '@/lib/i18n';
+import { Metadata } from 'next';
 import ChimpTest from '@/components/ChimpTest';
-import Head from 'next/head';
+import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
+
+export const metadata: Metadata = {
+  title: 'Chimp Test - Working Memory Challenge | ReflexX',
+  description: 'Test your working memory by clicking numbers in ascending order. Free online chimp test. Compare globally. Try now!',
+  keywords: ['chimp test', 'working memory test', 'memory test', 'number memory', 'cognitive test'],
+  openGraph: {
+    title: 'Chimp Test - Working Memory Challenge | ReflexX',
+    description: 'Test your working memory by clicking numbers in ascending order. Free online chimp test.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://reflexx.uk/tests/chimp-test',
+  },
+};
+
+// 结构化数据 - 用于SEO优化（搜索引擎可见，用户不可见）
+const structuredData = createTestAppStructuredData({
+  name: 'Chimp Test',
+  description: 'Test your working memory by clicking numbers in ascending order. Numbers appear on screen and then hide. Your job is to remember their positions and click them from smallest to largest. Professional-grade tool for measuring working memory.',
+  url: 'https://reflexx.uk/tests/chimp-test',
+  rating: 4.9,
+  ratingCount: 1560,
+});
 
 export default function ChimpTestPage() {
-  const { t } = useI18n();
-
   return (
     <>
-      <Head>
-        <title>Chimp Test - Working Memory Assessment | ReflexX</title>
-        <meta name="description" content="Test your working memory with the Chimp Test. Remember number locations and measure your cognitive ability." />
-        <meta name="keywords" content="chimp test, working memory, memory test, cognitive assessment" />
-        <link rel="canonical" href="https://reflexx.uk/tests/chimp-test" />
-      </Head>
-      <div className="container mx-auto min-h-[600px] px-4 py-4">
-        <div className="mb-4 text-center">
-          <h1 className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-            {t.chimpTestTitle}
-          </h1>
-          <p className="text-lg text-white">
-            {t.chimpTestDesc}
-          </p>
-        </div>
-
-        <ChimpTest />
-      </div>
+      <StructuredData data={structuredData} />
+      <ChimpTest />
     </>
   );
 }

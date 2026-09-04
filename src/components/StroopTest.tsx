@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Palette, BarChart3 } from 'lucide-react';
 
 type TestState = 'idle' | 'playing' | 'finished';
 
@@ -22,6 +24,21 @@ const COLORS = {
 
 const colorKeys = Object.keys(COLORS) as Array<keyof typeof COLORS>;
 
+const HISTORY_KEY = 'stroop-results';
+
+/** 读取本机历史成绩(正确数),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => r.score)
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
+
 export default function StroopTest() {
   const { t, language } = useI18n();
   const [gameState, setGameState] = useState<TestState>('idle');
@@ -33,6 +50,7 @@ export default function StroopTest() {
   const [showWord, setShowWord] = useState(true);
   const [roundResult, setRoundResult] = useState<boolean | null>(null);
   const hasSavedRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const totalRounds = 20;
   const wordDisplayTime = 2000; // 2 seconds per word
@@ -123,7 +141,16 @@ export default function StroopTest() {
         }
         hasSavedRef.current = true;
 
-        // Submit to Supabase and check if user is logged in
+        // 始终写入本机历史(进度曲线),登录用户也保留
+        try {
+          const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+          raw.push({ score: finalScore, averageReactionTime, timestamp: Date.now() });
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+          setHistory(readLocalHistory());
+        } catch (e) {
+          console.error(e);
+        }
+
         submitScore({
           test_type: 'stroop',
           score: finalScore,
@@ -131,17 +158,6 @@ export default function StroopTest() {
             averageReactionTime: averageReactionTime,
             rounds: totalRounds,
           },
-        }).then((submittedToDb) => {
-          // Only save to localStorage if NOT logged in (submission failed)
-          if (!submittedToDb) {
-            const savedResults = JSON.parse(localStorage.getItem('stroop-results') || '[]');
-            savedResults.push({
-              score: finalScore,
-              averageReactionTime: averageReactionTime,
-              timestamp: Date.now(),
-            });
-            localStorage.setItem('stroop-results', JSON.stringify(savedResults.slice(-100)));
-          }
         }).catch(console.error);
       } else {
         const nextTrial = currentTrial + 1;
@@ -153,6 +169,11 @@ export default function StroopTest() {
     }, 500);
   };
 
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
+  }, []);
+
   const getRating = (score: number) => {
     const percentage = (score / totalRounds) * 100;
     if (percentage >= 90) return t.ratingSuper;
@@ -163,154 +184,172 @@ export default function StroopTest() {
     return t.ratingNeedsPractice;
   };
 
+  const getVerdictColor = (score: number) => {
+    const pct = (score / totalRounds) * 100;
+    if (pct >= 90) return 'var(--color-success-400)';
+    if (pct >= 75) return 'var(--color-success-300)';
+    if (pct >= 60) return 'var(--color-brand)';
+    if (pct >= 45) return 'var(--color-warning-400)';
+    if (pct >= 30) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
+  };
+
   const averageReactionTime = reactionTimes.length > 0
     ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
     : 0;
 
   return (
-    <div className="flex min-h-[500px] items-center justify-center py-8">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Main Game Area */}
-        <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 shadow-2xl relative overflow-hidden">
-          {gameState === 'finished' ? (
-            /* Finished State - Display in game area */
-            <div className="min-h-[500px] flex items-center justify-center">
-              <div className="text-center">
-                <div className="mb-4 text-6xl">📊</div>
-                <h3 className="mb-6 text-2xl font-bold text-black">
-                  {t.stroopTestComplete}
-                </h3>
-
-                <div className="mb-8 grid gap-4 md:grid-cols-2">
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600">
-                      {t.stroopTestScore}
-                    </div>
-                    <div className="text-4xl font-bold text-primary-600">
-                      {score}/{totalRounds}
-                    </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      {((score / totalRounds) * 100).toFixed(0)}%
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600">
-                      {t.stroopTestAvgReaction}
-                    </div>
-                    <div className="text-4xl font-bold text-green-600">
-                      {averageReactionTime}
-                    </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      ms
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.stroopTestTitle}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右颜色词 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {gameState === 'finished' ? score : <span className="dim">0</span>}
+              <span className="unit">/{totalRounds}</span>
+            </div>
+            <div
+              className="game-verdict"
+              style={{ color: gameState === 'finished' ? getVerdictColor(score) : 'transparent' }}
+            >
+              {gameState === 'finished' ? getRating(score) : ''}
+            </div>
+            <div className="game-stats">
+              {gameState === 'finished'
+                ? `${t.stroopTestAvgReaction} ${averageReactionTime} ms`
+                : gameState === 'playing'
+                ? `${t.stroopTestScore}: ${score}`
+                : ''}
+            </div>
+            {gameState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startGame}>
+                  ↻ {t.srtTryAgain}
                 </button>
               </div>
-            </div>
-          ) : (
-            /* Game State */
-            <>
-              <div
-                onClick={() => {
-                  if (gameState === 'idle') {
-                    startGame();
-                  }
-                }}
-              >
-                {/* Game Content - Fixed height container */}
-                <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
-                  {/* Header */}
-                  <div className="mb-6 flex items-center justify-between">
-                    <div className="text-xl font-bold text-black">
-                      {t.stroopTestRound} {currentTrial + 1}/{totalRounds}
-                    </div>
-                    <div className="text-lg text-gray-600">
-                      {t.stroopTestScore}: {score}
-                    </div>
-                  </div>
+            )}
+          </div>
 
-                  {/* Word Display */}
-                  <div className="mb-8 flex h-48 items-center justify-center rounded-xl border-2 border-dashed border-white/60 bg-transparent">
-                    {showWord ? (
-                      <div
-                        className="select-none text-7xl font-bold transition-all"
-                        style={{ color: trials[currentTrial]?.color }}
-                      >
-                        {trials[currentTrial]?.word}
-                      </div>
-                    ) : (
-                      <div className="text-center">
-                        {roundResult === true && (
-                          <div className="text-6xl">✓</div>
-                        )}
-                        {roundResult === false && (
-                          <div className="text-6xl">✗</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Color Options */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {colorKeys.map((key) => {
-                      const color = COLORS[key];
-                      const getColorName = () => {
-                        if (language === 'zh') return color.chinese;
-                        if (language === 'es') return color.spanish;
-                        return color.name;
-                      };
-
-                      return (
-                        <button
-                          key={key}
-                          onClick={() => handleColorClick(getColorName())}
-                          disabled={!showWord}
-                          className={`rounded-xl border-2 p-6 font-bold text-2xl transition-all ${
-                            !showWord
-                              ? 'cursor-not-allowed opacity-50'
-                              : 'hover:scale-105 hover:shadow-lg active:scale-95'
-                          }`}
-                          style={{
-                            borderColor: color.hex,
-                            color: color.hex,
-                          }}
-                        >
-                          {getColorName()}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Idle State - Click to Start Overlay */}
-                {gameState === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02]" style={{ marginTop: '-190px' }}>
-                    <div className="text-center">
-                      <div className="mb-4 text-6xl">🎨</div>
-                      <div className="text-2xl font-bold text-black">
-                        {t.clickToStart}
-                      </div>
-                      <div className="mt-2 text-sm text-black">
-                        {t.orPressAnyKeyToStart}
-                      </div>
-                    </div>
-                  </div>
-                )}
+          <div className="game-panel relative">
+            <div className="mb-4 flex w-full items-center justify-between">
+              <div className="text-sm font-semibold text-text-secondary">
+                {t.stroopTestRound} {currentTrial + 1}/{totalRounds}
               </div>
-            </>
-          )}
+              <div className="text-sm text-text-secondary">
+                {t.stroopTestScore}: {score}
+              </div>
+            </div>
+
+            <div className="flex h-40 w-full items-center justify-center rounded-xl border-2 border-dashed border-white/20">
+              {showWord ? (
+                <div
+                  className="select-none text-6xl font-bold transition-all"
+                  style={{ color: trials[currentTrial]?.color }}
+                >
+                  {trials[currentTrial]?.word}
+                </div>
+              ) : (
+                <div className="text-center">
+                  {roundResult === true && (
+                    <div className="text-5xl text-emerald-400">✓</div>
+                  )}
+                  {roundResult === false && (
+                    <div className="text-5xl text-red-400">✗</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="grid w-full grid-cols-2 gap-4">
+              {colorKeys.map((key) => {
+                const color = COLORS[key];
+                const getColorName = () => {
+                  if (language === 'zh') return color.chinese;
+                  if (language === 'es') return color.spanish;
+                  return color.name;
+                };
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleColorClick(getColorName())}
+                    disabled={!showWord}
+                    className={`rounded-xl border-2 p-5 font-bold text-2xl transition-all ${
+                      !showWord
+                        ? 'cursor-not-allowed opacity-50'
+                        : 'hover:scale-105 hover:shadow-lg active:scale-95'
+                    }`}
+                    style={{
+                      borderColor: color.hex,
+                      color: color.hex,
+                    }}
+                  >
+                    {getColorName()}
+                  </button>
+                );
+              })}
+            </div>
+
+            {gameState === 'idle' && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button className="btn btn-primary" onClick={startGame}>
+                  {t.clickToStart}
+                </button>
+              </div>
+            )}
+            {gameState === 'finished' && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="game-label text-text-tertiary">{t.stroopTestComplete}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} unit="pts" caption={t.chartHigherBetter} />
+            </div>
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.stroopBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.stroImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Stroop Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Stroop Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the Stroop test work?"
@@ -324,8 +363,8 @@ export default function StroopTest() {
                     <li><strong>Click the matching color</strong> - Select the color button that matches the font color (not the word text).</li>
                     <li><strong>Complete 20 rounds</strong> - The test includes congruent (matching) and incongruent (conflicting) trials.</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> The Stroop effect causes ~100-200ms slower responses on incongruent trials (when word and color don't match). This measures your cognitive control - the ability to override automatic reading. Average accuracy is 85-95% with reaction times of 600-800ms per trial.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> The Stroop effect causes ~100-200ms slower responses on incongruent trials (when word and color don't match). This measures your cognitive control - the ability to override automatic reading. Average accuracy is 85-95% with reaction times of 600-800ms per trial.</p>
                   </div>
                 </div>
               }
@@ -338,7 +377,7 @@ export default function StroopTest() {
                   <p>A good Stroop test score balances both accuracy (correct responses) and reaction time (speed). Most people score 85-95% accuracy with 600-800ms average reaction time.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average scores by age (20 trials, 60% congruent):</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average scores by age (20 trials, 60% congruent):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>18-24 years:</strong> 90-95% accuracy, ~600ms (gamers: 95%+, ~500ms)</li>
                       <li>👨 <strong>25-35 years:</strong> 88-93% accuracy, ~650ms</li>
@@ -353,16 +392,16 @@ export default function StroopTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
                       <p className="text-sm text-gray-300">95%+ accuracy, sub-600ms - Elite cognitive control; often athletes, gamers, or meditation practitioners</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
                       <p className="text-sm text-gray-300">90-94% accuracy, 600-700ms - Strong inhibitory control and cognitive flexibility</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Good (Normal Range)</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
                       <p className="text-sm text-gray-300">85-89% accuracy, 700-800ms - Healthy cognitive function for focused adults</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
                       <p className="text-sm text-gray-300">80-84% accuracy, 800-900ms - May indicate fatigue, distraction, or need for practice</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -383,7 +422,7 @@ export default function StroopTest() {
                   <p>The Stroop Test measures <strong>inhibitory control</strong> and <strong>cognitive flexibility</strong> - key components of executive function. It evaluates how well your brain can suppress automatic responses and process conflicting information.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Inhibitory control</strong> - Ability to suppress automatic reading response and focus on color</li>
                       <li><strong>Cognitive flexibility</strong> - Mental switching between different rules and task demands</li>
@@ -395,7 +434,7 @@ export default function StroopTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Age</strong> - Executive function peaks at ~25-30, declines gradually after</li>
                       <li><strong>Sleep deprivation</strong> - Reduces inhibitory control by 30-50%</li>
@@ -407,7 +446,7 @@ export default function StroopTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Why Stroop test results matter:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Why Stroop test results matter:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li>Predicts real-world executive function (planning, decision-making, self-control)</li>
                       <li>Used to diagnose ADHD, brain injuries, dementia, and neurological conditions</li>
@@ -427,7 +466,7 @@ export default function StroopTest() {
                   <p>Stroop test performance can be improved through cognitive training, lifestyle optimization, and practice strategies. Here are proven methods:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🧠 Cognitive Training Exercises</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🧠 Cognitive Training Exercises</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Practice this test daily</strong> - 10-15 minutes daily for 2-3 weeks improves accuracy by 10-15%</li>
                       <li><strong>Meditation and mindfulness</strong> - 8 weeks of mindfulness practice reduces Stroop interference by 30-40%</li>
@@ -439,7 +478,7 @@ export default function StroopTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">💪 Physical and Lifestyle Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">💪 Physical and Lifestyle Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Aerobic exercise</strong> - Cardio 3-5x weekly improves executive function by 20-30%</li>
                       <li><strong>Get quality sleep</strong> - 7-9 hours; executive function severely impaired by sleep deprivation</li>
@@ -451,7 +490,7 @@ export default function StroopTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Test-Taking Strategies</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Test-Taking Strategies</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Focus on color only</strong> - Practice ignoring the word text completely</li>
                       <li><strong>Test when alert</strong> - Morning or early afternoon when executive function is highest</li>
@@ -462,8 +501,8 @@ export default function StroopTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve accuracy by 5-10% and reduce reaction time by 50-100ms. Mindfulness meditation practitioners often show the greatest improvements (30-40% reduction in Stroop interference).</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve accuracy by 5-10% and reduce reaction time by 50-100ms. Mindfulness meditation practitioners often show the greatest improvements (30-40% reduction in Stroop interference).</p>
                   </div>
                 </div>
               }
@@ -476,7 +515,7 @@ export default function StroopTest() {
                   <p>If you're scoring below 80% accuracy or have reaction times over 900ms, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for poor Stroop test performance:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for poor Stroop test performance:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sleep deprivation</strong> - #1 cause; severely impairs inhibitory control and executive function</li>
                       <li><strong>High stress and anxiety</strong> - Cortisol reduces prefrontal cortex activity dramatically</li>
@@ -490,7 +529,7 @@ export default function StroopTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve poor Stroop test scores:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve poor Stroop test scores:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Prioritize sleep</strong> - Get 7-9 hours quality sleep; test after good rest</li>
                       <li><strong>Practice mindfulness</strong> - 10-15 minutes daily meditation improves inhibitory control</li>
@@ -503,7 +542,7 @@ export default function StroopTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Quick fixes for immediate improvement:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Quick fixes for immediate improvement:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Get 8 hours sleep</strong> - Retest tomorrow morning after good sleep</li>
                       <li><strong>Do 10 minutes meditation</strong> - Reduces stress and improves focus</li>
@@ -513,8 +552,8 @@ export default function StroopTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If you consistently score below 75% accuracy or have reaction times over 1000ms despite good sleep and practice, consider consulting a healthcare provider. Poor Stroop performance can indicate ADHD, traumatic brain injury, dementia, depression, or other neurological conditions.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Medical Note:</strong> If you consistently score below 75% accuracy or have reaction times over 1000ms despite good sleep and practice, consider consulting a healthcare provider. Poor Stroop performance can indicate ADHD, traumatic brain injury, dementia, depression, or other neurological conditions.</p>
                   </div>
                 </div>
               }

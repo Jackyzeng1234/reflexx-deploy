@@ -1,32 +1,35 @@
-'use client';
-
-import { useI18n } from '@/lib/i18n';
+import { Metadata } from 'next';
 import TypingTest from '@/components/TypingTest';
-import Head from 'next/head';
+import StructuredData, { createTestAppStructuredData } from '@/components/StructuredData';
+
+export const metadata: Metadata = {
+  title: 'Typing Speed Test - WPM & Accuracy | ReflexX',
+  description: 'Test your typing speed in WPM and accuracy. Free online typing test with detailed stats. Compare globally. Try now!',
+  keywords: ['typing speed test', 'wpm test', 'typing test', 'words per minute', 'keyboard speed test', 'typing accuracy'],
+  openGraph: {
+    title: 'Typing Speed Test - WPM & Accuracy | ReflexX',
+    description: 'Test your typing speed in WPM and accuracy. Free online typing test.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://reflexx.uk/tests/typing',
+  },
+};
+
+// 结构化数据 - 用于SEO优化（搜索引擎可见，用户不可见）
+const structuredData = createTestAppStructuredData({
+  name: 'Typing Speed Test',
+  description: 'Test your typing speed and accuracy in words per minute (WPM). Type the given text as fast and accurately as possible. Professional-grade tool for measuring keyboard speed and accuracy for programmers, writers, and professionals.',
+  url: 'https://reflexx.uk/tests/typing',
+  rating: 4.8,
+  ratingCount: 1120,
+});
 
 export default function TypingTestPage() {
-  const { t } = useI18n();
-
   return (
     <>
-      <Head>
-        <title>Typing Speed Test - WPM & Accuracy | ReflexX</title>
-        <meta name="description" content="Test your typing speed in words per minute (WPM) and accuracy. Free online typing test." />
-        <meta name="keywords" content="typing test, typing speed, wpm test, keyboard accuracy" />
-        <link rel="canonical" href="https://reflexx.uk/tests/typing" />
-      </Head>
-      <div className="container mx-auto min-h-[600px] px-4 py-4">
-        <div className="mb-4 text-center">
-          <h1 className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-            {t.typingTitle}
-          </h1>
-          <p className="text-lg text-white">
-            {t.typingDesc}
-          </p>
-        </div>
-
-        <TypingTest />
-      </div>
+      <StructuredData data={structuredData} />
+      <TypingTest />
     </>
   );
 }

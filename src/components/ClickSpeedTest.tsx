@@ -5,8 +5,25 @@ import { useI18n } from '@/lib/i18n';
 import { TestDuration } from '@/types';
 import { submitScore, getBestScore } from '@/lib/scores';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { MousePointerClick, BarChart3, Flag } from 'lucide-react';
 
 type TestState = 'idle' | 'running' | 'finished' | 'cooldown';
+
+const HISTORY_KEY = 'click-speed-results';
+
+/** 读取本机历史成绩(CPS),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => (typeof r.cps === 'number' ? r.cps : r.score))
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
 
 export default function ClickSpeedTest() {
   const { t } = useI18n();
@@ -20,6 +37,7 @@ export default function ClickSpeedTest() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
   const hasSavedRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const durations: TestDuration[] = [1, 5, 10, 30, 60, 100];
 
@@ -29,6 +47,11 @@ export default function ClickSpeedTest() {
       setBestCps(score);
     }
     loadBestScore();
+  }, []);
+
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
   }, []);
 
   const startTest = useCallback(() => {
@@ -83,6 +106,16 @@ export default function ClickSpeedTest() {
 
               const finalCps = parseFloat((currentClicks / selectedDuration).toFixed(2));
 
+              // 始终写入本机历史(进度曲线),登录用户也保留
+              try {
+                const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+                raw.push({ clicks: currentClicks, duration: selectedDuration, cps: finalCps, timestamp: Date.now() });
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+                setHistory(readLocalHistory());
+              } catch (e) {
+                console.error(e);
+              }
+
               submitScore({
                 test_type: 'click-speed',
                 score: finalCps,
@@ -90,17 +123,7 @@ export default function ClickSpeedTest() {
                   clicks: currentClicks,
                   duration: selectedDuration,
                 },
-              }).then(async (submittedToDb) => {
-                if (!submittedToDb) {
-                  const savedResults = JSON.parse(localStorage.getItem('click-speed-results') || '[]');
-                  savedResults.push({
-                    clicks: currentClicks,
-                    duration: selectedDuration,
-                    cps: finalCps,
-                    timestamp: Date.now(),
-                  });
-                  localStorage.setItem('click-speed-results', JSON.stringify(savedResults.slice(-100)));
-                }
+              }).then(async () => {
                 const score = await getBestScore('click-speed');
                 setBestCps(score);
               }).catch(console.error);
@@ -160,39 +183,43 @@ export default function ClickSpeedTest() {
   const finalCps = clicks > 0 ? (clicks / selectedDuration).toFixed(2) : '0.00';
   const getCpsRating = (cps: string) => {
     const num = parseFloat(cps);
-    if (num >= 10) return { text: t.ratingSuper, bg: 'bg-purple-500' };
-    if (num >= 8) return { text: t.ratingExcellent, bg: 'bg-green-500' };
-    if (num >= 6) return { text: t.ratingGreat, bg: 'bg-blue-500' };
-    if (num >= 5) return { text: t.ratingGood, bg: 'bg-yellow-500' };
-    if (num >= 4) return { text: t.ratingAverage, bg: 'bg-orange-500' };
-    return { text: t.ratingNeedsPractice, bg: 'bg-red-500' };
+    if (num >= 10) return { text: t.ratingSuper, cls: 'border-cyan-400/40 text-cyan-300' };
+    if (num >= 8) return { text: t.ratingExcellent, cls: 'border-emerald-400/40 text-emerald-300' };
+    if (num >= 6) return { text: t.ratingGreat, cls: 'border-sky-400/40 text-sky-300' };
+    if (num >= 5) return { text: t.ratingGood, cls: 'border-amber-400/40 text-amber-300' };
+    if (num >= 4) return { text: t.ratingAverage, cls: 'border-orange-400/40 text-orange-300' };
+    return { text: t.ratingNeedsPractice, cls: 'border-red-400/40 text-red-300' };
+  };
+
+  const getVerdictColor = (cps: number) => {
+    if (cps >= 10) return 'var(--color-success-400)';
+    if (cps >= 8) return 'var(--color-success-300)';
+    if (cps >= 6) return 'var(--color-brand)';
+    if (cps >= 5) return 'var(--color-warning-400)';
+    if (cps >= 4) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-white">
-            {t.cstTitle}
-          </h1>
-          <p className="text-lg text-white">
-            Measure how fast you can click!
-          </p>
+        <div className="mb-10">
+          <h1 className="display-title">{t.cstTitle}</h1>
         </div>
 
         {/* Duration Selector */}
-        <div className="mb-8 rounded-2xl border-2 border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <div className="mb-8 rounded-2xl border border-white/10 bg-surface p-6">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             {durations.map((duration) => (
               <button
                 key={duration}
                 onClick={() => setSelectedDuration(duration)}
                 disabled={testState === 'running' || testState === 'cooldown'}
-                className={`rounded-lg border-2 px-4 py-3 font-semibold transition-all ${
+                className={`rounded-lg border px-4 py-3 font-semibold transition-all ${
                   selectedDuration === duration
-                    ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300 hover:bg-primary-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-600 dark:hover:bg-primary-900/10'
+                    ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                    : 'border-white/10 bg-surface-hover text-gray-300 hover:border-cyan-400/40 hover:text-white'
                 } ${
                   testState === 'running' || testState === 'cooldown'
                     ? 'cursor-not-allowed opacity-50'
@@ -205,92 +232,104 @@ export default function ClickSpeedTest() {
           </div>
         </div>
 
-        {/* Click Area */}
-        <div className="mb-8">
-          {testState === 'finished' ? (
-            <div
-              className="relative w-full rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl dark:border-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20"
-              style={{ aspectRatio: '21/9' }}
-            >
-              <div className="flex h-full flex-col items-center justify-center p-8">
-                <div className="w-full px-8 py-6">
-                  <div className="mb-6 text-center">
-                    <div className="mb-3 text-5xl">📊</div>
-                    <h3 className="text-2xl font-bold text-black">{t.cstResults}</h3>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div className="text-center">
-                      <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.cstTotalClicks}</div>
-                      <div className="text-4xl font-bold text-black">{clicks}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.cstAverageCPS}</div>
-                      <div className="text-4xl font-bold text-black">{finalCps}</div>
-                      <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${getCpsRating(finalCps).bg}`}>
-                        {getCpsRating(finalCps).text}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.cstBestRecord}</div>
-                      <div className="text-4xl font-bold text-black">{bestCps !== null ? bestCps.toFixed(2) : '--'}</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={handleClick}
-                      className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                    >
-                      {t.srtTryAgain}
-                    </button>
-                  </div>
-                </div>
-              </div>
+        {/* 游戏区 —— display 变体:左结果 + 右点击区 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {testState === 'finished' ? finalCps : <span className="dim">0.00</span>}
+              <span className="unit">cps</span>
             </div>
-          ) : (
-            <button
-              onClick={handleClick}
-              className={`relative w-full cursor-pointer overflow-hidden rounded-2xl border-2 transition-all ${
-                testState === 'idle'
-                  ? 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 text-black dark:border-primary-700'
-                  : testState === 'running'
-                  ? 'border-green-400 bg-green-500 text-black hover:bg-green-600 active:scale-95'
-                  : 'border-green-400 bg-green-500 text-black'
-              } shadow-xl`}
-              style={{ aspectRatio: '21/9' }}
+            <div
+              className="game-verdict"
+              style={{
+                color: testState === 'finished' ? getVerdictColor(parseFloat(finalCps)) : 'transparent',
+              }}
             >
-              <div className="flex h-full flex-col items-center justify-center text-black">
-                {testState === 'idle' && (
-                  <>
-                    <div className="mb-4 text-7xl">🖱️</div>
-                    <div className="text-3xl font-bold text-black">{t.cstStart}</div>
-                    <div className="mt-2 text-lg opacity-90 text-black">Click or press Space</div>
-                  </>
-                )}
-
-                {testState === 'running' && (
-                  <>
-                    <div className="text-8xl font-bold text-black">{clicks}</div>
-                    <div className="mt-2 text-xl opacity-90 text-black">{t.cstClicks}</div>
-                    <div className="mt-4 text-2xl font-semibold text-black">{timeLeft}s</div>
-                  </>
-                )}
-
-                {testState === 'cooldown' && (
-                  <>
-                    <div className="mb-4 text-6xl">🏁</div>
-                    <div className="text-4xl font-bold text-black">{t.timesUp}</div>
-                  </>
-                )}
+              {testState === 'finished' ? getCpsRating(finalCps).text : ''}
+            </div>
+            <div className="game-stats">
+              {testState === 'finished'
+                ? `${t.cstTotalClicks} ${clicks} · ${t.cstBestRecord} ${bestCps !== null ? bestCps.toFixed(2) : '--'}`
+                : testState === 'running'
+                ? `${t.cstClicks}: ${clicks} · ${timeLeft}s`
+                : ''}
+            </div>
+            {testState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startTest}>
+                  ↻ {t.srtTryAgain}
+                </button>
               </div>
-            </button>
-          )}
+            )}
+          </div>
+
+          <button
+            className="game-surface"
+            data-state={testState === 'running' ? 'ready' : testState === 'cooldown' ? 'waiting' : undefined}
+            onClick={handleClick}
+            aria-label={t.cstTitle}
+          >
+            {testState === 'idle' && (
+              <>
+                <span className="game-label">{t.cstStart}</span>
+                <span className="text-sm opacity-70">Click or press Space</span>
+              </>
+            )}
+            {testState === 'running' && (
+              <>
+                <span className="game-num">{clicks}</span>
+                <span className="game-label">{t.cstClicks}</span>
+                <span className="tabular-nums text-sm opacity-70">{timeLeft}s</span>
+              </>
+            )}
+            {testState === 'cooldown' && <span className="game-label">{t.timesUp}</span>}
+            {testState === 'finished' && (
+              <span className="game-label text-text-tertiary">{t.cstResults}</span>
+            )}
+          </button>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} unit="cps" caption={t.chartHigherBetter} />
+            </div>
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.csBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.csImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Click Speed Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Click Speed Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the click speed test work?"
@@ -304,8 +343,8 @@ export default function ClickSpeedTest() {
                     <li><strong>Track your CPS in real-time</strong> - Monitor your clicks per second (CPS) as you click. The test calculates your average CPS throughout the duration</li>
                     <li><strong>View your results</strong> - See your total clicks, average CPS, rating, and how you compare to your personal best</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Different clicking techniques yield different results. Regular clicking averages 4-6 CPS, butterfly clicking 8-12 CPS, and jitter clicking can reach 10-15+ CPS. Find what works best for you while avoiding strain.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Different clicking techniques yield different results. Regular clicking averages 4-6 CPS, butterfly clicking 8-12 CPS, and jitter clicking can reach 10-15+ CPS. Find what works best for you while avoiding strain.</p>
                   </div>
                 </div>
               }
@@ -318,7 +357,7 @@ export default function ClickSpeedTest() {
                   <p>A good click speed depends on your clicking technique, mouse type, and practice level. Here are the average CPS (clicks per second) benchmarks:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average CPS by clicking style:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average CPS by clicking style:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🖱️ <strong>Regular clicking:</strong> 4-6 CPS - Using one finger to click normally</li>
                       <li>🦋 <strong>Butterfly clicking:</strong> 8-12 CPS - Alternating two fingers on the mouse button</li>
@@ -332,16 +371,16 @@ export default function ClickSpeedTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Elite (Top 1%)</p>
                       <p className="text-sm text-gray-300">12+ CPS - Professional gamer level, exceptional finger speed and control</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 15%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 15%)</p>
                       <p className="text-sm text-gray-300">8-12 CPS - Better than most, competitive gamer level with good technique</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Normal Average</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
                       <p className="text-sm text-gray-300">5-8 CPS - Typical clicking speed for healthy adults using regular technique</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Below Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
                       <p className="text-sm text-gray-300">3-5 CPS - Slower than average, may need practice or better mouse positioning</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -362,7 +401,7 @@ export default function ClickSpeedTest() {
                   <p>The click speed test measures your <strong>finger dexterity</strong>, <strong>hand-eye coordination</strong>, and <strong>fine motor control</strong>. It evaluates how quickly and accurately you can perform repetitive finger movements.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Finger dexterity</strong> - The independence and control of individual fingers, particularly the index finger</li>
                       <li><strong>Neuromuscular efficiency</strong> - How well your nervous system coordinates muscle contractions for rapid movements</li>
@@ -373,7 +412,7 @@ export default function ClickSpeedTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your CPS score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your CPS score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Mouse type and quality</strong> - Gaming mice with optimized switches can improve CPS by 1-2 clicks per second</li>
                       <li><strong>Hand position and grip</strong> - Proper ergonomic positioning reduces fatigue and improves speed</li>
@@ -384,8 +423,8 @@ export default function ClickSpeedTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>🎮 Gaming Relevance:</strong> High click speed is valuable in Minecraft PvP, cookie clicker games, and certain competitive games. However, raw clicking speed is less important than accuracy, strategy, and game sense in most competitive scenarios.</p>
+                  <div className="p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>🎮 Gaming Relevance:</strong> High click speed is valuable in Minecraft PvP, cookie clicker games, and certain competitive games. However, raw clicking speed is less important than accuracy, strategy, and game sense in most competitive scenarios.</p>
                   </div>
                 </div>
               }
@@ -398,7 +437,7 @@ export default function ClickSpeedTest() {
                   <p>Improving click speed requires practice, proper technique, and optimizing your setup. Here's a comprehensive guide to increasing your CPS safely and effectively:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🖱️ Mouse Setup and Ergonomics</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🖱️ Mouse Setup and Ergonomics</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Use a gaming mouse</strong> - Mice with optimized switches (Omron, Kailh) respond faster and last longer</li>
                       <li><strong>Adjust mouse sensitivity</strong> - Higher DPI (800-1600) can help with rapid clicking precision</li>
@@ -410,7 +449,7 @@ export default function ClickSpeedTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">👆 Clicking Techniques to Practice</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">👆 Clicking Techniques to Practice</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Regular clicking</strong> - Master the basics first: 4-6 CPS with one finger, focusing on rhythm</li>
                       <li><strong>Butterfly clicking</strong> - Alternate two fingers on the left mouse button. Can reach 8-12 CPS with practice</li>
@@ -420,7 +459,7 @@ export default function ClickSpeedTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">💪 Training Exercises and Drills</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">💪 Training Exercises and Drills</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Daily CPS tests</strong> - Take 5-10 tests per day at different durations (1s, 5s, 10s) to build consistency</li>
                       <li><strong>Interval training</strong> - Alternate between 5-second burst clicking and 10-second rest periods for 10 rounds</li>
@@ -432,7 +471,7 @@ export default function ClickSpeedTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🏃 Physical Optimization and Health</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🏃 Physical Optimization and Health</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Stretch regularly</strong> - Finger, wrist, and forearm stretches prevent repetitive strain injury (RSI)</li>
                       <li><strong>Stay hydrated</strong> - Dehydration can cause muscle cramps and reduce fine motor control</li>
@@ -443,8 +482,8 @@ export default function ClickSpeedTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With daily practice over 2-3 weeks, most people improve CPS by 1-2 clicks per second (20-30% improvement). Advanced techniques can yield 2-4 CPS improvement. Focus on gradual progress rather than immediate gains to avoid injury.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With daily practice over 2-3 weeks, most people improve CPS by 1-2 clicks per second (20-30% improvement). Advanced techniques can yield 2-4 CPS improvement. Focus on gradual progress rather than immediate gains to avoid injury.</p>
                   </div>
                 </div>
               }
@@ -457,7 +496,7 @@ export default function ClickSpeedTest() {
                   <p>If your click speed is below 4 CPS, there might be specific reasons affecting your performance. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for slow click speed:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for slow click speed:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Poor mouse quality</strong> - Worn-out switches, dirty sensors, or cheap mice can reduce responsiveness significantly</li>
                       <li><strong>Incorrect hand position</strong> - Gripping the mouse too tightly or awkward positioning slows finger movement</li>
@@ -471,7 +510,7 @@ export default function ClickSpeedTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to fix slow click speed:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to fix slow click speed:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Upgrade your mouse</strong> - Gaming mice with faster switches (1-2ms response) can improve CPS by 0.5-1</li>
                       <li><strong>Practice daily</strong> - Consistent short practice sessions (5-10 minutes) build muscle memory faster than marathon sessions</li>
@@ -484,8 +523,8 @@ export default function ClickSpeedTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Health Warning:</strong> Stop clicking immediately if you feel pain, numbness, or tingling in your fingers, wrist, or forearm. These are symptoms of Repetitive Strain Injury (RSI). Pushing through pain can cause permanent damage. Always prioritize health over CPS scores. If symptoms persist, consult a medical professional.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Health Warning:</strong> Stop clicking immediately if you feel pain, numbness, or tingling in your fingers, wrist, or forearm. These are symptoms of Repetitive Strain Injury (RSI). Pushing through pain can cause permanent damage. Always prioritize health over CPS scores. If symptoms persist, consult a medical professional.</p>
                   </div>
                 </div>
               }

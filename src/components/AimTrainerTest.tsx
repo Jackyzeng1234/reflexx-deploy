@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore, getBestScore } from '@/lib/scores';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Crosshair, BarChart3 } from 'lucide-react';
 
 type TestState = 'idle' | 'playing' | 'finished';
 
@@ -12,6 +14,21 @@ interface Target {
   x: number;
   y: number;
   spawnTime: number;
+}
+
+const HISTORY_KEY = 'aim-trainer-results';
+
+/** 读取本机历史成绩(平均反应 ms),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => (typeof r.avgReaction === 'number' ? r.avgReaction : r.score))
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
 }
 
 export default function AimTrainerTest() {
@@ -29,6 +46,7 @@ export default function AimTrainerTest() {
   const hasSavedRef = useRef(false);
   const targetIdCounter = useRef(0);
   const processingClickRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const GAME_DURATION = 20;
   const TARGET_RADIUS = 25;
@@ -41,6 +59,11 @@ export default function AimTrainerTest() {
       setBestOverallReaction(scoreData);
     }
     loadBestScore();
+  }, []);
+
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
   }, []);
 
   // 生成随机目标位置
@@ -168,6 +191,16 @@ export default function AimTrainerTest() {
 
     // 只有在有有效点击时才提交分数
     if (reactionTimes.length > 0 && avgReaction > 0) {
+      // 始终写入本机历史(进度曲线),登录用户也保留
+      try {
+        const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        raw.push({ avgReaction, bestReaction, timestamp: Date.now() });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+        setHistory(readLocalHistory());
+      } catch (e) {
+        console.error(e);
+      }
+
       submitScore({
         test_type: 'aim-trainer',
         score: avgReaction,
@@ -175,16 +208,6 @@ export default function AimTrainerTest() {
           bestReaction,
           duration: GAME_DURATION,
         },
-      }).then(async (submittedToDb) => {
-        if (!submittedToDb) {
-          const savedResults = JSON.parse(localStorage.getItem('aim-trainer-results') || '[]');
-          savedResults.push({
-            avgReaction,
-            bestReaction,
-            timestamp: Date.now(),
-          });
-          localStorage.setItem('aim-trainer-results', JSON.stringify(savedResults.slice(-100)));
-        }
       }).catch(console.error);
     }
   }, [avgReaction, bestReaction, reactionTimes]);
@@ -216,52 +239,81 @@ export default function AimTrainerTest() {
     return 'text-red-600 bg-red-50 dark:bg-red-900/20';
   };
 
+  const getVerdictColor = (ms: number) => {
+    if (ms < 200) return 'var(--color-success-400)';
+    if (ms < 250) return 'var(--color-success-300)';
+    if (ms < 300) return 'var(--color-brand)';
+    if (ms < 350) return 'var(--color-warning-400)';
+    if (ms < 400) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-white">
-            {t.aimTrainerTitle}
-          </h1>
-          <p className="text-lg text-white">
-            {t.aimTrainerDesc}
-          </p>
+        <div className="mb-10">
+          <h1 className="display-title">{t.aimTrainerTitle}</h1>
         </div>
 
-        {/* 游戏区域 */}
-        <div className="mb-6">
-          {/* 游戏画布 */}
+        {/* 游戏区 —— display 变体:左结果 + 右瞄准靶 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {testState === 'finished' && reactionTimes.length > 0 ? avgReaction : <span className="dim">000</span>}
+              <span className="unit">ms</span>
+            </div>
+            <div
+              className="game-verdict"
+              style={{
+                color:
+                  testState === 'finished' && reactionTimes.length > 0
+                    ? getVerdictColor(avgReaction)
+                    : 'transparent',
+              }}
+            >
+              {testState === 'finished' && reactionTimes.length > 0 ? getRating(avgReaction) : ''}
+            </div>
+            <div className="game-stats">
+              {testState === 'finished'
+                ? reactionTimes.length > 0
+                  ? `${t.srtBest} ${bestReaction} ms`
+                  : t.statsNeedMoreData
+                : testState === 'playing'
+                ? `${timeLeft}s`
+                : ''}
+            </div>
+            {testState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startGame}>
+                  ↻ {t.aimTrainerTryAgain}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 瞄准画布 */}
           <div
             ref={gameAreaRef}
             onClick={handleClick}
-            className="relative cursor-pointer overflow-hidden rounded-2xl border-2 border-white/40 bg-white/70 backdrop-blur-md shadow-xl"
-            style={{ height: '500px' }}
+            className="relative w-full cursor-pointer overflow-hidden rounded-2xl border border-border bg-surface"
+            style={{ aspectRatio: '4 / 3' }}
           >
-            {/* 游戏进行中的时间显示 */}
             {testState === 'playing' && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-                <div className="text-4xl font-bold text-black">
-                  {timeLeft}
-                </div>
+              <div className="absolute top-3 left-1/2 z-10 -translate-x-1/2">
+                <div className="tabular-nums text-4xl font-bold text-text">{timeLeft}</div>
               </div>
             )}
-            {/* 空闲状态 */}
+
             {testState === 'idle' && (
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
-                  <div className="mb-4 text-6xl">🎯</div>
-                  <div className="mb-2 text-2xl font-bold text-black">
-                    {t.aimTrainerTitle}
-                  </div>
-                  <div className="mb-4 text-lg text-black">
-                    {t.aimTrainerClickToStart}
-                  </div>
+                  <div className="mb-3 flex justify-center"><Crosshair className="h-14 w-14 text-cyan-300" /></div>
+                  <div className="text-lg font-bold text-text">{t.aimTrainerClickToStart}</div>
                 </div>
               </div>
             )}
 
-            {/* 游戏进行中 - 单个目标 */}
             {testState === 'playing' && target && (
               <div
                 key={target.id}
@@ -272,110 +324,78 @@ export default function AimTrainerTest() {
                   transform: 'translate(-50%, -50%)',
                 }}
               >
-                {/* 最外圈 - 白色 */}
                 <div
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white shadow-xl"
-                  style={{
-                    width: TARGET_RADIUS * 2.2,
-                    height: TARGET_RADIUS * 2.2,
-                  }}
+                  style={{ width: TARGET_RADIUS * 2.2, height: TARGET_RADIUS * 2.2 }}
                 />
-                {/* 第二圈 - 红色 */}
                 <div
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-red-500 to-red-600 shadow-lg"
-                  style={{
-                    width: TARGET_RADIUS * 2,
-                    height: TARGET_RADIUS * 2,
-                  }}
+                  style={{ width: TARGET_RADIUS * 2, height: TARGET_RADIUS * 2 }}
                 />
-                {/* 第三圈 - 白色 */}
                 <div
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-md"
-                  style={{
-                    width: TARGET_RADIUS * 1.4,
-                    height: TARGET_RADIUS * 1.4,
-                  }}
+                  style={{ width: TARGET_RADIUS * 1.4, height: TARGET_RADIUS * 1.4 }}
                 />
-                {/* 第四圈 - 红色 */}
                 <div
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-red-500 to-red-700"
-                  style={{
-                    width: TARGET_RADIUS * 0.9,
-                    height: TARGET_RADIUS * 0.9,
-                  }}
+                  style={{ width: TARGET_RADIUS * 0.9, height: TARGET_RADIUS * 0.9 }}
                 />
-                {/* 靶心 - 白色 */}
                 <div
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-sm"
-                  style={{
-                    width: TARGET_RADIUS * 0.4,
-                    height: TARGET_RADIUS * 0.4,
-                  }}
+                  style={{ width: TARGET_RADIUS * 0.4, height: TARGET_RADIUS * 0.4 }}
                 />
               </div>
             )}
 
-            {/* 结束状态 */}
             {testState === 'finished' && (
-              <div className="w-full px-8 py-6">
-                <div className="mb-6 text-center">
-                  <div className="mb-3 text-5xl">📊</div>
-                  <h3 className="text-2xl font-bold text-black">
-                    {t.aimTrainerResults}
-                  </h3>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="text-center">
-                    <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.aimTrainerAvgReaction || 'Average Reaction'}</div>
-                    <div className="text-4xl font-bold text-black">
-                      {reactionTimes.length > 0 ? (
-                        <>{avgReaction}<span className="text-2xl">ms</span></>
-                      ) : (
-                        <span className="text-2xl">No hits</span>
-                      )}
-                    </div>
-                    {reactionTimes.length > 0 && (
-                      <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${
-                        avgReaction < 200 ? 'bg-purple-500' :
-                        avgReaction < 250 ? 'bg-green-500' :
-                        avgReaction < 300 ? 'bg-blue-500' :
-                        avgReaction < 350 ? 'bg-yellow-500' :
-                        avgReaction < 400 ? 'bg-orange-500' :
-                        'bg-red-500'
-                      }`}>
-                        {getRating(avgReaction)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtBest}</div>
-                    <div className="text-4xl font-bold text-black">
-                      {reactionTimes.length > 0 ? (
-                        <>{bestReaction}<span className="text-2xl">ms</span></>
-                      ) : (
-                        <span className="text-2xl">--</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={startGame}
-                    className="rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                  >
-                    {t.aimTrainerTryAgain}
-                  </button>
-                </div>
+              <div className="flex h-full items-center justify-center">
+                <span className="game-label text-text-tertiary">{t.aimTrainerResults}</span>
               </div>
             )}
           </div>
         </div>
 
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} />
+            </div>
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.aimBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.aimImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Aim Trainer</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Aim Trainer</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the aim trainer test work?"
@@ -389,8 +409,8 @@ export default function AimTrainerTest() {
                     <li><strong>Track your reaction time</strong> - Each target's lifetime is measured from appearance to your click. Faster clicks = better score</li>
                     <li><strong>View your results</strong> - See your average reaction time, best click, and rating. Lower times are better!</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Aim for the center of the target. The test measures reaction to target appearance, not just clicking accuracy. Focus on speed while maintaining reasonable accuracy - don't sacrifice speed for perfect precision.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Aim for the center of the target. The test measures reaction to target appearance, not just clicking accuracy. Focus on speed while maintaining reasonable accuracy - don't sacrifice speed for perfect precision.</p>
                   </div>
                 </div>
               }
@@ -403,7 +423,7 @@ export default function AimTrainerTest() {
                   <p>A good aim trainer score depends on your experience, gaming background, and practice level. Here are average reaction time benchmarks for target acquisition:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average reaction times by experience level:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average reaction times by experience level:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>Professional gamers:</strong> 180-220ms - Elite level, years of competitive gaming experience</li>
                       <li>👾 <strong>Regular gamers:</strong> 220-280ms - Above average, frequent gaming (10+ hours/week)</li>
@@ -417,16 +437,16 @@ export default function AimTrainerTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Elite (Top 5%)</p>
                       <p className="text-sm text-gray-300">Below 200ms - Professional esports level, exceptional aiming ability</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
                       <p className="text-sm text-gray-300">200-250ms - Competitive gamer level, excellent hand-eye coordination</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Normal Average</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
                       <p className="text-sm text-gray-300">250-350ms - Typical reaction time for healthy adults with some gaming experience</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Below Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
                       <p className="text-sm text-gray-300">350-400ms - Slower than average, may need practice or better focus</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -447,7 +467,7 @@ export default function AimTrainerTest() {
                   <p>The aim trainer test measures your <strong>visual-motor reaction time</strong>, <strong>spatial awareness</strong>, and <strong>target acquisition speed</strong>. It evaluates how quickly your brain processes visual information and coordinates precise motor responses.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Visual processing speed</strong> - How fast you detect and recognize targets in your visual field</li>
                       <li><strong>Peripheral vision awareness</strong> - Your ability to spot targets appearing anywhere on screen</li>
@@ -459,7 +479,7 @@ export default function AimTrainerTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your aim trainer score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your aim trainer score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Gaming experience</strong> - FPS and MOBA players typically score 50-100ms faster than non-gamers</li>
                       <li><strong>Mouse sensitivity and DPI</strong> - Proper settings improve precision and speed by 10-15%</li>
@@ -470,8 +490,8 @@ export default function AimTrainerTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>🎮 Gaming Applications:</strong> Aim trainer skills directly transfer to FPS games (CS:GO, Valorant, Overwatch), battle royales, and even sports performance. Professional esports teams use aim trainers daily as part of their training routine.</p>
+                  <div className="p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>🎮 Gaming Applications:</strong> Aim trainer skills directly transfer to FPS games (CS:GO, Valorant, Overwatch), battle royales, and even sports performance. Professional esports teams use aim trainers daily as part of their training routine.</p>
                   </div>
                 </div>
               }
@@ -484,7 +504,7 @@ export default function AimTrainerTest() {
                   <p>Improving your aim trainer score requires dedicated practice, proper setup optimization, and targeted training routines. Here's a comprehensive guide to boosting your aiming performance:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🖱️ Hardware and Settings Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🖱️ Hardware and Settings Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Use a gaming mouse</strong> - Sensors with lower latency and higher DPI (800-1600) improve precision</li>
                       <li><strong>Optimize mouse sensitivity</strong> - Lower sensitivity (400-800 eDPI) allows for more precise aiming</li>
@@ -496,7 +516,7 @@ export default function AimTrainerTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Training Routines and Drills</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Training Routines and Drills</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Daily aim practice</strong> - 15-30 minutes of aim training builds consistency and muscle memory</li>
                       <li><strong>Warm-up routine</strong> - 5-10 minutes before gaming sessions improves in-game performance</li>
@@ -508,7 +528,7 @@ export default function AimTrainerTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">👆 Aiming Techniques to Master</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">👆 Aiming Techniques to Master</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Flick shooting</strong> - Quick, sharp movements to snap onto targets. Essential for fast-paced games</li>
                       <li><strong>Tracking</strong> - Smoothly following moving targets. Important for projectile weapons and tracking enemies</li>
@@ -519,7 +539,7 @@ export default function AimTrainerTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🏃 Physical and Mental Preparation</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🏃 Physical and Mental Preparation</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Proper posture</strong> - Sit upright, monitor at eye level, arm at 90-degree angle</li>
                       <li><strong>Arm vs wrist aiming</strong> - Find your style: arm for precision, wrist for speed, hybrid for balance</li>
@@ -530,8 +550,8 @@ export default function AimTrainerTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With 15-20 minutes of daily practice, most people improve by 30-50ms (10-15% improvement) in 2-3 weeks. Consistent practice over 2-3 months can yield 50-80ms improvement, moving you from average to above-average performance levels.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With 15-20 minutes of daily practice, most people improve by 30-50ms (10-15% improvement) in 2-3 weeks. Consistent practice over 2-3 months can yield 50-80ms improvement, moving you from average to above-average performance levels.</p>
                   </div>
                 </div>
               }
@@ -544,7 +564,7 @@ export default function AimTrainerTest() {
                   <p>If your aim trainer score is above 350ms, there might be specific reasons affecting your performance. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for low aim trainer scores:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for low aim trainer scores:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Lack of gaming experience</strong> - Non-gamers typically score 50-100ms slower than regular gamers</li>
                       <li><strong>Improper mouse settings</strong> - Sensitivity too high or low affects precision and reaction speed</li>
@@ -558,7 +578,7 @@ export default function AimTrainerTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve your aim trainer score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve your aim trainer score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Practice daily</strong> - Consistent 15-20 minute sessions build muscle memory faster than occasional marathon sessions</li>
                       <li><strong>Optimize your setup</strong> - Adjust mouse DPI, get a 144Hz+ monitor, use proper gaming mouse and mousepad</li>
@@ -571,8 +591,8 @@ export default function AimTrainerTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Important Note:</strong> Aim trainer scores improve significantly with practice but have natural limits. Don't obsess over achieving pro-level times if you're a casual gamer. Focus on gradual improvement and consistency rather than comparing to elite players. Most importantly, have fun while training!</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Important Note:</strong> Aim trainer scores improve significantly with practice but have natural limits. Don't obsess over achieving pro-level times if you're a casual gamer. Focus on gradual improvement and consistency rather than comparing to elite players. Most importantly, have fun while training!</p>
                   </div>
                 </div>
               }
@@ -582,7 +602,7 @@ export default function AimTrainerTest() {
 
         {/* 最佳成绩 */}
         {bestOverallReaction !== null && (
-          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-6 text-center text-sm text-gray-400">
             {t.aimTrainerBestScore || 'Best'}: {bestOverallReaction}ms
           </div>
         )}

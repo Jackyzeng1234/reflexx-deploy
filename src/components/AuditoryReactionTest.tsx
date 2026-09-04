@@ -5,8 +5,25 @@ import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Volume2, Ear, AlertTriangle, BarChart3 } from 'lucide-react';
 
 type TestState = 'idle' | 'waiting' | 'ready' | 'too-early' | 'finished';
+
+const HISTORY_KEY = 'auditory-reaction-results';
+
+/** 读取本机历史成绩(ms),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => (typeof r.average === 'number' ? r.average : r.times?.[0]))
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
 
 export default function AuditoryReactionTest() {
   const { t } = useI18n();
@@ -19,6 +36,7 @@ export default function AuditoryReactionTest() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const [totalRounds] = useState(5);
   const hasSavedRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const playTone = useCallback(async () => {
     try {
@@ -143,7 +161,16 @@ export default function AuditoryReactionTest() {
         }
         hasSavedRef.current = true;
 
-        // Submit to Supabase and check if user is logged in
+        // 始终写入本机历史(进度曲线),登录用户也保留
+        try {
+          const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+          raw.push({ times: newTimes, average, timestamp: Date.now() });
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+          setHistory(readLocalHistory());
+        } catch (e) {
+          console.error(e);
+        }
+
         submitScore({
           test_type: 'auditory-reaction',
           score: average,
@@ -151,17 +178,6 @@ export default function AuditoryReactionTest() {
             times: newTimes,
             rounds: totalRounds,
           },
-        }).then((submittedToDb) => {
-          // Only save to localStorage if NOT logged in (submission failed)
-          if (!submittedToDb) {
-            const savedResults = JSON.parse(localStorage.getItem('auditory-reaction-results') || '[]');
-            savedResults.push({
-              times: newTimes,
-              average: average,
-              timestamp: Date.now(),
-            });
-            localStorage.setItem('auditory-reaction-results', JSON.stringify(savedResults.slice(-100)));
-          }
         }).catch(console.error);
       } else {
         setTestState('waiting');
@@ -200,6 +216,11 @@ export default function AuditoryReactionTest() {
     };
   }, []);
 
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
+  }, []);
+
   const averageTime =
     reactionTimes.length > 0
       ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
@@ -216,96 +237,107 @@ export default function AuditoryReactionTest() {
     return t.ratingNeedsPractice;
   };
 
+  const getVerdictColor = (ms: number) => {
+    if (ms < 300) return 'var(--color-success-400)';
+    if (ms < 400) return 'var(--color-success-300)';
+    if (ms < 500) return 'var(--color-brand)';
+    if (ms < 600) return 'var(--color-warning-400)';
+    if (ms < 700) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
+  };
+
+  const surfaceLabel =
+    testState === 'idle' ? t.clickToStart
+    : testState === 'waiting' ? t.auditoryReactionWait
+    : testState === 'ready' ? t.auditoryReactionClickNow
+    : testState === 'too-early' ? t.auditoryReactionTooEarly
+    : t.srtTryAgain;
+
   return (
-    <div className="flex min-h-[500px] items-center justify-center">
-      <div className="w-full max-w-5xl">
-        {/* Main Test Area */}
-        <div
-          onClick={handleClick}
-          className={`relative mb-8 flex aspect-[21/9] cursor-pointer items-center justify-center rounded-2xl border-4 transition-all ${
-            testState === 'finished'
-              ? 'border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 dark:border-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20'
-              : 'border-primary-300 bg-gradient-to-br from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 dark:border-primary-700'
-          }`}
-        >
-          {testState === 'idle' && (
-            <div className="text-center text-black">
-              <div className="mb-6 text-8xl">🔊</div>
-              <div className="text-4xl font-bold text-black">{t.auditoryReactionTitle}</div>
-              <div className="mt-4 text-xl opacity-90 text-black">{t.auditoryReactionInstruction1}</div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.auditoryReactionTitle}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右方形靶 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {testState === 'finished' ? averageTime : <span className="dim">000</span>}
+              <span className="unit">ms</span>
             </div>
-          )}
-
-          {testState === 'waiting' && (
-            <div className="text-center text-black">
-              <div className="mb-6 text-8xl">👂</div>
-              <div className="text-4xl font-bold text-black">
-                {t.auditoryReactionWait}
-              </div>
-              <div className="mt-4 text-xl opacity-90 text-black">
-                {t.srtAverage} {currentRound + 1} / {totalRounds}
-              </div>
+            <div
+              className="game-verdict"
+              style={{ color: testState === 'finished' ? getVerdictColor(averageTime) : 'transparent' }}
+            >
+              {testState === 'finished' ? getRating(averageTime) : ''}
             </div>
-          )}
-
-          {testState === 'ready' && (
-            <div className="text-center text-black">
-              <div className="mb-6 text-9xl animate-pulse">🔊</div>
-              <div className="text-5xl font-bold text-black">{t.auditoryReactionClickNow}</div>
+            <div className="game-stats">
+              {testState === 'finished'
+                ? `${t.srtBest} ${bestTime} ms · ${t.srtAverage} ${averageTime} ms`
+                : `${currentRound + 1} / ${totalRounds}`}
             </div>
-          )}
-
-          {testState === 'too-early' && (
-            <div className="text-center text-black">
-              <div className="mb-6 text-8xl">⚠️</div>
-              <div className="text-4xl font-bold text-black">{t.auditoryReactionTooEarly}</div>
-              <div className="mt-4 text-xl text-black">{t.srtTryAgain}</div>
-            </div>
-          )}
-
-          {testState === 'finished' && (
-            <div className="w-full px-8 py-6">
-              <div className="mb-6 text-center text-black">
-                <div className="mb-3 text-5xl">📊</div>
-                <h3 className="text-2xl font-bold text-black">{t.auditoryReactionResults}</h3>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="text-center">
-                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtAverage}</div>
-                  <div className="text-4xl font-bold text-black">{averageTime}<span className="text-2xl">ms</span></div>
-                  <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${
-                    averageTime < 300 ? 'bg-purple-500' :
-                    averageTime < 400 ? 'bg-green-500' :
-                    averageTime < 500 ? 'bg-blue-500' :
-                    averageTime < 600 ? 'bg-yellow-500' :
-                    averageTime < 700 ? 'bg-orange-500' :
-                    'bg-red-500'
-                  }`}>
-                    {getRating(averageTime)}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-sm text-gray-600 dark:text-gray-400">{t.srtBest}</div>
-                  <div className="text-4xl font-bold text-black">{bestTime}<span className="text-2xl">ms</span></div>
-                </div>
-              </div>
-
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleClick}
-                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
+            {testState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={() => startTest()}>
+                  ↻ {t.srtTryAgain}
                 </button>
               </div>
+            )}
+          </div>
+
+          <button
+            className="game-surface"
+            data-state={testState}
+            onClick={handleClick}
+            aria-label={surfaceLabel}
+          >
+            <span className="game-label">{surfaceLabel}</span>
+          </button>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} />
             </div>
-          )}
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.artBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.artImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Auditory Reaction Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Auditory Reaction Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the auditory reaction test work?"
@@ -319,8 +351,8 @@ export default function AuditoryReactionTest() {
                     <li><strong>Click or press any key when you hear the sound</strong> - React as fast as possible when you hear the tone</li>
                     <li><strong>Complete 5 rounds</strong> - The test measures 5 reaction attempts to calculate your average auditory reaction time</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Auditory reaction times are typically 20-50ms slower than visual reaction times due to longer neural pathways. This is normal! For best results, take the test in a quiet environment with good audio quality.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Auditory reaction times are typically 20-50ms slower than visual reaction times due to longer neural pathways. This is normal! For best results, take the test in a quiet environment with good audio quality.</p>
                   </div>
                 </div>
               }
@@ -333,7 +365,7 @@ export default function AuditoryReactionTest() {
                   <p>A good auditory reaction time depends on your age, hearing ability, and focus. Here are the average auditory reaction time benchmarks:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average auditory reaction times by age (in milliseconds):</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average auditory reaction times by age (in milliseconds):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎵 <strong>18-24 years:</strong> ~250ms (men: ~240ms, women: ~260ms)</li>
                       <li>👨 <strong>25-35 years:</strong> ~270ms (men: ~260ms, women: ~280ms)</li>
@@ -348,16 +380,16 @@ export default function AuditoryReactionTest() {
                       <p className="text-purple-300 font-semibold mb-1">🔥 Elite (Top 5%)</p>
                       <p className="text-sm text-gray-300">Below 220ms - Exceptional auditory processing, professional musician or athlete level</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
                       <p className="text-sm text-gray-300">220-280ms - Better than most, excellent auditory-motor coordination</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Normal Average</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
                       <p className="text-sm text-gray-300">280-350ms - Typical auditory reaction time for healthy adults</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Below Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
                       <p className="text-sm text-gray-300">350-400ms - Slower than average, may need focus practice or hearing check</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -378,7 +410,7 @@ export default function AuditoryReactionTest() {
                   <p>This auditory reaction test measures your <strong>auditory processing speed</strong>, <strong>neural transmission efficiency</strong>, and <strong>auditory-motor coordination</strong>. It evaluates how fast your brain processes sound information and initiates physical responses.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Auditory processing speed</strong> - How fast your ears detect sound and your auditory cortex processes it</li>
                       <li><strong>Neural pathway efficiency</strong> - Signal transmission from auditory nerve to brain and motor cortex</li>
@@ -389,7 +421,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Difference from visual reaction time:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Difference from visual reaction time:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Longer neural pathway</strong> - Sound travels through more brain regions before reaching motor cortex (+20-50ms)</li>
                       <li><strong>Auditory vs visual processing</strong> - Different brain areas process sound vs light, affecting speed</li>
@@ -399,7 +431,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your auditory reaction score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your auditory reaction score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Age and hearing</strong> - Natural hearing decline slows auditory processing by 1-2ms per year</li>
                       <li><strong>Audio quality and volume</strong> - Poor audio or low volume adds 20-40ms to reaction time</li>
@@ -409,8 +441,8 @@ export default function AuditoryReactionTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>🎵 Musical Applications:</strong> Fast auditory reaction is crucial for musicians, especially rhythm sections, conductors, and performers. It's also valuable for athletes responding to starting guns, coaches' whistles, and game sounds. Professional musicians often have elite-level auditory reaction times.</p>
+                  <div className="p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>🎵 Musical Applications:</strong> Fast auditory reaction is crucial for musicians, especially rhythm sections, conductors, and performers. It's also valuable for athletes responding to starting guns, coaches' whistles, and game sounds. Professional musicians often have elite-level auditory reaction times.</p>
                   </div>
                 </div>
               }
@@ -423,7 +455,7 @@ export default function AuditoryReactionTest() {
                   <p>Improving auditory reaction time requires specific training exercises that challenge your auditory processing speed and coordination. Here's a comprehensive guide:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎵 Musical and Rhythm Training</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎵 Musical and Rhythm Training</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Learn an instrument</strong> - Playing instruments improves auditory-motor coordination significantly</li>
                       <li><strong>Rhythm games</strong> - Games like Guitar Hero, Beat Saber, or rhythm trainers improve sound reaction</li>
@@ -434,7 +466,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Auditory Reaction Drills</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Auditory Reaction Drills</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Daily sound reaction tests</strong> - Take this test 2-3 times per day to build consistency</li>
                       <li><strong>Audio cue training</strong> - Have a friend make random sounds and react as fast as possible</li>
@@ -445,7 +477,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🏃 Sports and Physical Training</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🏃 Sports and Physical Training</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sprint starts</strong> - Practice reacting to starting guns or whistle commands</li>
                       <li><strong>Ball sports drills</strong> - React to audio cues while catching or hitting balls</li>
@@ -456,7 +488,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🧠 Cognitive and Mental Exercises</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🧠 Cognitive and Mental Exercises</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Auditory attention training</strong> - Focus exercises that enhance sound discrimination</li>
                       <li><strong>Dichotic listening</strong> - Practice processing different sounds in each ear simultaneously</li>
@@ -467,7 +499,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🔊 Environment and Equipment Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🔊 Environment and Equipment Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Quality headphones or speakers</strong> - Better audio quality improves sound detection speed</li>
                       <li><strong>Optimal volume</strong> - Loud enough to hear clearly, not so loud it causes discomfort or delay</li>
@@ -477,8 +509,8 @@ export default function AuditoryReactionTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 3-4 weeks, most people improve auditory reaction time by 20-40ms (8-12% improvement). Musicians may see 30-50ms improvement. Professional athletes and musicians can achieve sub-220ms times with dedicated training.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With consistent practice over 3-4 weeks, most people improve auditory reaction time by 20-40ms (8-12% improvement). Musicians may see 30-50ms improvement. Professional athletes and musicians can achieve sub-220ms times with dedicated training.</p>
                   </div>
                 </div>
               }
@@ -491,7 +523,7 @@ export default function AuditoryReactionTest() {
                   <p>If your auditory reaction time is above 400ms, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for slow auditory reaction time:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for slow auditory reaction time:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Poor audio quality</strong> - Low volume, distorted audio, or poor headphones add 30-50ms</li>
                       <li><strong>Hearing issues</strong> - Even mild hearing loss can slow auditory processing significantly</li>
@@ -505,7 +537,7 @@ export default function AuditoryReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve slow auditory reaction time:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve slow auditory reaction time:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Get a hearing test</strong> - Rule out hearing loss or issues that could be affecting your performance</li>
                       <li><strong>Improve audio setup</strong> - Use quality headphones, good volume, and quiet environment</li>
@@ -518,8 +550,8 @@ export default function AuditoryReactionTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If your auditory reaction time is consistently over 450ms and you have concerns about your hearing, consider consulting an audiologist. Sudden changes in hearing or reaction time could indicate medical issues requiring professional evaluation.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Medical Note:</strong> If your auditory reaction time is consistently over 450ms and you have concerns about your hearing, consider consulting an audiologist. Sudden changes in hearing or reaction time could indicate medical issues requiring professional evaluation.</p>
                   </div>
                 </div>
               }

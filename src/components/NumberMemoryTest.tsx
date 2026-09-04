@@ -5,8 +5,25 @@ import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Hash, BarChart3 } from 'lucide-react';
 
 type TestState = 'idle' | 'showing' | 'input' | 'finished';
+
+const HISTORY_KEY = 'number-memory-results';
+
+/** 读取本机历史成绩(记住的位数),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => r.digits)
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
 
 export default function NumberMemoryTest() {
   const { t } = useI18n();
@@ -17,6 +34,7 @@ export default function NumberMemoryTest() {
   const [currentLevel, setCurrentLevel] = useState(3); // Start with 3 digits
   const [displayTime, setDisplayTime] = useState(3000); // 3 seconds initially
   const hasSavedRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const generateNumber = useCallback((digits: number) => {
     let num = '';
@@ -64,22 +82,21 @@ export default function NumberMemoryTest() {
       }
       hasSavedRef.current = true;
 
-      // Submit to Supabase and check if user is logged in
+      // 始终写入本机历史(进度曲线),登录用户也保留
       const digits = currentLevel - 1;
+      try {
+        const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        raw.push({ digits, timestamp: Date.now() });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+        setHistory(readLocalHistory());
+      } catch (e) {
+        console.error(e);
+      }
+
       submitScore({
         test_type: 'number-memory',
         score: digits,
         details: {},
-      }).then((submittedToDb) => {
-        // Only save to localStorage if NOT logged in (submission failed)
-        if (!submittedToDb) {
-          const savedResults = JSON.parse(localStorage.getItem('number-memory-results') || '[]');
-          savedResults.push({
-            digits: digits,
-            timestamp: Date.now(),
-          });
-          localStorage.setItem('number-memory-results', JSON.stringify(savedResults.slice(-100)));
-        }
       }).catch(console.error);
 
       return;
@@ -102,6 +119,11 @@ export default function NumberMemoryTest() {
     }, newDisplayTime);
   }, [currentNumber, userInput, currentLevel, generateNumber, setTimeout]);
 
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
+  }, []);
+
   const getRating = (digits: number) => {
     if (digits >= 12) return t.ratingSuper;
     if (digits >= 10) return t.ratingExcellent;
@@ -109,6 +131,15 @@ export default function NumberMemoryTest() {
     if (digits >= 6) return t.ratingGood;
     if (digits >= 5) return t.ratingAverage;
     return t.ratingNeedsPractice;
+  };
+
+  const getVerdictColor = (digits: number) => {
+    if (digits >= 12) return 'var(--color-success-400)';
+    if (digits >= 10) return 'var(--color-success-300)';
+    if (digits >= 8) return 'var(--color-brand)';
+    if (digits >= 6) return 'var(--color-warning-400)';
+    if (digits >= 5) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,174 +155,162 @@ export default function NumberMemoryTest() {
   };
 
   return (
-    <div className="flex min-h-[500px] items-center justify-center py-8">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Main Game Area */}
-        <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 shadow-2xl relative overflow-hidden">
-          {gameState === 'finished' ? (
-            /* Finished State - Display in game area */
-            <div className="min-h-[500px] flex items-center justify-center">
-              <div className="text-center">
-                <div className="mb-4 text-6xl">📊</div>
-                <h3 className="mb-6 text-2xl font-bold text-black">
-                  {t.numberMemoryWrong}
-                </h3>
-
-                <div className="mb-8 grid gap-4 md:grid-cols-3">
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600">
-                      {t.numberMemoryCorrectAnswer}
-                    </div>
-                    <div className="text-3xl font-bold text-green-600 tracking-widest">
-                      {currentNumber}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600">
-                      {t.numberMemoryYourAnswer}
-                    </div>
-                    <div className="text-3xl font-bold text-red-600 tracking-widest">
-                      {userInput || t.numberMemoryNoAnswer}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="mb-2 text-sm text-gray-600">
-                      {t.numberMemoryReached}
-                    </div>
-                    <div className="text-3xl font-bold text-primary-600">
-                      {currentLevel - 1}
-                    </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      {t.numberMemoryDigits}
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={startGame}
-                  className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                >
-                  {t.srtTryAgain}
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.numberMemoryTitle}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右数字记忆 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {gameState === 'finished' ? currentLevel - 1 : <span className="dim">0</span>}
+              <span className="unit">{t.numberMemoryDigits}</span>
+            </div>
+            <div
+              className="game-verdict"
+              style={{ color: gameState === 'finished' ? getVerdictColor(currentLevel - 1) : 'transparent' }}
+            >
+              {gameState === 'finished' ? getRating(currentLevel - 1) : ''}
+            </div>
+            <div className="game-stats">
+              {gameState !== 'idle' && gameState !== 'finished'
+                ? `${t.numberMemoryLevel} ${currentLevel}`
+                : ''}
+            </div>
+            {gameState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startGame}>
+                  ↻ {t.srtTryAgain}
                 </button>
               </div>
+            )}
+          </div>
+
+          <div className="game-panel min-h-[320px]">
+            <div className="text-center">
+              <div className="text-lg font-semibold text-text-secondary">
+                {t.numberMemoryLevel} {currentLevel} · {currentNumber.length} {t.numberMemoryDigits}
+              </div>
             </div>
-          ) : (
-            /* Game State */
-            <>
-              <div
-                onClick={() => {
-                  if (gameState === 'idle') {
-                    startGame();
-                  }
-                }}
-              >
-                {/* Game Content - Fixed height container */}
-                <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
-                  {/* Header */}
-                  <div className="mb-6 text-center">
-                    <div className="text-xl font-bold text-black">
-                      {t.numberMemoryLevel} {currentLevel}
-                    </div>
-                    <div className="text-lg text-gray-600">
-                      {currentNumber.length} {t.numberMemoryDigits}
-                    </div>
+
+            {gameState === 'idle' && (
+              <button className="btn btn-primary" onClick={startGame}>
+                {t.clickToStart}
+              </button>
+            )}
+
+            {gameState === 'showing' && (
+              <>
+                <div className="flex h-40 w-full items-center justify-center rounded-xl border-2 border-dashed border-white/20">
+                  <div className="tabular-nums break-all px-4 text-center text-4xl font-bold tracking-widest text-cyan-300 sm:text-5xl">
+                    {currentNumber}
                   </div>
-
-                  {/* Showing Number State */}
-                  {gameState === 'showing' && (
-                    <>
-                      {/* Number Display */}
-                      <div className="mb-8 flex h-64 items-center justify-center rounded-xl border-2 border-dashed border-white/60 bg-transparent">
-                        <div className="animate-pulse">
-                          <div className="text-8xl font-bold text-primary-600 tracking-widest">
-                            {currentNumber}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Timer Bar */}
-                      <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className="h-full bg-primary-600 transition-all ease-linear"
-                          style={{
-                            width: '100%',
-                            animation: 'shrink linear forwards',
-                            animationDuration: `${displayTime}ms`,
-                          }}
-                        />
-                      </div>
-
-                      <style jsx>{`
-                        @keyframes shrink {
-                          from { width: 100%; }
-                          to { width: 0%; }
-                        }
-                      `}</style>
-                    </>
-                  )}
-
-                  {/* Input State */}
-                  {gameState === 'input' && (
-                    <>
-                      {/* Input Area */}
-                      <div className="mb-16">
-                        <input
-                          type="text"
-                          value={userInput}
-                          onChange={handleInputChange}
-                          onKeyDown={handleKeyDown}
-                          autoFocus
-                          maxLength={currentLevel}
-                          placeholder={t.numberMemoryInputPlaceholder}
-                          className="w-full rounded-xl border-2 border-dashed border-white/60 bg-transparent p-6 text-center text-6xl font-bold tracking-widest text-black focus:border-white/80 focus:outline-none"
-                          inputMode="numeric"
-                          autoComplete="off"
-                        />
-                      </div>
-
-                      {/* Submit Button */}
-                      <button
-                        onClick={handleSubmit}
-                        disabled={userInput.length === 0}
-                        className={`w-full rounded-lg px-6 py-4 font-semibold text-white text-xl shadow-lg transition-all ${
-                          userInput.length === 0
-                            ? 'cursor-not-allowed bg-gray-400'
-                            : 'bg-primary-600 hover:bg-primary-700 hover:shadow-xl'
-                        }`}
-                      >
-                        {t.numberMemorySubmit}
-                      </button>
-
-                      {/* Hint */}
-                      <div className="mt-4 text-center text-sm text-gray-600">
-                        {t.numberMemoryHint}
-                      </div>
-                    </>
-                  )}
                 </div>
 
-                {/* Idle State - Click to Start Overlay */}
-                {gameState === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02]">
-                    <div className="text-center">
-                      <div className="mb-4 text-6xl">🔢</div>
-                      <div className="text-2xl font-bold text-black">
-                        {t.clickToStart}
-                      </div>
-                      <div className="mt-2 text-sm text-black">
-                        {t.orPressAnyKeyToStart}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full bg-cyan-400 transition-all ease-linear"
+                    style={{
+                      width: '100%',
+                      animation: 'shrink linear forwards',
+                      animationDuration: `${displayTime}ms`,
+                    }}
+                  />
+                </div>
+
+                <style jsx>{`
+                  @keyframes shrink {
+                    from { width: 100%; }
+                    to { width: 0%; }
+                  }
+                `}</style>
+              </>
+            )}
+
+            {gameState === 'input' && (
+              <>
+                <input
+                  type="text"
+                  value={userInput}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                  maxLength={currentLevel}
+                  placeholder={t.numberMemoryInputPlaceholder}
+                  className="w-full rounded-xl border-2 border-dashed border-white/20 bg-transparent p-4 text-center text-3xl font-bold tracking-widest text-text focus:border-cyan-400/60 focus:outline-none sm:text-4xl"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={userInput.length === 0}
+                  className="btn btn-primary w-full"
+                >
+                  {t.numberMemorySubmit}
+                </button>
+
+                <div className="text-center text-sm text-text-tertiary">
+                  {t.numberMemoryHint}
+                </div>
+              </>
+            )}
+
+            {gameState === 'finished' && (
+              <div className="text-center">
+                <div className="game-label text-text-tertiary">{t.numberMemoryWrong}</div>
+                <div className="mt-3 text-sm text-text-secondary">
+                  {t.numberMemoryCorrectAnswer}:{' '}
+                  <span className="tabular-nums font-semibold text-text">{currentNumber}</span>
+                </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} unit="digits" caption={t.chartHigherBetter} />
+            </div>
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.nmBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.nmImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Number Memory Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Number Memory Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the number memory test work?"
@@ -305,8 +324,8 @@ export default function NumberMemoryTest() {
                     <li><strong>Enter the number</strong> - Type the exact number you saw, digit by digit.</li>
                     <li><strong>Progressive difficulty</strong> - Correct answers advance to longer numbers; one mistake ends the test.</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Use chunking! Group digits into smaller chunks (e.g., phone number format: 123-456-7890). The average person can remember 5-9 digits. Display time decreases as levels increase, making it progressively harder.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Use chunking! Group digits into smaller chunks (e.g., phone number format: 123-456-7890). The average person can remember 5-9 digits. Display time decreases as levels increase, making it progressively harder.</p>
                   </div>
                 </div>
               }
@@ -319,7 +338,7 @@ export default function NumberMemoryTest() {
                   <p>The average digit span for adults is 5-9 numbers. Your score represents the longest number of digits you successfully remembered. Memory athletes can achieve 50-100+ digits using advanced techniques.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average number memory levels by age:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average number memory levels by age:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>18-24 years:</strong> ~7-9 digits (gamers: 10-12, memory athletes: 20-50+)</li>
                       <li>👨 <strong>25-35 years:</strong> ~6-8 digits (with practice: 9-12)</li>
@@ -334,16 +353,16 @@ export default function NumberMemoryTest() {
                       <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
                       <p className="text-sm text-gray-300">12+ digits - Superior digit span; often uses memory techniques or has exceptional natural ability</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
                       <p className="text-sm text-gray-300">9-11 digits - Above average short-term memory capacity</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Good (Normal Range)</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
                       <p className="text-sm text-gray-300">6-8 digits - Healthy short-term memory; typical for well-rested, focused adults</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
                       <p className="text-sm text-gray-300">4-5 digits - Within normal range; may improve with practice and better sleep</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -364,7 +383,7 @@ export default function NumberMemoryTest() {
                   <p>The number memory test measures your <strong>digit span</strong> - the capacity of your short-term or working memory for numerical information. It's one of the most widely used cognitive tests in psychology.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Short-term memory capacity</strong> - How many digits you can hold in conscious awareness</li>
                       <li><strong>Working memory span</strong> - Ability to maintain and manipulate information temporarily</li>
@@ -376,7 +395,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Age</strong> - Working memory peaks at ~25 years, declines gradually after</li>
                       <li><strong>Sleep quality</strong> - Memory consolidation and recall depend on good sleep</li>
@@ -388,7 +407,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Why digit span matters:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Why digit span matters:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li>Predicts academic performance (math, reading comprehension, learning ability)</li>
                       <li>Important for daily tasks (phone numbers, PINs, calculations)</li>
@@ -408,7 +427,7 @@ export default function NumberMemoryTest() {
                   <p>Number memory can be dramatically improved through memory techniques and practice. Here are proven strategies:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🧠 Memory Techniques (Proven Methods)</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🧠 Memory Techniques (Proven Methods)</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Chunking strategy</strong> - Break numbers into smaller groups (e.g., 123-456-7890 instead of 1234567890)</li>
                       <li><strong>Practice daily</strong> - 10-15 minutes daily for 2-3 weeks can improve digit span by 2-4</li>
@@ -420,7 +439,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">💪 Physical and Lifestyle Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">💪 Physical and Lifestyle Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Get quality sleep</strong> - 7-9 hours; critical for memory consolidation</li>
                       <li><strong>Aerobic exercise</strong> - Cardio 3-5x weekly increases memory capacity by 20-30%</li>
@@ -432,7 +451,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Practice Tips for Better Scores</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Practice Tips for Better Scores</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Start with chunking</strong> - Group digits in 2s, 3s, or 4s (123-456-7890)</li>
                       <li><strong>Test when alert</strong> - Morning or early afternoon when memory is sharpest</li>
@@ -443,7 +462,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">📚 Advanced Memory Training</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">📚 Advanced Memory Training</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Learn the Major System</strong> - Converts numbers to memorable letters/images</li>
                       <li><strong>Memory palace training</strong> - Ancient technique used by memory champions</li>
@@ -452,8 +471,8 @@ export default function NumberMemoryTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve digit span by 2-4 digits (30-50% increase). Memory athletes using advanced techniques can achieve 50-100+ digits. The key is learning memory systems, not just rote repetition.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With consistent practice over 4-6 weeks, most people improve digit span by 2-4 digits (30-50% increase). Memory athletes using advanced techniques can achieve 50-100+ digits. The key is learning memory systems, not just rote repetition.</p>
                   </div>
                 </div>
               }
@@ -466,7 +485,7 @@ export default function NumberMemoryTest() {
                   <p>If you're struggling to remember more than 4 digits, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for poor number memory:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for poor number memory:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Sleep deprivation</strong> - #1 cause of poor memory; severely impacts recall</li>
                       <li><strong>Stress and anxiety</strong> - Impair attention and memory encoding</li>
@@ -480,7 +499,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve poor number memory:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve poor number memory:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Prioritize sleep</strong> - Get 7-9 hours quality sleep; test after good rest</li>
                       <li><strong>Learn chunking</strong> - Break numbers into smaller, manageable groups</li>
@@ -493,7 +512,7 @@ export default function NumberMemoryTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Quick improvements to try today:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Quick improvements to try today:</h4>
                     <li><strong>Get 8 hours sleep</strong> - Retest tomorrow morning after good sleep</li>
                     <li><strong>Use chunking</strong> - Group digits into 2s or 3s (12-34-56-78-90)</li>
                     <li><strong>Do 10 minutes meditation</strong> - Reduces stress and improves focus</li>
@@ -501,8 +520,8 @@ export default function NumberMemoryTest() {
                     <li><strong>Eliminate distractions</strong> - Test in a completely quiet environment</li>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If you consistently score below 3 digits despite good sleep and practice, consider consulting a healthcare provider. Extremely low digit span can indicate ADHD, depression, anxiety disorders, or other cognitive conditions that may be treatable.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Medical Note:</strong> If you consistently score below 3 digits despite good sleep and practice, consider consulting a healthcare provider. Extremely low digit span can indicate ADHD, depression, anxiety disorders, or other cognitive conditions that may be treatable.</p>
                   </div>
                 </div>
               }

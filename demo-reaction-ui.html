@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReflexX — Reaction Test UI Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #121826;
+    --surface-hover: #1a2130;
+    --border: rgba(148, 163, 184, 0.16);
+    --text: #e6edf7;
+    --text-2: #94a3b8;
+    --cyan: #22d3ee;
+    --emerald: #34d399;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --radius: 16px;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(to right, rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(34, 211, 238, 0.16), transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(52, 211, 153, 0.10), transparent 50%);
+  }
+
+  .shell { width: 100%; max-width: 720px; position: relative; z-index: 1; }
+
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .badge {
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px;
+  }
+
+  #surface {
+    width: 100%;
+    height: min(480px, 55vh);
+    min-height: 380px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: rgba(18, 24, 38, 0.7);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    transition: none;
+  }
+  #surface:focus-visible {
+    box-shadow: 0 0 0 2px var(--cyan), 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+  #surface[data-state="waiting"] { background: linear-gradient(180deg, rgba(248, 113, 113, 0.10), rgba(18, 24, 38, 0.72)); border-color: rgba(248, 113, 113, 0.30); }
+  #surface[data-state="ready"]   { background: linear-gradient(180deg, rgba(52, 211, 153, 0.16), rgba(18, 24, 38, 0.72)); border-color: rgba(52, 211, 153, 0.55); }
+  #surface[data-state="early"]   { background: linear-gradient(180deg, rgba(251, 191, 36, 0.12), rgba(18, 24, 38, 0.72)); border-color: rgba(251, 191, 36, 0.42); }
+
+  #circle {
+    width: 200px; height: 200px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    background: rgba(34, 211, 238, 0.08);
+    transition: transform 0.15s var(--ease);
+  }
+  #surface:active #circle { transform: scale(0.96); }
+  #surface[data-state="waiting"] #circle { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.50); }
+  #surface[data-state="ready"]   #circle { background: rgba(52, 211, 153, 0.20); border-color: rgba(52, 211, 153, 0.80); box-shadow: 0 0 60px rgba(52, 211, 153, 0.35); }
+  #surface[data-state="early"]   #circle { background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.55); }
+
+  #symbol { font-size: 44px; line-height: 1; user-select: none; }
+  #label {
+    font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-2); user-select: none;
+  }
+  #surface[data-state="waiting"] #label { color: var(--red); }
+  #surface[data-state="ready"]   #label { color: var(--emerald); }
+  #surface[data-state="early"]   #label { color: var(--amber); }
+
+  .result { text-align: center; margin-top: 26px; min-height: 96px; }
+  #result {
+    font-size: 64px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  #result .ms { font-size: 22px; font-weight: 600; color: var(--text-2); margin-left: 8px; letter-spacing: 0; }
+  #verdict { margin-top: 6px; font-size: 14px; font-weight: 600; }
+  #stats { margin-top: 4px; font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .dim { color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  .controls { display: flex; gap: 12px; justify-content: center; margin-top: 22px; }
+  .btn {
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 11px 20px; border-radius: 10px; cursor: pointer;
+    color: var(--text); background: transparent; border: 1px solid var(--border);
+    transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+  .btn:hover { border-color: rgba(34, 211, 238, 0.4); background: var(--surface-hover); }
+  .btn:active { transform: scale(0.96); }
+  .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--cyan), var(--emerald));
+    color: #0a0e17; border: none;
+  }
+  .btn.primary:hover { background: linear-gradient(135deg, #2ee0f7, #45e0a5); }
+
+  .hint { margin-top: 26px; text-align: center; font-size: 12px; color: var(--text-2); letter-spacing: 0.02em; }
+  kbd {
+    font-family: inherit; font-size: 12px; color: var(--text);
+    border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; padding: 2px 7px;
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="header">
+      <div class="title">Simple Reaction</div>
+      <div class="badge">easy</div>
+    </div>
+
+    <button id="surface" data-state="idle" aria-label="Click anywhere to start">
+      <div id="circle">
+        <span id="symbol">▶</span>
+        <span id="label">Click anywhere to start</span>
+      </div>
+    </button>
+
+    <div class="result" role="status" aria-live="polite">
+      <div id="result"><span class="dim">—</span><span class="ms">ms</span></div>
+      <div id="verdict"></div>
+      <div id="stats"></div>
+    </div>
+
+    <div class="controls">
+      <button id="retry" class="btn primary">↻ Try again</button>
+      <button id="save" class="btn">Save score</button>
+    </div>
+
+    <p class="hint">Click the area or press <kbd>Space</kbd> to react — the green flash is instant, no animation to blur your time.</p>
+  </div>
+
+<script>
+  const surface = document.getElementById('surface');
+  const symbol = document.getElementById('symbol');
+  const label = document.getElementById('label');
+  const result = document.getElementById('result');
+  const verdict = document.getElementById('verdict');
+  const stats = document.getElementById('stats');
+  const retryBtn = document.getElementById('retry');
+  const saveBtn = document.getElementById('save');
+
+  const symbols = { idle: '▶', waiting: '⏳', ready: '👆', early: '⚠', finished: '🎯' };
+  const labels = {
+    idle: 'Click anywhere to start',
+    waiting: 'Wait for green…',
+    ready: 'Click now!',
+    early: 'Too early — wait for green',
+    finished: 'Tap to try again'
+  };
+
+  let state = 'idle';
+  let armedAt = 0;
+  let timer = null;
+  let earlyTimer = null;
+  const scores = [];
+
+  function setState(s) {
+    state = s;
+    surface.dataset.state = s;
+    symbol.textContent = symbols[s];
+    label.textContent = labels[s];
+    surface.setAttribute('aria-label', labels[s]);
+  }
+
+  function arm() {
+    setState('waiting');
+    const delay = 1000 + Math.random() * 3000;
+    timer = setTimeout(() => {
+      setState('ready');
+      armedAt = performance.now();
+    }, delay);
+  }
+
+  function verdictFor(ms) {
+    if (ms < 200) return { word: 'Fast', color: 'var(--emerald)' };
+    if (ms <= 320) return { word: 'Average', color: 'var(--cyan)' };
+    return { word: 'Slow', color: 'var(--amber)' };
+  }
+
+  function finish(ms) {
+    const rounded = Math.round(ms);
+    scores.push(rounded);
+    setState('finished');
+    result.innerHTML = rounded + '<span class="ms">ms</span>';
+    const v = verdictFor(rounded);
+    verdict.textContent = v.word;
+    verdict.style.color = v.color;
+    const best = Math.min.apply(null, scores);
+    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    stats.textContent = scores.length > 1 ? 'Best ' + best + ' ms · Avg ' + avg + ' ms' : 'Best ' + best + ' ms';
+  }
+
+  function reset() {
+    clearTimeout(timer); clearTimeout(earlyTimer);
+    setState('idle');
+    result.innerHTML = '<span class="dim">—</span><span class="ms">ms</span>';
+    verdict.textContent = '';
+    stats.textContent = '';
+  }
+
+  function react() {
+    if (state === 'idle') { arm(); return; }
+    if (state === 'waiting') {
+      clearTimeout(timer);
+      setState('early');
+      earlyTimer = setTimeout(arm, 900);
+      return;
+    }
+    if (state === 'ready') {
+      finish(performance.now() - armedAt);
+      return;
+    }
+    if (state === 'early') { return; }
+    if (state === 'finished') { arm(); return; }
+  }
+
+  surface.addEventListener('pointerdown', (e) => { e.preventDefault(); react(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.code !== 'Space' && e.code !== 'Enter') return;
+    if (e.target === retryBtn || e.target === saveBtn) return;
+    e.preventDefault();
+    react();
+  });
+
+  retryBtn.addEventListener('click', reset);
+  saveBtn.addEventListener('click', () => {
+    const t = saveBtn.textContent;
+    saveBtn.textContent = 'Saved ✓';
+    setTimeout(() => (saveBtn.textContent = t), 1200);
+  });
+</script>
+</body>
+</html>

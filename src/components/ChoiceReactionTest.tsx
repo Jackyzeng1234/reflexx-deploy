@@ -5,6 +5,8 @@ import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
+import ReactionChart from '@/components/ReactionChart';
+import { Gamepad2, Timer, BarChart3 } from 'lucide-react';
 
 type GameState = 'idle' | 'waiting' | 'ready' | 'finished';
 type TargetKey = 'arrow-left' | 'arrow-up' | 'arrow-down' | 'arrow-right';
@@ -29,6 +31,21 @@ const keyMap: { [key: string]: TargetKey } = {
   'ArrowRight': 'arrow-right',
 };
 
+const HISTORY_KEY = 'choice-reaction-results';
+
+/** 读取本机历史成绩(ms),按时间升序 */
+function readLocalHistory(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return raw
+      .sort((a: any, b: any) => (a.timestamp || 0) - (b.timestamp || 0))
+      .map((r: any) => (typeof r.average === 'number' ? r.average : r.times?.[0]))
+      .filter((n: any) => typeof n === 'number');
+  } catch {
+    return [];
+  }
+}
+
 export default function ChoiceReactionTest() {
   const { t } = useI18n();
   const { setTimeout, clearTimeout } = useTimeout();
@@ -39,6 +56,7 @@ export default function ChoiceReactionTest() {
   const [startTime, setStartTime] = useState<number>(0);
   const [totalRounds] = useState(10);
   const hasSavedRef = useRef(false);
+  const [history, setHistory] = useState<number[]>([]);
 
   const getRandomTarget = useCallback(() => {
     return targets[Math.floor(Math.random() * targets.length)];
@@ -83,7 +101,16 @@ export default function ChoiceReactionTest() {
       }
       hasSavedRef.current = true;
 
-      // Submit to Supabase and check if user is logged in
+      // 始终写入本机历史(进度曲线),登录用户也保留
+      try {
+        const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        raw.push({ times: reactionTimes, average, timestamp: Date.now() });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(raw.slice(-100)));
+        setHistory(readLocalHistory());
+      } catch (e) {
+        console.error(e);
+      }
+
       submitScore({
         test_type: 'choice-reaction',
         score: average,
@@ -91,17 +118,6 @@ export default function ChoiceReactionTest() {
           times: reactionTimes,
           rounds: totalRounds,
         },
-      }).then((submittedToDb) => {
-        // Only save to localStorage if NOT logged in (submission failed)
-        if (!submittedToDb) {
-          const savedResults = JSON.parse(localStorage.getItem('choice-reaction-results') || '[]');
-          savedResults.push({
-            times: reactionTimes,
-            average: average,
-            timestamp: Date.now(),
-          });
-          localStorage.setItem('choice-reaction-results', JSON.stringify(savedResults.slice(-100)));
-        }
       }).catch(console.error);
     } else {
       setGameState('waiting');
@@ -145,6 +161,11 @@ export default function ChoiceReactionTest() {
     }
   }, [gameState, currentTarget, startTime, reactionTimes, nextRound]);
 
+  // 加载本机历史(进度曲线)
+  useEffect(() => {
+    setHistory(readLocalHistory());
+  }, []);
+
   const getRating = (avgTime: number) => {
     if (avgTime < 400) return t.ratingSuper;
     if (avgTime < 500) return t.ratingExcellent;
@@ -154,6 +175,15 @@ export default function ChoiceReactionTest() {
     return t.ratingNeedsPractice;
   };
 
+  const getVerdictColor = (ms: number) => {
+    if (ms < 400) return 'var(--color-success-400)';
+    if (ms < 500) return 'var(--color-success-300)';
+    if (ms < 600) return 'var(--color-brand)';
+    if (ms < 700) return 'var(--color-warning-400)';
+    if (ms < 800) return 'var(--color-warning-500)';
+    return 'var(--color-danger-400)';
+  };
+
   const averageTime = reactionTimes.length > 0
     ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
     : 0;
@@ -161,109 +191,115 @@ export default function ChoiceReactionTest() {
   const bestTime = reactionTimes.length > 0 ? Math.round(Math.min(...reactionTimes)) : 0;
 
   return (
-    <div className="flex min-h-[500px] items-center justify-center py-8">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Main Game Area */}
-        <div className="rounded-3xl border-2 border-white/40 bg-white/70 backdrop-blur-md p-8 shadow-2xl relative overflow-hidden">
-          {/* Game Content - Fixed height container */}
-          <div className={`min-h-[500px] ${gameState === 'idle' ? 'pointer-events-none' : ''}`}>
-            {/* Waiting State */}
-            {gameState === 'waiting' && (
-              <div className="flex h-full min-h-[500px] items-center justify-center">
-                <div className="text-center">
-                  <div className="mb-8 text-7xl">⏳</div>
-                  <p className="text-2xl font-bold text-black">
-                    {t.getReady}
-                  </p>
-                  <p className="mt-4 text-lg text-gray-600">
-                    Round {currentRound + 1} / {totalRounds}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Ready State */}
-            {gameState === 'ready' && currentTarget && (
-              <div className="flex h-full min-h-[500px] items-center justify-center">
-                <div className="text-center">
-                  <div className="mb-8 flex h-48 w-48 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-700 text-9xl shadow-2xl">
-                    {currentTarget.icon}
-                  </div>
-                  <p className="text-2xl font-bold text-black">
-                    {t.pressArrow.replace('{direction}', currentTarget.label)}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Finished State */}
-            {gameState === 'finished' && reactionTimes.length > 0 && (
-              <div className="flex h-full min-h-[500px] items-center justify-center">
-                <div className="w-full px-8 py-6">
-                  <div className="mb-6 text-center">
-                    <div className="mb-3 text-5xl">📊</div>
-                    <h3 className="text-2xl font-bold text-black">{t.srtResults}</h3>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="text-center">
-                      <div className="mb-1 text-sm text-gray-600">{t.srtAverage}</div>
-                      <div className="text-4xl font-bold text-black">{averageTime}<span className="text-2xl">ms</span></div>
-                      <div className={`mt-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-black ${
-                        averageTime < 400 ? 'bg-purple-500' :
-                        averageTime < 500 ? 'bg-green-500' :
-                        averageTime < 600 ? 'bg-blue-500' :
-                        averageTime < 700 ? 'bg-yellow-500' :
-                        averageTime < 800 ? 'bg-orange-500' :
-                        'bg-red-500'
-                      }`}>
-                        {getRating(averageTime)}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="mb-1 text-sm text-gray-600">{t.srtBest}</div>
-                      <div className="text-4xl font-bold text-black">{bestTime}<span className="text-2xl">ms</span></div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        startGame();
-                      }}
-                      className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 px-8 py-4 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:opacity-90"
-                    >
-                      {t.srtTryAgain}
-                    </button>
-                  </div>
-                </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="display-title">{t.choiceReaction}</h1>
+        </div>
+        {/* 游戏区 —— display 变体:左结果 + 右方向靶 */}
+        <div className="game-shell">
+          <div className="min-w-0">
+            <div className="game-num">
+              {gameState === 'finished' ? averageTime : <span className="dim">000</span>}
+              <span className="unit">ms</span>
+            </div>
+            <div
+              className="game-verdict"
+              style={{ color: gameState === 'finished' ? getVerdictColor(averageTime) : 'transparent' }}
+            >
+              {gameState === 'finished' ? getRating(averageTime) : ''}
+            </div>
+            <div className="game-stats">
+              {gameState === 'finished'
+                ? `${t.srtBest} ${bestTime} ms · ${t.srtAverage} ${averageTime} ms`
+                : `${currentRound + 1} / ${totalRounds}`}
+            </div>
+            {gameState === 'finished' && (
+              <div className="mt-8">
+                <button className="btn btn-primary" onClick={startGame}>
+                  ↻ {t.srtTryAgain}
+                </button>
               </div>
             )}
           </div>
 
-          {/* Idle State - Click to Start Overlay */}
-          {gameState === 'idle' && (
-            <div
-              className="absolute inset-0 flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02]"
-              onClick={startGame}
-            >
+          <div className="game-panel relative min-h-[320px]">
+            {gameState === 'waiting' && (
               <div className="text-center">
-                <div className="mb-4 text-6xl">🎮</div>
-                <div className="text-2xl font-bold text-black">
-                  {t.clickToStart}
-                </div>
-                <div className="mt-2 text-sm text-black">
-                  {t.orPressAnyKeyToStart}
-                </div>
+                <div className="mb-6 flex justify-center"><Timer className="h-16 w-16 text-cyan-300" /></div>
+                <p className="text-2xl font-bold text-text">{t.getReady}</p>
+                <p className="mt-3 text-lg text-text-secondary">{currentRound + 1} / {totalRounds}</p>
               </div>
+            )}
+
+            {gameState === 'ready' && currentTarget && (
+              <div className="text-center">
+                <div className="mb-6 flex h-44 w-44 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 text-7xl text-gray-900 shadow-[0_0_40px_rgba(34,211,238,0.35)]">
+                  {currentTarget.icon}
+                </div>
+                <p className="text-2xl font-bold text-text">
+                  {t.pressArrow.replace('{direction}', currentTarget.label)}
+                </p>
+              </div>
+            )}
+
+            {gameState === 'idle' && (
+              <div className="text-center">
+                <button className="btn btn-primary" onClick={startGame}>
+                  {t.clickToStart}
+                </button>
+                <p className="mt-3 text-sm text-text-tertiary">{t.orPressAnyKeyToStart}</p>
+              </div>
+            )}
+
+            {gameState === 'finished' && (
+              <span className="game-label text-text-tertiary">{t.srtResults}</span>
+            )}
+          </div>
+        </div>
+
+        {/* 成绩曲线:本机历史(≥2 次后显示) */}
+        {history.length >= 2 && (
+          <div className="mx-auto mt-20 max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.progressChartTitle}
+            </h2>
+            <div className="mt-6">
+              <ReactionChart data={history} />
             </div>
-          )}
+          </div>
+        )}
+
+        {/* SEO 正文:测量内容 + 如何提升 */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testBenefitsTitle}
+            </h2>
+            <p
+              className="mt-4 leading-relaxed text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.crtBenefits }}
+            />
+            <h2 className="mt-10 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+              {t.testHowToImproveTitle}
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {t.crtImprovements.split('<br>').map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="text-brand" aria-hidden>→</span>
+                  <span className="leading-relaxed text-text-secondary">
+                    {item.replace(/^[•\s]+/, '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-white text-center">Frequently Asked Questions About Choice Reaction Time Test</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-100 text-center">Frequently Asked Questions About Choice Reaction Time Test</h2>
           <div className="space-y-4">
             <FAQItem
               question="How does the choice reaction time test work?"
@@ -277,8 +313,8 @@ export default function ChoiceReactionTest() {
                     <li><strong>Complete 10 rounds</strong> - The test measures your reaction time across 10 trials with random arrow directions.</li>
                     <li><strong>Get your results</strong> - View your average reaction time, best score, and performance rating.</li>
                   </ol>
-                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-sm text-blue-300"><strong>💡 Pro Tip:</strong> Choice reaction time is typically 100-200ms slower than simple reaction time because your brain must process and identify the stimulus before responding. This test measures both decision-making speed and motor response time.</p>
+                  <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Choice reaction time is typically 100-200ms slower than simple reaction time because your brain must process and identify the stimulus before responding. This test measures both decision-making speed and motor response time.</p>
                   </div>
                 </div>
               }
@@ -291,7 +327,7 @@ export default function ChoiceReactionTest() {
                   <p>A good choice reaction time depends on age, experience, and practice level. Choice reaction times are naturally slower than simple reactions because they involve decision-making.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Average choice reaction time by age (in milliseconds):</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average choice reaction time by age (in milliseconds):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
                       <li>🎮 <strong>18-24 years:</strong> ~380ms (men: ~360ms, women: ~400ms)</li>
                       <li>👨 <strong>25-35 years:</strong> ~420ms (men: ~400ms, women: ~440ms)</li>
@@ -306,16 +342,16 @@ export default function ChoiceReactionTest() {
                       <p className="text-purple-300 font-semibold mb-1">🔥 Elite (Top 5%)</p>
                       <p className="text-sm text-gray-300">Below 350ms - Professional gamer/athlete level, exceptional decision-making speed</p>
                     </div>
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <p className="text-blue-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
+                    <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
                       <p className="text-sm text-gray-300">350-450ms - Better than most, excellent cognitive processing</p>
                     </div>
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <p className="text-green-300 font-semibold mb-1">✅ Normal Average</p>
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
                       <p className="text-sm text-gray-300">450-550ms - Typical choice reaction time for healthy adults</p>
                     </div>
-                    <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-300 font-semibold mb-1">⚠️ Below Average</p>
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
                       <p className="text-sm text-gray-300">550-650ms - Slower processing, may benefit from practice and focus exercises</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -336,7 +372,7 @@ export default function ChoiceReactionTest() {
                   <p>The choice reaction time test measures your <strong>choice reaction time</strong> - the time required to process visual information, make a decision, and execute a motor response. It evaluates complex cognitive functions beyond simple reflexes.</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">This test measures:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">This test measures:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Visual processing speed</strong> - How quickly you recognize and identify arrow direction</li>
                       <li><strong>Decision-making time</strong> - How fast your brain processes and selects the correct response</li>
@@ -348,7 +384,7 @@ export default function ChoiceReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Factors affecting your score:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Factors affecting your score:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Age</strong> - Processing speed naturally declines ~1-2ms per year after age 25</li>
                       <li><strong>Familiarity with arrows</strong> - Gamers and frequent computer users typically perform better</li>
@@ -360,7 +396,7 @@ export default function ChoiceReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Why choice reaction time matters:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Why choice reaction time matters:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li>Predicts performance in gaming, sports, and driving</li>
                       <li>Important for jobs requiring quick decisions (pilots, surgeons, emergency responders)</li>
@@ -380,7 +416,7 @@ export default function ChoiceReactionTest() {
                   <p>Choice reaction time can be improved through targeted practice, cognitive training, and lifestyle optimization. Here are proven strategies:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎯 Cognitive Training Exercises</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎯 Cognitive Training Exercises</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Practice this test daily</strong> - 10-15 minutes daily for 2-3 weeks can improve speed by 20-30%</li>
                       <li><strong>Play action video games</strong> - FPS games (CS:GO, Valorant, Overwatch) train rapid decision-making</li>
@@ -391,7 +427,7 @@ export default function ChoiceReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🏃 Physical and Lifestyle Optimization</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🏃 Physical and Lifestyle Optimization</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Regular aerobic exercise</strong> - Cardio 3-5x weekly increases cerebral blood flow and processing speed</li>
                       <li><strong>Quality sleep</strong> - 7-9 hours is essential; sleep deprivation slows decision-making by 20-30%</li>
@@ -403,7 +439,7 @@ export default function ChoiceReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-3">🎮 Practice Techniques</h4>
+                    <h4 className="font-semibold text-gray-100 mb-3">🎮 Practice Techniques</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Finger placement</strong> - Keep fingers on arrow keys (WASD or actual arrows) to minimize movement</li>
                       <li><strong>Minimize distractions</strong> - Quiet environment, close other tabs, focus only on the test</li>
@@ -413,8 +449,8 @@ export default function ChoiceReactionTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-sm text-green-300"><strong>🏆 Expected Results:</strong> With consistent practice over 3-4 weeks, most people improve choice reaction time by 50-100ms (15-25%). Professional gamers can achieve sub-300ms consistently, with elite performers reaching 250-300ms range.</p>
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-sm text-emerald-300"><strong>🏆 Expected Results:</strong> With consistent practice over 3-4 weeks, most people improve choice reaction time by 50-100ms (15-25%). Professional gamers can achieve sub-300ms consistently, with elite performers reaching 250-300ms range.</p>
                   </div>
                 </div>
               }
@@ -427,7 +463,7 @@ export default function ChoiceReactionTest() {
                   <p>If your choice reaction time is above 600ms, there might be specific reasons affecting your performance. Here are common causes and solutions:</p>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Common reasons for slow choice reaction time:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Common reasons for slow choice reaction time:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Lack of practice</strong> - Without regular practice, decision-making pathways remain slow</li>
                       <li><strong>Fatigue and sleep deprivation</strong> - Can slow cognitive processing by 50-100ms</li>
@@ -441,7 +477,7 @@ export default function ChoiceReactionTest() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white mb-2">How to improve slow choice reaction time:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">How to improve slow choice reaction time:</h4>
                     <ul className="space-y-2 list-disc list-inside text-gray-300">
                       <li><strong>Practice regularly</strong> - Use this test 10-15 minutes daily for 2-3 weeks</li>
                       <li><strong>Get better sleep</strong> - Prioritize sleep hygiene; it's the #1 cognitive performance factor</li>
@@ -453,8 +489,8 @@ export default function ChoiceReactionTest() {
                     </ul>
                   </div>
 
-                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                    <p className="text-sm text-yellow-300"><strong>⚠️ Medical Note:</strong> If your choice reaction time is consistently above 700ms and you're under 40, consider consulting a healthcare provider. Extremely slow decision-making can indicate attention disorders, cognitive impairment, or other neurological conditions.</p>
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm text-amber-300"><strong>⚠️ Medical Note:</strong> If your choice reaction time is consistently above 700ms and you're under 40, consider consulting a healthcare provider. Extremely slow decision-making can indicate attention disorders, cognitive impairment, or other neurological conditions.</p>
                   </div>
                 </div>
               }
