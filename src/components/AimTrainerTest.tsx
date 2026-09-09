@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore, getBestScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
 import { Crosshair, BarChart3 } from 'lucide-react';
@@ -221,32 +222,9 @@ export default function AimTrainerTest() {
     };
   }, []);
 
-  const getRating = (reactionTime: number) => {
-    if (reactionTime < 200) return t.ratingSuper || 'Super';
-    if (reactionTime < 250) return t.ratingExcellent || 'Excellent';
-    if (reactionTime < 300) return t.ratingGreat || 'Great';
-    if (reactionTime < 350) return t.ratingGood || 'Good';
-    if (reactionTime < 400) return t.ratingAverage || 'Average';
-    return t.ratingNeedsPractice || 'Needs Practice';
-  };
+  const getRating = (reactionTime: number) => t[ratingLabelKey(ratingBucket('aim-trainer', reactionTime))];
 
-  const getRatingColor = (reactionTime: number) => {
-    if (reactionTime < 200) return 'text-purple-600 bg-purple-50 dark:bg-purple-900/20';
-    if (reactionTime < 250) return 'text-green-600 bg-green-50 dark:bg-green-900/20';
-    if (reactionTime < 300) return 'text-blue-600 bg-blue-50 dark:bg-blue-900/20';
-    if (reactionTime < 350) return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20';
-    if (reactionTime < 400) return 'text-orange-600 bg-orange-50 dark:bg-orange-900/20';
-    return 'text-red-600 bg-red-50 dark:bg-red-900/20';
-  };
-
-  const getVerdictColor = (ms: number) => {
-    if (ms < 200) return 'var(--color-success-400)';
-    if (ms < 250) return 'var(--color-success-300)';
-    if (ms < 300) return 'var(--color-brand)';
-    if (ms < 350) return 'var(--color-warning-400)';
-    if (ms < 400) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (ms: number) => ratingColor(ratingBucket('aim-trainer', ms));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -420,42 +398,43 @@ export default function AimTrainerTest() {
               icon="⚡"
               answer={
                 <div className="space-y-4">
-                  <p>A good aim trainer score depends on your experience, gaming background, and practice level. Here are average reaction time benchmarks for target acquisition:</p>
+                  <p>A good aim trainer score is your average time to move to a target and click it, measured in milliseconds. Here are the benchmarks we use across the site:</p>
 
                   <div>
-                    <h4 className="font-semibold text-gray-100 mb-2">Average reaction times by experience level:</h4>
+                    <h4 className="font-semibold text-gray-100 mb-2">Average time to hit each target, by experience:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
-                      <li>🎮 <strong>Professional gamers:</strong> 180-220ms - Elite level, years of competitive gaming experience</li>
-                      <li>👾 <strong>Regular gamers:</strong> 220-280ms - Above average, frequent gaming (10+ hours/week)</li>
-                      <li>🖱️ <strong>Casual gamers:</strong> 280-350ms - Moderate gaming experience, plays occasionally</li>
-                      <li>💼 <strong>Non-gamers:</strong> 350-450ms - Little gaming experience, relies on natural reflexes</li>
+                      <li><strong>Practiced / high rank:</strong> 350–450 ms — quick target acquisition</li>
+                      <li><strong>Typical:</strong> 450–750 ms — the common range for healthy adults</li>
+                      <li><strong>Casual / new:</strong> 750–900 ms — still locating targets and settling the mouse</li>
+                      <li><strong>Just starting:</strong> 900 ms+ — a few practice runs usually bring this down fast</li>
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🏆 Elite (Top 5%)</p>
-                      <p className="text-sm text-gray-300">Below 200ms - Professional esports level, exceptional aiming ability</p>
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional — under 350 ms</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Fast, accurate target acquisition; strong hand-eye coordination.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
-                      <p className="text-sm text-gray-300">200-250ms - Competitive gamer level, excellent hand-eye coordination</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 350–450 ms</p>
+                      <p className="text-sm text-gray-300">Faster than most; comfortable, controlled aiming.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
-                      <p className="text-sm text-gray-300">250-350ms - Typical reaction time for healthy adults with some gaming experience</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 450–750 ms</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
-                      <p className="text-sm text-gray-300">350-400ms - Slower than average, may need practice or better focus</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 750–900 ms</p>
+                      <p className="text-sm text-gray-300">Slower than the norm. Worth a few practice runs and a stable mouse.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
-                      <p className="text-sm text-gray-300">400ms+ - Significantly slower, could indicate fatigue, lack of practice, or need for improvement</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — over 900 ms</p>
+                      <p className="text-sm text-gray-300">Well above the norm. If it stays this high, check your mouse setup, sensitivity, and focus.</p>
                     </div>
                   </div>
 
-                  <p className="text-sm text-gray-400 italic">Note: Aim trainer scores typically improve 20-30% with consistent practice over 2-3 weeks. Professional players can reach sub-180ms consistently with intense training.</p>
+                  <p className="text-sm text-gray-400 italic">Note: Aim trainer times typically improve 20-30% with consistent practice over 2-3 weeks. Fast players work their average under 350 ms.</p>
                 </div>
               }
             />

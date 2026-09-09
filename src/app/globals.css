@@ -90,8 +90,8 @@
     color: var(--color-text);
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     position: relative;
@@ -414,5 +414,184 @@
     .index-item {
       transition: border-color 0.2s ease, padding-left 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
+  }
+
+  /* ===== 首页 Version C:编辑排版 + 精密仪器 ===== */
+  .serif {
+    font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  }
+
+  .mono {
+    font-family: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .display-serif {
+    font-family: var(--font-fraunces), Georgia, serif;
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    line-height: 1.04;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: var(--color-text);
+  }
+  .display-serif em {
+    font-style: italic;
+    color: var(--color-text-secondary);
+  }
+
+  .instrument-panel {
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background-color: var(--color-surface);
+    padding: 28px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background-image:
+      linear-gradient(to right, rgba(34, 211, 238, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34, 211, 238, 0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .instrument-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .instrument-led {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .instrument-led::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-brand);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+  }
+
+  .instrument-num {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    font-size: clamp(72px, 9vw, 110px);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-align: center;
+    color: var(--color-brand);
+  }
+  .instrument-num .unit {
+    font-size: 20px;
+    color: var(--color-text-tertiary);
+    margin-left: 8px;
+    letter-spacing: 0;
+  }
+  .instrument-num .dim {
+    color: var(--color-text-tertiary);
+    opacity: 0.55;
+  }
+
+  .pct-block {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .pct-line {
+    text-align: center;
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+  .pct-line b {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .meter {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--color-success-400), var(--color-brand), #fbbf24, #f87171);
+    opacity: 0.85;
+  }
+  .meter-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+  }
+  .meter-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--color-text);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.45);
+  }
+
+  .instrument-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 18px;
+  }
+  .instrument-stats .k {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--color-text-tertiary);
+  }
+  .instrument-stats .v {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 18px;
+    color: var(--color-text);
+    margin-top: 4px;
+  }
+  .instrument-stats .v.rank {
+    color: var(--color-brand);
+  }
+
+  .scale-bar {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #34d399 0%, #22d3ee 34%, #fbbf24 66%, #f87171 100%);
+    opacity: 0.9;
+  }
+  .scale-ticks {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: 14px;
+  }
+  .scale-tick {
+    border-left: 1px solid var(--color-border);
+    padding-left: 12px;
+  }
+  .scale-tick:first-child {
+    border-left: none;
+    padding-left: 0;
+  }
+  .scale-tick .lbl {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--color-text);
+  }
+  .scale-tick .val {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
   }
 }

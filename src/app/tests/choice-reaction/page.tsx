@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Choice Reaction Test - Decision Speed | ReflexX',
-  description: 'Test your decision-making reaction speed with multiple options. Free online choice reaction test. Compare globally. Try now!',
+  description: 'Test your decision speed — react to a target arrow by pressing the matching key as fast as you can. Measures your choice reaction time. Free.',
   keywords: ['choice reaction test', 'reaction time test', 'decision speed test', 'reflex test', 'choice reaction time'],
   openGraph: {
     title: 'Choice Reaction Test - Decision Speed | ReflexX',
-    description: 'Test your decision-making reaction speed with multiple options. Free online choice reaction test.',
+    description: 'Test your decision speed — press the matching arrow key as fast as you can. Free, no signup.',
     type: 'website',
   },
   alternates: {

@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Stroop Test - Cognitive Flexibility | ReflexX',
-  description: 'Test your cognitive flexibility and inhibition control. Free online stroop test. Compare globally. Try now!',
+  description: 'Test your inhibition control with the classic Stroop effect — name the color of the word, not the word itself. Free, no signup.',
   keywords: ['stroop test', 'cognitive flexibility', 'inhibition control', 'attention test', 'cognitive test'],
   openGraph: {
     title: 'Stroop Test - Cognitive Flexibility | ReflexX',
-    description: 'Test your cognitive flexibility and inhibition control. Free online stroop test.',
+    description: 'Test your inhibition control with the classic Stroop effect — name the color, not the word.',
     type: 'website',
   },
   alternates: {

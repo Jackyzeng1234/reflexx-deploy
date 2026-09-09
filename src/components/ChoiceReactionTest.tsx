@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, ReactNode, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
@@ -166,23 +167,9 @@ export default function ChoiceReactionTest() {
     setHistory(readLocalHistory());
   }, []);
 
-  const getRating = (avgTime: number) => {
-    if (avgTime < 400) return t.ratingSuper;
-    if (avgTime < 500) return t.ratingExcellent;
-    if (avgTime < 600) return t.ratingGreat;
-    if (avgTime < 700) return t.ratingGood;
-    if (avgTime < 800) return t.ratingAverage;
-    return t.ratingNeedsPractice;
-  };
+  const getRating = (avgTime: number) => t[ratingLabelKey(ratingBucket('choice-reaction', avgTime))];
 
-  const getVerdictColor = (ms: number) => {
-    if (ms < 400) return 'var(--color-success-400)';
-    if (ms < 500) return 'var(--color-success-300)';
-    if (ms < 600) return 'var(--color-brand)';
-    if (ms < 700) return 'var(--color-warning-400)';
-    if (ms < 800) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (ms: number) => ratingColor(ratingBucket('choice-reaction', ms));
 
   const averageTime = reactionTimes.length > 0
     ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
@@ -329,34 +316,35 @@ export default function ChoiceReactionTest() {
                   <div>
                     <h4 className="font-semibold text-gray-100 mb-2">Average choice reaction time by age (in milliseconds):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
-                      <li>🎮 <strong>18-24 years:</strong> ~380ms (men: ~360ms, women: ~400ms)</li>
-                      <li>👨 <strong>25-35 years:</strong> ~420ms (men: ~400ms, women: ~440ms)</li>
-                      <li>👴 <strong>36-45 years:</strong> ~460ms (men: ~440ms, women: ~480ms)</li>
-                      <li>👵 <strong>46-55 years:</strong> ~500ms (men: ~480ms, women: ~520ms)</li>
-                      <li>👴 <strong>56+ years:</strong> ~540ms+ (men: ~520ms+, women: ~560ms+)</li>
+                      <li><strong>18–25 years:</strong> 300–420 ms</li>
+                      <li><strong>26–35 years:</strong> 330–460 ms</li>
+                      <li><strong>36–45 years:</strong> 370–500 ms</li>
+                      <li><strong>46–60 years:</strong> 410–550 ms</li>
+                      <li><strong>60+ years:</strong> 460–620 ms</li>
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🔥 Elite (Top 5%)</p>
-                      <p className="text-sm text-gray-300">Below 350ms - Professional gamer/athlete level, exceptional decision-making speed</p>
+                      <p className="text-purple-300 font-semibold mb-1">🔥 Exceptional — under 280 ms</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Exceptional decision-making speed under time pressure.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
-                      <p className="text-sm text-gray-300">350-450ms - Better than most, excellent cognitive processing</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 280–370 ms</p>
+                      <p className="text-sm text-gray-300">Faster than most; quick, accurate decisions.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
-                      <p className="text-sm text-gray-300">450-550ms - Typical choice reaction time for healthy adults</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 370–550 ms</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
-                      <p className="text-sm text-gray-300">550-650ms - Slower processing, may benefit from practice and focus exercises</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 550–640 ms</p>
+                      <p className="text-sm text-gray-300">Slower than the norm. Worth retesting when rested and focused.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
-                      <p className="text-sm text-gray-300">650ms+ - Significantly slower, could indicate fatigue, distraction, or need for cognitive training</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — over 640 ms</p>
+                      <p className="text-sm text-gray-300">Well above the norm. If it stays this high when you're rested, check sleep, stress, or focus.</p>
                     </div>
                   </div>
 

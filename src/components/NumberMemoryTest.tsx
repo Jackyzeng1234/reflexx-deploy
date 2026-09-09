@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
@@ -124,23 +125,9 @@ export default function NumberMemoryTest() {
     setHistory(readLocalHistory());
   }, []);
 
-  const getRating = (digits: number) => {
-    if (digits >= 12) return t.ratingSuper;
-    if (digits >= 10) return t.ratingExcellent;
-    if (digits >= 8) return t.ratingGreat;
-    if (digits >= 6) return t.ratingGood;
-    if (digits >= 5) return t.ratingAverage;
-    return t.ratingNeedsPractice;
-  };
+  const getRating = (digits: number) => t[ratingLabelKey(ratingBucket('number-memory', digits))];
 
-  const getVerdictColor = (digits: number) => {
-    if (digits >= 12) return 'var(--color-success-400)';
-    if (digits >= 10) return 'var(--color-success-300)';
-    if (digits >= 8) return 'var(--color-brand)';
-    if (digits >= 6) return 'var(--color-warning-400)';
-    if (digits >= 5) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (digits: number) => ratingColor(ratingBucket('number-memory', digits));
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow digits
@@ -340,34 +327,35 @@ export default function NumberMemoryTest() {
                   <div>
                     <h4 className="font-semibold text-gray-100 mb-2">Average number memory levels by age:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
-                      <li>🎮 <strong>18-24 years:</strong> ~7-9 digits (gamers: 10-12, memory athletes: 20-50+)</li>
-                      <li>👨 <strong>25-35 years:</strong> ~6-8 digits (with practice: 9-12)</li>
-                      <li>👴 <strong>36-45 years:</strong> ~5-7 digits (with practice: 7-10)</li>
-                      <li>👵 <strong>46-55 years:</strong> ~5-6 digits (with practice: 6-9)</li>
-                      <li>👴 <strong>56+ years:</strong> ~4-6 digits (with practice: 5-8)</li>
+                      <li><strong>18–25 years:</strong> 7–9 digits</li>
+                      <li><strong>26–35 years:</strong> 7–9 digits</li>
+                      <li><strong>36–45 years:</strong> 6–8 digits</li>
+                      <li><strong>46–60 years:</strong> 6–8 digits</li>
+                      <li><strong>60+ years:</strong> 5–7 digits</li>
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
-                      <p className="text-sm text-gray-300">12+ digits - Superior digit span; often uses memory techniques or has exceptional natural ability</p>
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional — 11+ digits</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Superior digit span, often with memory techniques.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
-                      <p className="text-sm text-gray-300">9-11 digits - Above average short-term memory capacity</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 9–11 digits</p>
+                      <p className="text-sm text-gray-300">Stronger than most; above-average short-term memory capacity.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
-                      <p className="text-sm text-gray-300">6-8 digits - Healthy short-term memory; typical for well-rested, focused adults</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 7–9 digits</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
-                      <p className="text-sm text-gray-300">4-5 digits - Within normal range; may improve with practice and better sleep</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 5–7 digits</p>
+                      <p className="text-sm text-gray-300">Below the norm. Worth retesting when rested and focused.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Below Average</p>
-                      <p className="text-sm text-gray-300">1-3 digits - Could indicate fatigue, distraction, or need for memory training</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — under 5 digits</p>
+                      <p className="text-sm text-gray-300">Well below the norm. If it stays this low, check sleep, stress, or focus.</p>
                     </div>
                   </div>
 

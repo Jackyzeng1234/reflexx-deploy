@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reaction Time Test — ReflexX (Demo B)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #121826;
+    --surface-2: #1a2130;
+    --line: rgba(148, 163, 184, 0.14);
+    --line-strong: rgba(148, 163, 184, 0.24);
+    --text: #e6edf7;
+    --text-2: #94a3b8;
+    --text-3: #64748b;
+    --accent: #22d3ee;
+    --accent-2: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --disp: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --grad: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .disp { font-family: var(--disp); }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+  header { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(10,14,23,0.85); backdrop-filter: blur(12px); }
+  .bar { height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .wordmark { font-family: var(--disp); font-weight: 700; letter-spacing: -0.02em; font-size: 17px; display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--text); }
+  .wordmark .logo { width: 24px; height: 24px; border-radius: 6px; background: var(--grad); display: flex; align-items: center; justify-content: center; color: #0a0e17; font-size: 13px; }
+  nav { display: flex; align-items: center; gap: 24px; }
+  nav a { color: var(--text-2); text-decoration: none; font-size: 14px; }
+  nav a:hover { color: var(--text); }
+  nav a.cta { color: #0a0e17; background: var(--grad); border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
+  .live { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; color: var(--accent-2); }
+  .live .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+  /* hero */
+  .hero { padding: 72px 0 56px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; }
+  .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); }
+  h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(40px, 5.6vw, 62px); line-height: 1.0; letter-spacing: -0.03em; margin-top: 18px; }
+  h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .sub { margin-top: 20px; color: var(--text-2); font-size: 17px; max-width: 46ch; }
+  .hero .sub strong { color: var(--text); }
+  .cta-row { margin-top: 30px; display: flex; align-items: center; gap: 24px; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--grad); color: #0a0e17; font-weight: 700; font-size: 15px; font-family: var(--disp); padding: 14px 24px; border-radius: 10px; text-decoration: none; box-shadow: 0 10px 34px rgba(34,211,238,0.25); transition: transform .12s ease; }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-ghost { color: var(--text-2); font-size: 15px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-ghost:hover { color: var(--text); }
+
+  /* scoreboard card */
+  .board { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+  .board .bhead { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .board .bhead .t { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); }
+  .board .result { text-align: center; padding: 30px 18px 6px; }
+  .board .result .big { font-family: var(--mono); font-weight: 700; font-size: clamp(64px, 8vw, 92px); letter-spacing: -0.03em; line-height: 1; }
+  .board .result .big .ms { font-size: 22px; color: var(--text-3); margin-left: 6px; }
+  .board .pct { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--accent-2); background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.28); border-radius: 999px; padding: 5px 12px; }
+  .board .meter { margin: 20px 22px 4px; }
+  .board .meter .mbar { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-2), var(--accent), var(--amber), var(--red)); opacity: .85; position: relative; }
+  .board .meter .mark { position: absolute; top: -5px; width: 2px; height: 16px; background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.7); }
+  .board .meter .ml { display: flex; justify-content: space-between; margin-top: 8px; font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+  .feed { border-top: 1px solid var(--line); }
+  .feed .frow { display: flex; align-items: center; gap: 12px; padding: 9px 18px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; }
+  .feed .frow:last-child { border-bottom: none; }
+  .feed .name { color: var(--text-2); flex: 1; }
+  .feed .time { color: var(--text); }
+  .feed .rank { color: var(--text-3); width: 40px; text-align: right; }
+
+  /* modes grid */
+  .modes { padding: 40px 0 20px; }
+  .sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .sec-h h2 { font-family: var(--disp); font-weight: 700; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.02em; }
+  .sec-h a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 26px; }
+  .tile { border: 1px solid var(--line); border-radius: 12px; padding: 16px 14px; text-decoration: none; color: inherit; background: var(--surface); transition: border-color .15s ease, transform .15s ease; }
+  .tile:hover { border-color: rgba(34,211,238,0.4); transform: translateY(-2px); }
+  .tile .glyph { width: 32px; height: 32px; border-radius: 8px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); color: var(--accent); font-size: 15px; margin-bottom: 12px; }
+  .tile .tn { font-family: var(--disp); font-weight: 600; font-size: 14px; line-height: 1.25; color: var(--text); }
+  .tile .meta { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+  .tile .chip { padding: 2px 7px; border: 1px solid var(--line); border-radius: 999px; font-family: var(--sans); font-size: 10px; letter-spacing: .04em; }
+
+  /* leaderboard + progress */
+  .duo { padding: 40px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .panel { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 22px; }
+  .panel h3 { font-family: var(--disp); font-weight: 600; font-size: 17px; margin-bottom: 4px; }
+  .panel .sub { color: var(--text-3); font-size: 13px; margin-bottom: 16px; }
+  .lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 13px; }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row .pos { color: var(--text-3); width: 24px; }
+  .lb-row .pos.top { color: var(--accent); }
+  .lb-row .nm { flex: 1; color: var(--text-2); }
+  .lb-row .sc { color: var(--text); font-weight: 600; }
+  .lb-row .badge { font-family: var(--sans); font-size: 10px; color: var(--accent-2); }
+
+  .spark { display: flex; align-items: flex-end; gap: 8px; height: 90px; margin: 8px 0 14px; }
+  .spark i { flex: 1; border-radius: 3px 3px 0 0; background: var(--surface-2); }
+  .spark i.hi { background: var(--grad); }
+  .pb { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 13px; color: var(--text-2); }
+  .pb b { color: var(--text); }
+
+  /* seo strip */
+  .seo { padding: 40px 0 20px; }
+  .seo .cols { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; margin-top: 30px; }
+  .seo h4 { font-family: var(--disp); font-weight: 600; font-size: 16px; margin-bottom: 12px; }
+  .seo p, .seo li { color: var(--text-2); font-size: 14px; }
+  .seo ul { list-style: none; }
+  .seo li { padding: 7px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; }
+  .seo li .ar { color: var(--accent); font-family: var(--mono); }
+  .seo .age-mini { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .seo .age-mini td { padding: 7px 0; border-bottom: 1px solid var(--line); color: var(--text-2); }
+  .seo .age-mini td:last-child { text-align: right; font-family: var(--mono); color: var(--text); }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0 56px; color: var(--text-3); font-size: 13px; }
+  footer .frow { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+  .demo-tag { position: fixed; top: 12px; right: 14px; z-index: 99; font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--text-3); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; background: rgba(10,14,23,.7); }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .duo { grid-template-columns: 1fr; }
+    .seo .cols { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    nav a.hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="demo-tag">DEMO · B — “The Scoreboard”</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="#"><span class="logo">⚡</span>REFLEXX</a>
+    <nav>
+      <a href="#modes">Tests</a>
+      <a href="#" class="hide-sm">Leaderboard</a>
+      <a href="#" class="hide-sm">Stats</a>
+      <a href="#play" class="cta">Start test</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="wrap hero" id="play">
+  <div>
+    <p class="kicker"><span class="live" style="display:inline-flex"><span class="pulse"></span> 2,418 running now</span></p>
+    <h1>Beat the <span class="grad">average.</span></h1>
+    <p class="sub">Your reaction time is a number. Measure it in <strong>milliseconds</strong>, see your <strong>percentile</strong>, and climb the board. Five rounds — thirty seconds.</p>
+    <div class="cta-row">
+      <a class="btn-primary" href="#play">Start the test <span class="mono">→</span></a>
+      <a class="btn-ghost" href="#modes">All 10 tests →</a>
+    </div>
+  </div>
+
+  <div class="board">
+    <div class="bhead"><span class="t">Simple reaction · live</span><span class="live"><span class="pulse"></span>LIVE</span></div>
+    <div class="result">
+      <div class="big">240<span class="ms">ms</span></div>
+      <div class="pct">▲ top 18% of players</div>
+    </div>
+    <div class="meter">
+      <div class="mbar"><span class="mark" style="left:18%"></span></div>
+      <div class="ml"><span>fast 100ms</span><span>avg 270ms</span><span>slow 500ms</span></div>
+    </div>
+    <div class="feed">
+      <div class="frow"><span class="name">kaizer_77</span><span class="time">212 ms</span><span class="rank">#1</span></div>
+      <div class="frow"><span class="name">nova.aim</span><span class="time">234 ms</span><span class="rank">#2</span></div>
+      <div class="frow"><span class="name">silk</span><span class="time">247 ms</span><span class="rank">#3</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODES -->
+<section class="wrap modes" id="modes">
+  <div class="sec-h">
+    <h2>Pick your mode</h2>
+    <a href="#">View all →</a>
+  </div>
+  <div class="grid">
+    <a class="tile" href="#"><div class="glyph">↗</div><div class="tn">Reaction Time</div><div class="meta"><span class="chip">Reaction</span><span>ms</span></div></a>
+    <a class="tile" href="#"><div class="glyph">♪</div><div class="tn">Auditory Reaction</div><div class="meta"><span class="chip">Reaction</span><span>ms</span></div></a>
+    <a class="tile" href="#"><div class="glyph">⚔</div><div class="tn">Choice Reaction</div><div class="meta"><span class="chip">Reaction</span><span>ms</span></div></a>
+    <a class="tile" href="#"><div class="glyph">◎</div><div class="tn">Click Speed</div><div class="meta"><span class="chip">Speed</span><span>cps</span></div></a>
+    <a class="tile" href="#"><div class="glyph">◎</div><div class="tn">Aim Trainer</div><div class="meta"><span class="chip">Speed</span><span>ms</span></div></a>
+    <a class="tile" href="#"><div class="glyph">⌨</div><div class="tn">Typing Speed</div><div class="meta"><span class="chip">Speed</span><span>wpm</span></div></a>
+    <a class="tile" href="#"><div class="glyph">▦</div><div class="tn">Sequence Memory</div><div class="meta"><span class="chip">Memory</span><span>lvl</span></div></a>
+    <a class="tile" href="#"><div class="glyph">▤</div><div class="tn">Chimp Test</div><div class="meta"><span class="chip">Memory</span><span>lvl</span></div></a>
+    <a class="tile" href="#"><div class="glyph">#</div><div class="tn">Number Memory</div><div class="meta"><span class="chip">Memory</span><span>digits</span></div></a>
+    <a class="tile" href="#"><div class="glyph">✳</div><div class="tn">Stroop Test</div><div class="meta"><span class="chip">Focus</span><span>pts</span></div></a>
+  </div>
+</section>
+
+<!-- LEADERBOARD + PROGRESS -->
+<section class="wrap duo">
+  <div class="panel">
+    <h3>Leaderboard</h3>
+    <p class="sub">Simple reaction · today</p>
+    <div class="lb-row"><span class="pos top">1</span><span class="nm">kaizer_77</span><span class="sc">212 ms</span><span class="badge">▲</span></div>
+    <div class="lb-row"><span class="pos top">2</span><span class="nm">nova.aim</span><span class="sc">234 ms</span><span class="badge">▲</span></div>
+    <div class="lb-row"><span class="pos top">3</span><span class="nm">silk</span><span class="sc">247 ms</span><span class="badge">▲</span></div>
+    <div class="lb-row"><span class="pos">4</span><span class="nm">you</span><span class="sc">261 ms</span><span class="badge">▼</span></div>
+    <div class="lb-row"><span class="pos">5</span><span class="nm">apex_flick</span><span class="sc">274 ms</span><span class="badge"></span></div>
+  </div>
+
+  <div class="panel">
+    <h3>Your last 10 runs</h3>
+    <p class="sub">Personal best <b style="color:var(--accent)">248 ms</b></p>
+    <div class="spark">
+      <i style="height:40%"></i><i style="height:55%"></i><i class="hi" style="height:30%"></i>
+      <i style="height:60%"></i><i style="height:48%"></i><i style="height:70%"></i>
+      <i style="height:52%"></i><i style="height:38%"></i><i class="hi" style="height:24%"></i>
+      <i style="height:44%"></i>
+    </div>
+    <div class="pb"><span>last run <b>256 ms</b></span><span>avg <b>271 ms</b></span></div>
+  </div>
+</section>
+
+<!-- SEO STRIP -->
+<section class="wrap seo">
+  <div class="sec-h">
+    <h2>Reaction time, explained</h2>
+  </div>
+  <div class="cols">
+    <div>
+      <h4>What is a reaction time test?</h4>
+      <p>A reaction time test measures how fast you respond to a visual cue — usually a screen changing colour. It's the standard way to benchmark the speed of your eyes → brain → hand pipeline. On ReflexX the simple test records the milliseconds between the screen turning green and your click, then averages five rounds into one score.</p>
+    </div>
+    <div>
+      <h4>Average by age</h4>
+      <table class="age-mini">
+        <tr><td>18–25</td><td>220–260 ms</td></tr>
+        <tr><td>26–35</td><td>240–290 ms</td></tr>
+        <tr><td>36–45</td><td>260–310 ms</td></tr>
+        <tr><td>46–60</td><td>280–350 ms</td></tr>
+        <tr><td>60+</td><td>300–400 ms</td></tr>
+      </table>
+    </div>
+    <div>
+      <h4>How to get faster</h4>
+      <ul>
+        <li><span class="ar">→</span>Sleep 7–9 hours</li>
+        <li><span class="ar">→</span>Hydrate, skip alcohol</li>
+        <li><span class="ar">→</span>Practice daily</li>
+        <li><span class="ar">→</span>Exercise regularly</li>
+        <li><span class="ar">→</span>Cut distractions</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap frow">
+    <span>ReflexX — free reaction time tests. No signup.</span>
+    <span class="mono">© 2026</span>
+  </div>
+</footer>
+</body>
+</html>

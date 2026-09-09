@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Reaction Time Test - Visual Reflex Speed | ReflexX',
-  description: 'Test your visual reaction time in milliseconds. Get your global ranking and percentile. Free, no signup. Average: 250-300ms.',
+  description: 'Measure your visual reaction time in milliseconds — click when the screen turns green. Compare your average against the 230–310 ms norm. Free, no signup.',
   keywords: ['reaction time test', 'reaction time', 'reflex test', 'visual reaction test', 'visual reflex speed'],
   openGraph: {
     title: 'Reaction Time Test - Visual Reflex Speed | ReflexX',
-    description: 'Test your visual reaction time in milliseconds. Get your global ranking and percentile.',
+    description: 'Measure your visual reaction time in milliseconds — click when the screen turns green. Free, no signup.',
     type: 'website',
   },
   alternates: {

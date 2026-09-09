@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
@@ -177,23 +178,9 @@ export default function ChimpTest() {
     setHistory(readLocalHistory());
   }, []);
 
-  const getRating = (level: number) => {
-    if (level >= 10) return t.ratingSuper;
-    if (level >= 8) return t.ratingExcellent;
-    if (level >= 6) return t.ratingGreat;
-    if (level >= 4) return t.ratingGood;
-    if (level >= 3) return t.ratingAverage;
-    return t.ratingNeedsPractice;
-  };
+  const getRating = (level: number) => t[ratingLabelKey(ratingBucket('chimp', level))];
 
-  const getVerdictColor = (level: number) => {
-    if (level >= 10) return 'var(--color-success-400)';
-    if (level >= 8) return 'var(--color-success-300)';
-    if (level >= 6) return 'var(--color-brand)';
-    if (level >= 4) return 'var(--color-warning-400)';
-    if (level >= 3) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (level: number) => ratingColor(ratingBucket('chimp', level));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -353,34 +340,35 @@ export default function ChimpTest() {
                   <div>
                     <h4 className="font-semibold text-gray-100 mb-2">Average chimp test levels by age:</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
-                      <li>🎮 <strong>18-24 years:</strong> ~7-9 numbers (gamers: 10-12, memory athletes: 14-18)</li>
-                      <li>👨 <strong>25-35 years:</strong> ~6-8 numbers (with practice: 9-12)</li>
-                      <li>👴 <strong>36-45 years:</strong> ~5-7 numbers (with practice: 7-10)</li>
-                      <li>👵 <strong>46-55 years:</strong> ~4-6 numbers (with practice: 6-9)</li>
-                      <li>👴 <strong>56+ years:</strong> ~3-5 numbers (with practice: 5-7)</li>
+                      <li><strong>18–25 years:</strong> 7–9 levels</li>
+                      <li><strong>26–35 years:</strong> 6–9 levels</li>
+                      <li><strong>36–45 years:</strong> 6–8 levels</li>
+                      <li><strong>46–60 years:</strong> 5–7 levels</li>
+                      <li><strong>60+ years:</strong> 4–6 levels</li>
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
-                      <p className="text-sm text-gray-300">Level 12+ - Superior working memory; comparable to trained chimps and memory experts</p>
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional — level 12+</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Superior visuospatial working memory.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
-                      <p className="text-sm text-gray-300">Level 9-11 - Above average memory; excellent spatial working memory capacity</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — level 9–12</p>
+                      <p className="text-sm text-gray-300">Stronger than most; good spatial working memory capacity.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
-                      <p className="text-sm text-gray-300">Level 6-8 - Healthy working memory; typical for focused adults</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — level 6–9</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
-                      <p className="text-sm text-gray-300">Level 4-5 - Within normal range; may improve with memory techniques</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — level 4–6</p>
+                      <p className="text-sm text-gray-300">Below the norm. Worth retesting when rested and free of distractions.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Below Average</p>
-                      <p className="text-sm text-gray-300">Level 1-3 - Could indicate fatigue, distraction, or need for memory training</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — under level 4</p>
+                      <p className="text-sm text-gray-300">Well below the norm. If it stays this low, check sleep, stress, or focus.</p>
                     </div>
                   </div>
 

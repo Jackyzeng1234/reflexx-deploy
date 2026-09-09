@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey, type RatingBucket } from '@/lib/ratings';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
@@ -352,41 +353,15 @@ export default function TypingTest() {
   };
 
   const getRating = (wpm: number, accuracy: number) => {
-    // Calculate Net WPM (speed adjusted by accuracy)
+    // Net WPM(速度按正确率折算)
     const netWpm = wpm * (accuracy / 100);
-
-    // If accuracy is too low (<80%), cap the maximum rating
-    if (accuracy < 80) {
-      if (netWpm >= 60) return t.ratingAverage;
-      if (netWpm >= 40) return t.ratingNeedsPractice;
-      return t.ratingNeedsPractice;
-    }
-
-    // If accuracy is low (<90%), cap at Good rating
-    if (accuracy < 90) {
-      if (netWpm >= 70) return t.ratingGood;
-      if (netWpm >= 50) return t.ratingAverage;
-      if (netWpm >= 30) return t.ratingNeedsPractice;
-      return t.ratingNeedsPractice;
-    }
-
-    // For accuracy >= 90%, use Net WPM for rating
-    if (netWpm >= 70) return t.ratingSuper;
-    if (netWpm >= 55) return t.ratingExcellent;
-    if (netWpm >= 40) return t.ratingGreat;
-    if (netWpm >= 25) return t.ratingGood;
-    if (netWpm >= 15) return t.ratingAverage;
-    return t.ratingNeedsPractice;
+    const bucket = ratingBucket('typing', netWpm);
+    // 正确率门槛:正确率不足时封顶评级(速度须建立在正确率之上)
+    const cap = accuracy < 80 ? 3 : accuracy < 90 ? 4 : 5;
+    return t[ratingLabelKey(Math.min(bucket, cap) as RatingBucket)];
   };
 
-  const getVerdictColor = (wpm: number) => {
-    if (wpm >= 70) return 'var(--color-success-400)';
-    if (wpm >= 55) return 'var(--color-success-300)';
-    if (wpm >= 40) return 'var(--color-brand)';
-    if (wpm >= 25) return 'var(--color-warning-400)';
-    if (wpm >= 15) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (wpm: number) => ratingColor(ratingBucket('typing', wpm));
 
   const renderText = () => {
     return currentText.split('').map((char, index) => {
@@ -575,7 +550,7 @@ export default function TypingTest() {
                       <li>💻 <strong>Programmer/developer:</strong> 50-70 WPM (focus on accuracy over speed)</li>
                       <li>✍️ <strong>Professional writer:</strong> 70-90 WPM (efficient typing essential)</li>
                       <li>🎯 <strong>Professional typist:</strong> 80-120 WPM (specialized training)</li>
-                      <li>🏆 <strong>Elite typist/competition:</strong> 120-200+ WPM (top 1%)</li>
+                      <li>🏆 <strong>Competition-level typist:</strong> 120–200+ WPM — world-class speed</li>
                     </ul>
                   </div>
 
@@ -590,26 +565,27 @@ export default function TypingTest() {
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
-                      <p className="text-sm text-gray-300">100+ WPM, 98%+ accuracy - Professional/competition level; elite typing ability</p>
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional — 70+ WPM</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Fast, accurate touch typing.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
-                      <p className="text-sm text-gray-300">70-99 WPM, 95%+ accuracy - Fast, efficient typing; excellent for most professions</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 50–70 WPM</p>
+                      <p className="text-sm text-gray-300">Faster than most; efficient for office and technical work.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
-                      <p className="text-sm text-gray-300">50-69 WPM, 90%+ accuracy - Comfortable typing speed; adequate for most office work</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 30–50 WPM</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
-                      <p className="text-sm text-gray-300">35-49 WPM, 85%+ accuracy - Functional but could benefit from touch typing practice</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 15–30 WPM</p>
+                      <p className="text-sm text-gray-300">Below the norm. Touch-typing practice usually helps a lot here.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Below Average</p>
-                      <p className="text-sm text-gray-300">&lt;35 WPM - Hunt-and-peck method; significant room for improvement</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — under 15 WPM</p>
+                      <p className="text-sm text-gray-300">Well below the norm. If this is typical, consider keyboard layout or technique.</p>
                     </div>
                   </div>
 

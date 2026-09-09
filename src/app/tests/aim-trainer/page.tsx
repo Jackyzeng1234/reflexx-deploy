@@ -4,22 +4,19 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Aim Trainer - Improve Mouse Accuracy & FPS Skills | ReflexX',
-  description: 'Free online aim trainer to improve your mouse accuracy, hand-eye coordination, and reaction speed for FPS games. 60-second challenge with detailed stats.',
+  description: 'Improve your FPS aim with this free 60-second aim trainer. Hit randomly appearing targets, then review your accuracy, average reaction time and KPS.',
   keywords: [
     'aim trainer',
     'aim training',
     'mouse accuracy',
     'FPS aim practice',
-    'aim test',
     'hand-eye coordination',
-    'reflex training',
-    'click accuracy',
-    'aim booster',
-    'target practice'
+    'aim test',
+    'click accuracy'
   ],
   openGraph: {
     title: 'Aim Trainer - Improve Mouse Accuracy & FPS Skills | ReflexX',
-    description: 'Free online aim trainer to improve your mouse accuracy and hand-eye coordination. 60-second challenge with detailed stats.',
+    description: 'Improve your FPS aim with this free 60-second aim trainer. Track accuracy, reaction time and KPS.',
     type: 'website',
   },
   alternates: {

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
@@ -96,23 +97,9 @@ export default function SimpleReactionTest({ showHeader = true, showFAQ = true }
     }
   }, [gameState, startTime, scores, arm, setTimeout, clearTimeout]);
 
-  const getRating = (ms: number) => {
-    if (ms < 200) return t.ratingSuper;
-    if (ms < 250) return t.ratingExcellent;
-    if (ms < 300) return t.ratingGreat;
-    if (ms < 350) return t.ratingGood;
-    if (ms < 400) return t.ratingAverage;
-    return t.ratingNeedsPractice;
-  };
+  const getRating = (ms: number) => t[ratingLabelKey(ratingBucket('simple-reaction', ms))];
 
-  const getVerdictColor = (ms: number) => {
-    if (ms < 200) return 'var(--color-success-400)';
-    if (ms < 250) return 'var(--color-success-300)';
-    if (ms < 300) return 'var(--color-brand)';
-    if (ms < 350) return 'var(--color-warning-400)';
-    if (ms < 400) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (ms: number) => ratingColor(ratingBucket('simple-reaction', ms));
 
   const lastTime = scores.length ? scores[scores.length - 1] : 0;
   const bestTime = scores.length ? Math.min(...scores) : 0;
@@ -240,9 +227,9 @@ export default function SimpleReactionTest({ showHeader = true, showFAQ = true }
                   <p>This reaction time test measures how quickly you respond to visual stimuli. It's a simple reflex test that evaluates your processing speed and motor response time.</p>
                   <ol className="space-y-3 list-decimal list-inside text-gray-300">
                     <li><strong>Wait for the green signal</strong> - The test starts with a red box. Wait for it to randomly turn green. Clicking too early will trigger a too-early penalty!</li>
-                    <li><strong>Click or press any key</strong> - As soon as you see the box turn green, click anywhere in the test area or press any key on your keyboard (spacebar works well)</li>
-                    <li><strong>Complete 5 rounds</strong> - The test measures 5 reaction attempts to calculate your average reaction time in milliseconds (ms)</li>
-                    <li><strong>View your results</strong> - See your average reaction time, best score, and how you compare to others worldwide</li>
+                    <li><strong>Click or press space</strong> - As soon as you see the box turn green, click anywhere in the test area or press the spacebar</li>
+                    <li><strong>Click, then repeat</strong> - Each attempt records one reaction time in milliseconds (ms). Run it several times and read your average — not a single lucky click — as your real baseline.</li>
+                    <li><strong>View your results</strong> - See your reaction time, best score, running average, and how you rate against published norms.</li>
                   </ol>
                   <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
                     <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Reaction time varies throughout the day. For the most accurate results, take the test multiple times at different times and average your scores. Avoid testing when tired or distracted.</p>
@@ -251,43 +238,44 @@ export default function SimpleReactionTest({ showHeader = true, showFAQ = true }
               }
             />
             <FAQItem
-              question="What is a good reaction time? Average scores by age and gender"
+              question="What is a good reaction time? Average scores by age"
               icon="⚡"
               answer={
                 <div className="space-y-4">
-                  <p>A good reaction time depends on your age, gender, and activity level. Here are the average reaction times based on scientific research:</p>
+                  <p>Your reaction time depends mainly on age, plus how rested, alert and practiced you are. These age bands match the scale shown on the home page:</p>
 
                   <div>
                     <h4 className="font-semibold text-gray-100 mb-2">Average reaction time by age (in milliseconds):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
-                      <li>🏃 <strong>18-24 years:</strong> ~200ms (men: ~190ms, women: ~210ms)</li>
-                      <li>👨 <strong>25-35 years:</strong> ~215ms (men: ~205ms, women: ~225ms)</li>
-                      <li>👴 <strong>36-45 years:</strong> ~230ms (men: ~220ms, women: ~240ms)</li>
-                      <li>👵 <strong>46-55 years:</strong> ~245ms (men: ~235ms, women: ~255ms)</li>
-                      <li>👴 <strong>56+ years:</strong> ~260ms+ (men: ~250ms+, women: ~270ms+)</li>
+                      <li><strong>18–25 years:</strong> 220–260 ms</li>
+                      <li><strong>26–35 years:</strong> 240–290 ms</li>
+                      <li><strong>36–45 years:</strong> 260–310 ms</li>
+                      <li><strong>46–60 years:</strong> 280–350 ms</li>
+                      <li><strong>60+ years:</strong> 300–400 ms</li>
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🔥 Elite (Top 5%)</p>
-                      <p className="text-sm text-gray-300">Below 180ms - Professional athlete level, exceptional human reaction speed</p>
+                      <p className="text-purple-300 font-semibold mb-1">🔥 Exceptional — under 190 ms</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Typical of esports players and athletes who train reaction speed.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
-                      <p className="text-sm text-gray-300">180-220ms - Better than most people, competitive gamer level</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 190–230 ms</p>
+                      <p className="text-sm text-gray-300">Faster than most people — competitive-gamer and trained-athlete territory.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
-                      <p className="text-sm text-gray-300">220-280ms - Typical reaction time for healthy adults</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 230–310 ms</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
-                      <p className="text-sm text-gray-300">280-320ms - Slower than average, may need practice or better focus</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 310–350 ms</p>
+                      <p className="text-sm text-gray-300">Slower than the norm. Worth practicing, or retesting when rested and focused.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
-                      <p className="text-sm text-gray-300">320ms+ - Significantly slower, could indicate fatigue, health issues, or need for improvement</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — over 350 ms</p>
+                      <p className="text-sm text-gray-300">Well above the norm. If it stays this high when you're rested, check sleep, stress, or health.</p>
                     </div>
                   </div>
 
@@ -391,7 +379,7 @@ export default function SimpleReactionTest({ showHeader = true, showFAQ = true }
               icon="🔍"
               answer={
                 <div className="space-y-4">
-                  <p>If your reaction time is slower than 300ms, there might be specific reasons. Here are common causes and solutions:</p>
+                  <p>If your reaction time is consistently above 310ms, there might be specific reasons. Here are common causes and solutions:</p>
 
                   <div>
                     <h4 className="font-semibold text-gray-100 mb-2">Common reasons for slow reaction time:</h4>

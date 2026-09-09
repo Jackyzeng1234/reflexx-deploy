@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Fraunces, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -8,7 +8,9 @@ import { AuthProvider } from '@/lib/contexts/AuthContext';
 import StructuredData from '@/components/StructuredData';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const fraunces = Fraunces({ subsets: ['latin'], weight: ['600'], variable: '--font-fraunces' });
+const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-plex-mono' });
 
 export const metadata: Metadata = {
   title: 'ReflexX - Free Reaction & Memory Tests',
@@ -74,7 +76,7 @@ export default function RootLayout({
         <StructuredData data={websiteStructuredData} />
         <script src="https://code.market/widget.min.js" async></script>
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${fraunces.variable} ${plexMono.variable}`}>
         <GoogleAnalytics />
         <AuthProvider>
           <I18nProvider>

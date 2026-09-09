@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reaction Time Test — ReflexX (Demo C)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #121826;
+    --surface-2: #1a2130;
+    --line: rgba(148, 163, 184, 0.14);
+    --line-strong: rgba(148, 163, 184, 0.24);
+    --text: #e6edf7;
+    --text-2: #94a3b8;
+    --text-3: #64748b;
+    --accent: #22d3ee;
+    --accent-2: #34d399;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; line-height: 1.55; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .serif { font-family: var(--serif); font-weight: 600; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  header { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(10,14,23,0.82); backdrop-filter: blur(12px); }
+  .bar { height: 68px; display: flex; align-items: center; justify-content: space-between; }
+  .wordmark { font-weight: 700; letter-spacing: -0.02em; font-size: 17px; display: flex; align-items: center; gap: 9px; }
+  .wordmark .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgba(34,211,238,0.7); }
+  .wordmark .x { color: var(--accent); }
+  nav { display: flex; align-items: center; gap: 26px; }
+  nav a { color: var(--text-2); text-decoration: none; font-size: 14px; }
+  nav a:hover { color: var(--text); }
+  nav a.cta { color: #0a0e17; background: var(--accent); border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
+
+  .hero { padding: 88px 0 72px; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 72px; align-items: center; }
+  .kicker { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); font-family: var(--mono); font-weight: 500; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(40px, 6vw, 68px); line-height: 1.02; letter-spacing: -0.02em; margin-top: 22px; color: var(--text); }
+  h1 em { font-style: italic; color: var(--text-2); }
+  .hero .sub { margin-top: 22px; max-width: 46ch; color: var(--text-2); font-size: 17px; }
+  .hero .sub strong { color: var(--text); font-weight: 600; }
+  .actions { margin-top: 34px; display: flex; align-items: center; gap: 26px; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #0a0e17; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 9px; text-decoration: none; transition: transform .12s ease, box-shadow .12s ease; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(34,211,238,0.22); }
+  .btn-ghost { color: var(--text-2); font-size: 15px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-ghost .arr { transition: transform .15s ease; }
+  .btn-ghost:hover .arr { transform: translateX(3px); }
+
+  /* instrument — A 的仪器 + B 的百分位钩子 */
+  .instrument {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 28px 26px 26px; display: flex; flex-direction: column; gap: 20px;
+    background-image:
+      linear-gradient(to right, rgba(34,211,238,0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34,211,238,0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .instrument .head { display: flex; align-items: center; justify-content: space-between; }
+  .instrument .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; }
+  .status { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+  .status .led { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .readout { text-align: center; }
+  .readout .num { font-family: var(--mono); font-weight: 500; font-size: clamp(72px, 9vw, 110px); letter-spacing: -0.03em; color: var(--accent); line-height: 1; }
+  .readout .unit { font-family: var(--mono); font-size: 20px; color: var(--text-3); margin-left: 8px; }
+  .pct-line { text-align: center; font-family: var(--mono); font-size: 13px; color: var(--text-2); margin-top: 2px; }
+  .pct-line b { color: var(--text); font-weight: 600; }
+  .meter { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-2), var(--accent), #fbbf24, #f87171); opacity: .85; margin-top: 4px; }
+  .meter .mark { position: absolute; top: -5px; left: 18%; width: 2px; height: 16px; background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.7); }
+  .meter .ml { display: flex; justify-content: space-between; margin-top: 9px; font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+  .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .row3 .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--text-3); }
+  .row3 .v { font-family: var(--mono); font-size: 18px; color: var(--text); margin-top: 4px; }
+  .row3 .v.rank { color: var(--accent); }
+  .measure { width: 100%; background: var(--accent); color: #0a0e17; border: none; border-radius: 9px; font-family: var(--sans); font-weight: 600; font-size: 15px; padding: 13px 0; cursor: pointer; transition: transform .12s ease; }
+  .measure:hover { transform: translateY(-1px); }
+
+  /* scale — 加 you-are-here 标记 */
+  .scale { padding: 0 0 40px; }
+  .rule { border-top: 1px solid var(--line); padding-top: 56px; }
+  .h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(28px, 3.4vw, 38px); letter-spacing: -0.01em; }
+  .h2 + p { margin-top: 14px; max-width: 62ch; color: var(--text-2); }
+  .band { margin-top: 34px; }
+  .barwrap { position: relative; }
+  .bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #34d399 0%, #22d3ee 34%, #fbbf24 66%, #f87171 100%); opacity: 0.9; }
+  .you { position: absolute; top: -8px; left: 35%; width: 2px; height: 28px; background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.7); }
+  .you-cap { position: absolute; top: -26px; left: 35%; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); white-space: nowrap; }
+  .ticks { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 14px; }
+  .ticks .t { border-left: 1px solid var(--line); padding-left: 12px; }
+  .ticks .t:first-child { border-left: none; padding-left: 0; }
+  .ticks .lbl { font-family: var(--mono); font-size: 13px; color: var(--text); }
+  .ticks .val { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  .tests { padding: 40px 0 20px; }
+  .tests .rule { padding-top: 56px; }
+  .cat { margin-top: 40px; }
+  .cat:first-of-type { margin-top: 28px; }
+  .cat-h { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+  .row { display: flex; align-items: baseline; gap: 22px; padding: 20px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; }
+  .row:hover .t-name { color: var(--accent); }
+  .row .n { font-family: var(--mono); font-size: 13px; color: var(--text-3); width: 26px; flex: none; }
+  .row .t-name { font-size: 19px; font-weight: 600; color: var(--text); transition: color .12s ease; min-width: 240px; }
+  .row .t-desc { color: var(--text-2); font-size: 15px; flex: 1; }
+  .row .metric { font-family: var(--mono); font-size: 12px; color: var(--text-3); flex: none; }
+
+  .age { padding: 40px 0; }
+  .age .rule { padding-top: 56px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 15px; }
+  th { text-align: left; font-weight: 500; color: var(--text-3); font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 16px; border-bottom: 1px solid var(--line-strong); }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  td.mono { font-family: var(--mono); color: var(--text-2); }
+  .age .note { margin-top: 18px; color: var(--text-2); font-size: 15px; max-width: 68ch; }
+
+  .improve { padding: 40px 0 90px; }
+  .improve .rule { padding-top: 56px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 48px; margin-top: 30px; }
+  .grid2 .it { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .grid2 .it .num { font-family: var(--mono); font-size: 12px; color: var(--text-3); width: 22px; flex: none; }
+  .grid2 .it p { color: var(--text-2); font-size: 15px; }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0 60px; color: var(--text-3); font-size: 13px; }
+  footer .frow { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+  .demo-tag { position: fixed; top: 12px; right: 14px; z-index: 99; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--text-3); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; background: rgba(10,14,23,0.7); }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 48px; padding-top: 60px; }
+    .row .t-name { min-width: 0; }
+    .row { flex-wrap: wrap; gap: 6px 16px; }
+    .row .t-desc { flex: 1 1 100%; order: 3; }
+    .grid2 { grid-template-columns: 1fr; }
+    nav a.hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="demo-tag">DEMO · C — “Instrument + percentile”</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="#"><span class="dot"></span>REFLEX<span class="x">X</span></a>
+    <nav>
+      <a href="#tests">Tests</a>
+      <a href="#" class="hide-sm">Leaderboard</a>
+      <a href="#" class="hide-sm">Stats</a>
+      <a href="#measure" class="cta">Measure now</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="wrap hero">
+  <div>
+    <p class="kicker">Human benchmark · simple reaction time</p>
+    <h1>How fast is your <em>reaction?</em></h1>
+    <p class="sub">Five rounds. Thirty seconds. One number in <strong>milliseconds</strong> — measured the way sports scientists measure it, then placed against everyone else.</p>
+    <div class="actions">
+      <a class="btn-primary" href="#measure">Measure now <span class="mono">→</span></a>
+      <a class="btn-ghost" href="#tests">Browse all 10 tests <span class="arr">→</span></a>
+    </div>
+  </div>
+
+  <div class="instrument" id="measure">
+    <div class="head">
+      <span class="label">Simple reaction time</span>
+      <span class="status"><span class="led"></span>measured</span>
+    </div>
+    <div class="readout">
+      <span class="num">240</span><span class="unit">ms</span>
+    </div>
+    <div class="pct-line">faster than <b>82%</b> of players</div>
+    <div class="meter">
+      <span class="mark"></span>
+      <div class="ml"><span>elite</span><span>average</span><span>slow</span></div>
+    </div>
+    <div class="row3">
+      <div><div class="k">AVG</div><div class="v">240</div></div>
+      <div><div class="k">BEST</div><div class="v">212</div></div>
+      <div><div class="k">RANK</div><div class="v rank">top 18%</div></div>
+    </div>
+    <button class="measure">Start measurement</button>
+  </div>
+</section>
+
+<!-- SCALE -->
+<section class="wrap scale">
+  <div class="rule">
+    <h2 class="h2">What your number means</h2>
+    <p>Most healthy adults land between <strong>200 and 300&nbsp;ms</strong>. Below 200 is elite — typical of esports players and athletes who train reaction speed. Above 400 is worth working on.</p>
+    <div class="band">
+      <div class="barwrap">
+        <div class="you-cap">you</div>
+        <div class="you"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="ticks">
+        <div class="t"><div class="lbl">Elite</div><div class="val">&lt; 200 ms</div></div>
+        <div class="t"><div class="lbl">Fast</div><div class="val">200–260 ms</div></div>
+        <div class="t"><div class="lbl">Average</div><div class="val">260–310 ms</div></div>
+        <div class="t"><div class="lbl">Relaxed</div><div class="val">310–400 ms</div></div>
+        <div class="t"><div class="lbl">Slow</div><div class="val">&gt; 400 ms</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTS INDEX -->
+<section class="wrap tests" id="tests">
+  <div class="rule">
+    <p class="kicker">10 tests · 4 categories</p>
+    <h2 class="h2">The full battery</h2>
+
+    <div class="cat">
+      <div class="cat-h">Reaction</div>
+      <a class="row" href="#"><span class="n">01</span><span class="t-name">Reaction Time Test</span><span class="t-desc">Visual response speed to a colour change</span><span class="metric">ms</span></a>
+      <a class="row" href="#"><span class="n">02</span><span class="t-name">Auditory Reaction Test</span><span class="t-desc">How fast you react to a sound</span><span class="metric">ms</span></a>
+      <a class="row" href="#"><span class="n">03</span><span class="t-name">Choice Reaction Test</span><span class="t-desc">Decision speed when choosing between options</span><span class="metric">ms</span></a>
+    </div>
+
+    <div class="cat">
+      <div class="cat-h">Speed</div>
+      <a class="row" href="#"><span class="n">04</span><span class="t-name">Click Speed Test</span><span class="t-desc">Peak clicks per second over a timed window</span><span class="metric">cps</span></a>
+      <a class="row" href="#"><span class="n">05</span><span class="t-name">Aim Trainer</span><span class="t-desc">Precision target acquisition under time pressure</span><span class="metric">ms</span></a>
+      <a class="row" href="#"><span class="n">06</span><span class="t-name">Typing Speed Test</span><span class="t-desc">Net words per minute, accuracy-adjusted</span><span class="metric">wpm</span></a>
+    </div>
+
+    <div class="cat">
+      <div class="cat-h">Memory</div>
+      <a class="row" href="#"><span class="n">07</span><span class="t-name">Sequence Memory Test</span><span class="t-desc">Visual–spatial working memory span</span><span class="metric">level</span></a>
+      <a class="row" href="#"><span class="n">08</span><span class="t-name">Chimp Test</span><span class="t-desc">Visuospatial recall across a grid</span><span class="metric">level</span></a>
+      <a class="row" href="#"><span class="n">09</span><span class="t-name">Number Memory Test</span><span class="t-desc">Digit span held in working memory</span><span class="metric">digits</span></a>
+    </div>
+
+    <div class="cat">
+      <div class="cat-h">Focus</div>
+      <a class="row" href="#"><span class="n">10</span><span class="t-name">Stroop Test</span><span class="t-desc">Inhibitory control and cognitive flexibility</span><span class="metric">pts</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- AGE TABLE -->
+<section class="wrap age">
+  <div class="rule">
+    <h2 class="h2">Average reaction time by age</h2>
+    <table>
+      <thead><tr><th>Age</th><th>Average simple reaction time</th></tr></thead>
+      <tbody>
+        <tr><td>18–25</td><td class="mono">220–260 ms</td></tr>
+        <tr><td>26–35</td><td class="mono">240–290 ms</td></tr>
+        <tr><td>36–45</td><td class="mono">260–310 ms</td></tr>
+        <tr><td>46–60</td><td class="mono">280–350 ms</td></tr>
+        <tr><td>60+</td><td class="mono">300–400 ms</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Reaction time peaks in early adulthood and declines gradually as nerve conduction slows. Run the test several times and read your <strong>average</strong> — not a single lucky click — as your real baseline.</p>
+  </div>
+</section>
+
+<!-- IMPROVE -->
+<section class="wrap improve">
+  <div class="rule">
+    <h2 class="h2">How to get faster</h2>
+    <div class="grid2">
+      <div class="it"><span class="num">01</span><p><strong style="color:var(--text)">Sleep 7–9 hours.</strong> Deprivation is the single biggest drag on reaction speed.</p></div>
+      <div class="it"><span class="num">02</span><p><strong style="color:var(--text)">Stay hydrated, skip alcohol.</strong> Both slow nerve signalling.</p></div>
+      <div class="it"><span class="num">03</span><p><strong style="color:var(--text)">Practice daily.</strong> Even five minutes of a reaction or aim test strengthens the pathway.</p></div>
+      <div class="it"><span class="num">04</span><p><strong style="color:var(--text)">Move.</strong> Aerobic exercise improves alertness and conduction.</p></div>
+      <div class="it"><span class="num">05</span><p><strong style="color:var(--text)">Cut distractions.</strong> Quiet room, wired mouse, high polling rate.</p></div>
+      <div class="it"><span class="num">06</span><p><strong style="color:var(--text)">Train the specific skill.</strong> Click speed and aim trainer transfer straight to gaming.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap frow">
+    <span>ReflexX — free reaction time tests. No signup.</span>
+    <span class="mono">© 2026</span>
+  </div>
+</footer>
+</body>
+</html>

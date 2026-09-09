@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Sequence Memory Test - Remember Patterns | ReflexX',
-  description: 'Test your visual memory by repeating tile sequences. Free online sequence memory test. Compare globally. Try now!',
+  description: 'Test your visual memory by repeating the sequence of tiles that light up. Each round adds one more tile — see how far you get. Free.',
   keywords: ['sequence memory test', 'memory test', 'visual memory test', 'pattern memory', 'short term memory'],
   openGraph: {
     title: 'Sequence Memory Test - Remember Patterns | ReflexX',
-    description: 'Test your visual memory by repeating tile sequences. Free online sequence memory test.',
+    description: 'Test your visual memory by repeating the sequence of tiles that light up. Free.',
     type: 'website',
   },
   alternates: {

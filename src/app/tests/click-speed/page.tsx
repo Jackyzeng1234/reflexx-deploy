@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Click Speed Test - Measure CPS (1s-100s) | ReflexX',
-  description: 'Test your CPS (clicks per second) in multiple durations. Free online click speed test. Compare globally. Try now!',
-  keywords: ['click speed test', 'cps test', 'clicks per second', 'click test', 'mouse click speed', 'kahoot click speed'],
+  description: 'Test your clicks per second over 1s, 5s, 10s, 30s, 60s and 100s. See your CPS, total clicks and best burst. Free, no signup.',
+  keywords: ['click speed test', 'cps test', 'clicks per second', 'click test', 'mouse click speed'],
   openGraph: {
     title: 'Click Speed Test - Measure CPS (1s-100s) | ReflexX',
-    description: 'Test your CPS (clicks per second) in multiple durations. Free online click speed test.',
+    description: 'Test your clicks per second over 1s to 100s. See your CPS, total clicks and best burst. Free.',
     type: 'website',
   },
   alternates: {

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import TestsPage from '@/components/TestsPage';
 
 export const metadata: Metadata = {
-  title: 'All Cognitive Tests — Reaction, Memory, Aim & Typing | ReflexX',
+  title: 'All Cognitive Tests — Reaction, Memory & Aim | ReflexX',
   description:
-    'Explore 10 free cognitive tests: reaction time, click speed, aim trainer, memory, typing speed, Stroop and number memory. Benchmark your brain against the human average — no signup needed.',
+    'Explore 10 free cognitive tests — reaction time, click speed, aim trainer, memory, typing speed and the Stroop test. Benchmark your brain, no signup.',
   keywords: [
     'cognitive tests',
     'reaction time test',

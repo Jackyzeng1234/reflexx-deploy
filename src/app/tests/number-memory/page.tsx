@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Number Memory Test - Digit Span | ReflexX',
-  description: 'Test your short-term digit memory capacity. Free online number memory test. Compare globally. Try now!',
+  description: 'Test your digit span — remember a number that flashes on screen, then type it back. It grows longer each round. Free, no signup.',
   keywords: ['number memory test', 'digit span test', 'memory test', 'short term memory', 'number recall'],
   openGraph: {
     title: 'Number Memory Test - Digit Span | ReflexX',
-    description: 'Test your short-term digit memory capacity. Free online number memory test.',
+    description: 'Test your digit span — remember a number and type it back. It grows longer each round. Free.',
     type: 'website',
   },
   alternates: {

@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Typing Speed Test - WPM & Accuracy | ReflexX',
-  description: 'Test your typing speed in WPM and accuracy. Free online typing test with detailed stats. Compare globally. Try now!',
+  description: 'Test your typing speed in WPM and accuracy — type the given text as fast as you can. See your words per minute and errors. Free.',
   keywords: ['typing speed test', 'wpm test', 'typing test', 'words per minute', 'keyboard speed test', 'typing accuracy'],
   openGraph: {
     title: 'Typing Speed Test - WPM & Accuracy | ReflexX',
-    description: 'Test your typing speed in WPM and accuracy. Free online typing test.',
+    description: 'Test your typing speed in WPM and accuracy. Type the given text as fast as you can. Free.',
     type: 'website',
   },
   alternates: {

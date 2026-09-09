@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Auditory Reaction Test - Sound Reflex Speed | ReflexX',
-  description: 'Test your reaction speed to sound. Free online auditory reaction time test. Click when you hear the beep. Compare globally. Try now!',
+  description: 'Test how fast you react to sound — click the moment you hear the beep and measure your auditory reaction time in milliseconds. Free, no signup.',
   keywords: ['auditory reaction test', 'reaction time test', 'sound reflex test', 'hearing reaction', 'audio reaction time'],
   openGraph: {
     title: 'Auditory Reaction Test - Sound Reflex Speed | ReflexX',
-    description: 'Test your reaction speed to sound. Free online auditory reaction time test.',
+    description: 'Test how fast you react to sound — click the moment you hear the beep. Free, no signup.',
     type: 'website',
   },
   alternates: {

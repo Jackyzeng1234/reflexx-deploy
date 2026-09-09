@@ -4,11 +4,11 @@ import StructuredData, { createTestAppStructuredData } from '@/components/Struct
 
 export const metadata: Metadata = {
   title: 'Chimp Test - Working Memory Challenge | ReflexX',
-  description: 'Test your working memory by clicking numbers in ascending order. Free online chimp test. Compare globally. Try now!',
+  description: 'Test your working memory by clicking numbers in ascending order, just like the famous chimp study. See how many you can remember. Free.',
   keywords: ['chimp test', 'working memory test', 'memory test', 'number memory', 'cognitive test'],
   openGraph: {
     title: 'Chimp Test - Working Memory Challenge | ReflexX',
-    description: 'Test your working memory by clicking numbers in ascending order. Free online chimp test.',
+    description: 'Test your working memory by clicking numbers in ascending order, just like the famous chimp study.',
     type: 'website',
   },
   alternates: {

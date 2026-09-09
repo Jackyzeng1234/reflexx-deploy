@@ -1,9 +1,7 @@
 import { MetadataRoute } from 'next';
 
-// 🔧 请将此URL替换为你的实际域名
-// 开发环境：http://localhost:3000
-// 生产环境：https://yourdomain.com
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+// 生产默认域名；本地开发可用 NEXT_PUBLIC_SITE_URL 覆盖
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://reflexx.uk';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date();

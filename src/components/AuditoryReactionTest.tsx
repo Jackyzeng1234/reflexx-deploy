@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { useTimeout } from '@/hooks/useTimeout';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
@@ -228,23 +229,9 @@ export default function AuditoryReactionTest() {
 
   const bestTime = reactionTimes.length > 0 ? Math.round(Math.min(...reactionTimes)) : 0;
 
-  const getRating = (avgTime: number) => {
-    if (avgTime < 300) return t.ratingSuper;
-    if (avgTime < 400) return t.ratingExcellent;
-    if (avgTime < 500) return t.ratingGreat;
-    if (avgTime < 600) return t.ratingGood;
-    if (avgTime < 700) return t.ratingAverage;
-    return t.ratingNeedsPractice;
-  };
+  const getRating = (avgTime: number) => t[ratingLabelKey(ratingBucket('auditory-reaction', avgTime))];
 
-  const getVerdictColor = (ms: number) => {
-    if (ms < 300) return 'var(--color-success-400)';
-    if (ms < 400) return 'var(--color-success-300)';
-    if (ms < 500) return 'var(--color-brand)';
-    if (ms < 600) return 'var(--color-warning-400)';
-    if (ms < 700) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (ms: number) => ratingColor(ratingBucket('auditory-reaction', ms));
 
   const surfaceLabel =
     testState === 'idle' ? t.clickToStart
@@ -348,11 +335,11 @@ export default function AuditoryReactionTest() {
                   <ol className="space-y-2 list-decimal list-inside text-gray-300">
                     <li><strong>Wait for the sound</strong> - The test starts with a waiting period. A tone will play randomly after 2-5 seconds</li>
                     <li><strong>Listen carefully</strong> - Keep your audio on and volume at a comfortable level. The tone is a 1000Hz beep</li>
-                    <li><strong>Click or press any key when you hear the sound</strong> - React as fast as possible when you hear the tone</li>
-                    <li><strong>Complete 5 rounds</strong> - The test measures 5 reaction attempts to calculate your average auditory reaction time</li>
+                    <li><strong>Click or press space</strong> - As soon as you hear the tone, click anywhere in the test area or press the spacebar</li>
+                    <li><strong>Click, then repeat</strong> - Each attempt records one auditory reaction time. Run it several times and read your average — not a single lucky click — as your real baseline.</li>
                   </ol>
                   <div className="mt-4 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Auditory reaction times are typically 20-50ms slower than visual reaction times due to longer neural pathways. This is normal! For best results, take the test in a quiet environment with good audio quality.</p>
+                    <p className="text-sm text-cyan-300"><strong>💡 Pro Tip:</strong> Auditory reactions are typically 30-50ms faster than visual ones — sound reaches the brain faster than sight. This is normal. For best results, take the test in a quiet environment with good audio quality.</p>
                   </div>
                 </div>
               }
@@ -367,38 +354,39 @@ export default function AuditoryReactionTest() {
                   <div>
                     <h4 className="font-semibold text-gray-100 mb-2">Average auditory reaction times by age (in milliseconds):</h4>
                     <ul className="space-y-1 text-gray-300 text-sm">
-                      <li>🎵 <strong>18-24 years:</strong> ~250ms (men: ~240ms, women: ~260ms)</li>
-                      <li>👨 <strong>25-35 years:</strong> ~270ms (men: ~260ms, women: ~280ms)</li>
-                      <li>👴 <strong>36-45 years:</strong> ~290ms (men: ~280ms, women: ~300ms)</li>
-                      <li>👵 <strong>46-55 years:</strong> ~310ms (men: ~300ms, women: ~320ms)</li>
-                      <li>👴 <strong>56+ years:</strong> ~330ms+ (men: ~320ms+, women: ~340ms+)</li>
+                      <li><strong>18–25 years:</strong> 130–170 ms</li>
+                      <li><strong>26–35 years:</strong> 140–180 ms</li>
+                      <li><strong>36–45 years:</strong> 150–195 ms</li>
+                      <li><strong>46–60 years:</strong> 160–210 ms</li>
+                      <li><strong>60+ years:</strong> 180–235 ms</li>
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🔥 Elite (Top 5%)</p>
-                      <p className="text-sm text-gray-300">Below 220ms - Exceptional auditory processing, professional musician or athlete level</p>
+                      <p className="text-purple-300 font-semibold mb-1">🔥 Exceptional — under 110 ms</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Typical of trained athletes, musicians and gamers.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 25%)</p>
-                      <p className="text-sm text-gray-300">220-280ms - Better than most, excellent auditory-motor coordination</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 110–140 ms</p>
+                      <p className="text-sm text-gray-300">Faster than most; sharp auditory-motor coordination.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
-                      <p className="text-sm text-gray-300">280-350ms - Typical auditory reaction time for healthy adults</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 140–200 ms</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
-                      <p className="text-sm text-gray-300">350-400ms - Slower than average, may need focus practice or hearing check</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 200–235 ms</p>
+                      <p className="text-sm text-gray-300">Slower than the norm. Worth retesting with good audio and full focus.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
-                      <p className="text-sm text-gray-300">400ms+ - Significantly slower, could indicate hearing issues, fatigue, or need improvement</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — over 235 ms</p>
+                      <p className="text-sm text-gray-300">Well above the norm. If it stays this high when you're rested, consider checking your audio or hearing.</p>
                     </div>
                   </div>
 
-                  <p className="text-sm text-gray-400 italic">Note: Auditory reactions are naturally 20-50ms slower than visual reactions due to longer neural pathways from ears to brain. Musicians and athletes often have faster auditory reaction times due to training.</p>
+                  <p className="text-sm text-gray-400 italic">Note: Auditory reactions are naturally 30-50ms faster than visual ones — sound reaches the brain quicker than sight. Musicians and athletes often have faster auditory reaction times due to training.</p>
                 </div>
               }
             />

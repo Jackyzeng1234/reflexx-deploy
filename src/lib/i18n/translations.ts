@@ -181,12 +181,11 @@ export const translations = {
 
     // Ratings
     rating: 'Rating',
-    ratingSuper: 'Superhuman',
-    ratingExcellent: 'Excellent',
-    ratingGreat: 'Great',
-    ratingGood: 'Good',
+    ratingExceptional: 'Exceptional',
+    ratingAboveAverage: 'Above average',
     ratingAverage: 'Average',
-    ratingNeedsPractice: 'Needs Practice',
+    ratingBelowAverage: 'Below average',
+    ratingNeedsAttention: 'Needs attention',
     yourPerformance: 'Your Performance',
 
     // Common
@@ -699,12 +698,11 @@ export const translations = {
 
     // Ratings
     rating: '评级',
-    ratingSuper: '超人级',
-    ratingExcellent: '优秀',
-    ratingGreat: '极好',
-    ratingGood: '良好',
+    ratingExceptional: '出众',
+    ratingAboveAverage: '中上',
     ratingAverage: '平均',
-    ratingNeedsPractice: '需要练习',
+    ratingBelowAverage: '中下',
+    ratingNeedsAttention: '明显偏低',
     yourPerformance: '你的表现',
 
     // Common
@@ -1172,12 +1170,11 @@ export const translations = {
 
     // Ratings
     rating: 'Calificación',
-    ratingSuper: 'Superhumano',
-    ratingExcellent: 'Excelente',
-    ratingGreat: 'Genial',
-    ratingGood: 'Bueno',
+    ratingExceptional: 'Excepcional',
+    ratingAboveAverage: 'Por encima del promedio',
     ratingAverage: 'Promedio',
-    ratingNeedsPractice: 'Necesita Práctica',
+    ratingBelowAverage: 'Por debajo del promedio',
+    ratingNeedsAttention: 'Necesita atención',
     yourPerformance: 'Tu Rendimiento',
 
     // Test Benefits Section

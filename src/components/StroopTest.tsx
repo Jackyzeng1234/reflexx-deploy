@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { submitScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey, type RatingBucket } from '@/lib/ratings';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
 import { Palette, BarChart3 } from 'lucide-react';
@@ -174,25 +175,15 @@ export default function StroopTest() {
     setHistory(readLocalHistory());
   }, []);
 
-  const getRating = (score: number) => {
-    const percentage = (score / totalRounds) * 100;
-    if (percentage >= 90) return t.ratingSuper;
-    if (percentage >= 75) return t.ratingExcellent;
-    if (percentage >= 60) return t.ratingGreat;
-    if (percentage >= 45) return t.ratingGood;
-    if (percentage >= 30) return t.ratingAverage;
-    return t.ratingNeedsPractice;
+  // 专业 Stroop:按平均反应时(ms)评级,正确率作为门槛(答对率 < 90% 时封顶「平均」)
+  const stroopBucket = (): RatingBucket => {
+    const bucket = ratingBucket('stroop', averageReactionTime);
+    const accuracy = (score / totalRounds) * 100;
+    return (accuracy >= 90 ? bucket : Math.min(bucket, 3)) as RatingBucket;
   };
+  const getRating = () => t[ratingLabelKey(stroopBucket())];
 
-  const getVerdictColor = (score: number) => {
-    const pct = (score / totalRounds) * 100;
-    if (pct >= 90) return 'var(--color-success-400)';
-    if (pct >= 75) return 'var(--color-success-300)';
-    if (pct >= 60) return 'var(--color-brand)';
-    if (pct >= 45) return 'var(--color-warning-400)';
-    if (pct >= 30) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = () => ratingColor(stroopBucket());
 
   const averageReactionTime = reactionTimes.length > 0
     ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
@@ -214,9 +205,9 @@ export default function StroopTest() {
             </div>
             <div
               className="game-verdict"
-              style={{ color: gameState === 'finished' ? getVerdictColor(score) : 'transparent' }}
+              style={{ color: gameState === 'finished' ? getVerdictColor() : 'transparent' }}
             >
-              {gameState === 'finished' ? getRating(score) : ''}
+              {gameState === 'finished' ? getRating() : ''}
             </div>
             <div className="game-stats">
               {gameState === 'finished'
@@ -387,26 +378,27 @@ export default function StroopTest() {
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — by average reaction time (90% accuracy floor for the top tiers):</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional (Top 5%)</p>
-                      <p className="text-sm text-gray-300">95%+ accuracy, sub-600ms - Elite cognitive control; often athletes, gamers, or meditation practitioners</p>
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional — under 550 ms</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Fast AND accurate (90%+); strong inhibitory control.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Excellent (Top 20%)</p>
-                      <p className="text-sm text-gray-300">90-94% accuracy, 600-700ms - Strong inhibitory control and cognitive flexibility</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 550–650 ms</p>
+                      <p className="text-sm text-gray-300">Faster than most, with 90%+ accuracy.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Good (Normal Range)</p>
-                      <p className="text-sm text-gray-300">85-89% accuracy, 700-800ms - Healthy cognitive function for focused adults</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 650–800 ms</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Average</p>
-                      <p className="text-sm text-gray-300">80-84% accuracy, 800-900ms - May indicate fatigue, distraction, or need for practice</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 800–950 ms</p>
+                      <p className="text-sm text-gray-300">Slower than the norm. Worth retesting when rested and focused.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Below Average</p>
-                      <p className="text-sm text-gray-300">&lt;80% accuracy, 900ms+ - Could indicate attention issues, high stress, or need for cognitive training</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — over 950 ms</p>
+                      <p className="text-sm text-gray-300">Well above the norm. If it stays this high, check sleep, stress, or focus.</p>
                     </div>
                   </div>
 

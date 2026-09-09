@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { TestDuration } from '@/types';
 import { submitScore, getBestScore } from '@/lib/scores';
+import { ratingBucket, ratingColor, ratingLabelKey } from '@/lib/ratings';
 import { FAQItem } from '@/components/FAQItem';
 import ReactionChart from '@/components/ReactionChart';
 import { MousePointerClick, BarChart3, Flag } from 'lucide-react';
@@ -181,24 +182,9 @@ export default function ClickSpeedTest() {
   }, [handleClick]);
 
   const finalCps = clicks > 0 ? (clicks / selectedDuration).toFixed(2) : '0.00';
-  const getCpsRating = (cps: string) => {
-    const num = parseFloat(cps);
-    if (num >= 10) return { text: t.ratingSuper, cls: 'border-cyan-400/40 text-cyan-300' };
-    if (num >= 8) return { text: t.ratingExcellent, cls: 'border-emerald-400/40 text-emerald-300' };
-    if (num >= 6) return { text: t.ratingGreat, cls: 'border-sky-400/40 text-sky-300' };
-    if (num >= 5) return { text: t.ratingGood, cls: 'border-amber-400/40 text-amber-300' };
-    if (num >= 4) return { text: t.ratingAverage, cls: 'border-orange-400/40 text-orange-300' };
-    return { text: t.ratingNeedsPractice, cls: 'border-red-400/40 text-red-300' };
-  };
+  const getCpsRating = (cps: string) => t[ratingLabelKey(ratingBucket('click-speed', parseFloat(cps)))];
 
-  const getVerdictColor = (cps: number) => {
-    if (cps >= 10) return 'var(--color-success-400)';
-    if (cps >= 8) return 'var(--color-success-300)';
-    if (cps >= 6) return 'var(--color-brand)';
-    if (cps >= 5) return 'var(--color-warning-400)';
-    if (cps >= 4) return 'var(--color-warning-500)';
-    return 'var(--color-danger-400)';
-  };
+  const getVerdictColor = (cps: number) => ratingColor(ratingBucket('click-speed', cps));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -245,7 +231,7 @@ export default function ClickSpeedTest() {
                 color: testState === 'finished' ? getVerdictColor(parseFloat(finalCps)) : 'transparent',
               }}
             >
-              {testState === 'finished' ? getCpsRating(finalCps).text : ''}
+              {testState === 'finished' ? getCpsRating(finalCps) : ''}
             </div>
             <div className="game-stats">
               {testState === 'finished'
@@ -366,26 +352,27 @@ export default function ClickSpeedTest() {
                     </ul>
                   </div>
 
+                  <h4 className="font-semibold text-gray-100 mb-2">How we rate your result — the same 5 tiers the test uses:</h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <p className="text-purple-300 font-semibold mb-1">🏆 Elite (Top 1%)</p>
-                      <p className="text-sm text-gray-300">12+ CPS - Professional gamer level, exceptional finger speed and control</p>
+                      <p className="text-purple-300 font-semibold mb-1">🏆 Exceptional — 10+ CPS</p>
+                      <p className="text-sm text-gray-300">Roughly the top 2%. Professional-gamer-level finger speed and control.</p>
                     </div>
                     <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 rounded-lg">
-                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above Average (Top 15%)</p>
-                      <p className="text-sm text-gray-300">8-12 CPS - Better than most, competitive gamer level with good technique</p>
+                      <p className="text-cyan-300 font-semibold mb-1">⭐ Above average — 8–10 CPS</p>
+                      <p className="text-sm text-gray-300">Faster than most; solid technique.</p>
                     </div>
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                      <p className="text-emerald-300 font-semibold mb-1">✅ Normal Average</p>
-                      <p className="text-sm text-gray-300">5-8 CPS - Typical clicking speed for healthy adults using regular technique</p>
+                      <p className="text-emerald-300 font-semibold mb-1">✅ Average — 6–8 CPS</p>
+                      <p className="text-sm text-gray-300">The typical range for healthy adults; most people land here.</p>
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below Average</p>
-                      <p className="text-sm text-gray-300">3-5 CPS - Slower than average, may need practice or better mouse positioning</p>
+                      <p className="text-amber-300 font-semibold mb-1">⚠️ Below average — 5–6 CPS</p>
+                      <p className="text-sm text-gray-300">Slower than the norm. Worth practicing and checking mouse comfort.</p>
                     </div>
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <p className="text-red-300 font-semibold mb-1">❌ Poor</p>
-                      <p className="text-sm text-gray-300">Below 3 CPS - Significantly slower, could indicate unfamiliarity with mouse or physical issues</p>
+                      <p className="text-red-300 font-semibold mb-1">❌ Needs attention — under 5 CPS</p>
+                      <p className="text-sm text-gray-300">Well below the norm. If it stays this low, check for hand strain or an unfamiliar mouse.</p>
                     </div>
                   </div>
 
